@@ -290,6 +290,11 @@ public class ContainerRepoDb extends BaseDb
         .list();
     }
 
+    public ContainerRepo getRepoById(String domain, String id)
+    {
+        return _main.getItem(getHashKey(domain), id.toLowerCase());
+    }
+
     public ContainerRepo getRepo(String domain,
                                  RegistryProvider provider,
                                  String region,

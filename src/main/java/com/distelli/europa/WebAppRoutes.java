@@ -36,7 +36,7 @@ public class WebAppRoutes
 
         //API Routes
         ROUTES.add("GET", "/api/v1/repositories", ApiListRepositories.class);
-        // ROUTES.add("GET", "/api/v1/repositories/:id", ApiGetRepository.class);
+        ROUTES.add("GET", "/api/v1/repositories/:id", ApiGetRepository.class);
         // ROUTES.add("GET", "/api/v1/repositories/:id/tags", ApiListRepositoryTags.class);
         // ROUTES.add("GET", "/api/v1/repositories/:id/manifests", ApiListRepositoryManifests.class);
         // ROUTES.add("GET", "/api/v1/repositories/:id/events", ApiListRepositoryEvents.class);

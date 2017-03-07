@@ -36,12 +36,10 @@ public class ApiListRepositories extends ApiBase
 
     }
 
-    public WebResponse handleRequest(EuropaRequestContext requestContext) {
+    public WebResponse handleApiRequest(EuropaRequestContext requestContext) {
         int pageSize = getParamAsInt("pageSize", 100, requestContext);
         String marker = getParam("marker", requestContext);
         String domain = requestContext.getOwnerDomain();
-
-        //        String name = requestContext.getMatchedRoute().getParam("name");
 
         PageIterator pageIterator = new PageIterator()
         .pageSize(pageSize)

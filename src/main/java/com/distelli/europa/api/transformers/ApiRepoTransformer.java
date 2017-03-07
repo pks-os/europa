@@ -43,11 +43,15 @@ public class ApiRepoTransformer
 
     public ApiRepo transform(ContainerRepo repo)
     {
+        String region = repo.getRegion();
+        if(region != null && region.trim().isEmpty())
+            region = null;
+
         ApiRepo apiRepo = ApiRepo
         .builder()
         .id(repo.getId())
         .name(repo.getName())
-        .region(repo.getRegion())
+        .region(region)
         .provider(repo.getProvider())
         .local(repo.isLocal())
         .isPublic(repo.isPublicRepo())

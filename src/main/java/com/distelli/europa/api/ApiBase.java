@@ -12,6 +12,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.distelli.europa.EuropaRequestContext;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.JsonError;
+import com.distelli.webserver.MatchedRoute;
 import com.distelli.webserver.RequestHandler;
 import com.distelli.webserver.WebResponse;
 
@@ -24,6 +27,12 @@ public abstract class ApiBase extends RequestHandler<EuropaRequestContext>
     public ApiBase()
     {
 
+    }
+
+    protected String getPathParam(String name, EuropaRequestContext requestContext)
+    {
+        MatchedRoute route = requestContext.getMatchedRoute();
+        return route.getParam(name);
     }
 
     protected String getParam(String name, EuropaRequestContext requestContext)
@@ -47,7 +56,20 @@ public abstract class ApiBase extends RequestHandler<EuropaRequestContext>
     }
 
     public WebResponse handleRequest(EuropaRequestContext requestContext) {
-        System.out.println("Handling API: "+requestContext);
-        return WebResponse.ok("Hello");
+        try {
+            return handleApiRequest(requestContext);
+        } catch(AjaxClientException ace) {
+            JsonError jsonError = ace.getJsonError();
+            if(jsonError != null)
+                return jsonError(jsonError);
+            return jsonError(JsonError.MalformedRequest);
+        } catch(Throwable t) {
+            log.error(t.getMessage(), t);
+            return jsonError(JsonError.InternalServerError);
+        }
+    }
+
+    public WebResponse handleApiRequest(EuropaRequestContext requestContext) {
+        throw(new UnsupportedOperationException());
     }
 }
