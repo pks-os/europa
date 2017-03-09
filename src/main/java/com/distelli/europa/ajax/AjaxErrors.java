@@ -22,5 +22,7 @@ public class AjaxErrors
         public static final String BadS3Bucket = "BadS3Bucket";
         public static final String BadS3Settings = "BadS3Settings";
         public static final String WebhookDeliveryFailed = "WebhookDeliveryFailed";
+        public static final String TagNotFound = "TagNotFound";
+        public static final String ImageNotFound = "ImageNotFound";
     }
 }

@@ -39,7 +39,7 @@ public class DeleteContainerRepo extends AjaxHelper<EuropaRequestContext>
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
     {
         String repoId = ajaxRequest.getParam("id",
-                                         true); //throw if missing
+                                             true); //throw if missing
         String domain = requestContext.getOwnerDomain();
         ContainerRepo repo = _repoDb.getRepo(domain, repoId);
         if(repo == null)

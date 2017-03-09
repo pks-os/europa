@@ -160,7 +160,7 @@ public class SslContextFactoryProvider implements Provider<SslContextFactory> {
             keyPem = keyPem.replace(PEM_RSA_PRIVATE_START, "").replace(PEM_RSA_PRIVATE_END, "");
             keyPem = keyPem.replaceAll("\\s", "");
 
-            DerInputStream derReader = new DerInputStream(Base64.getDecoder().decode(keyPem));
+            DerInputStream derReader = new sun.security.util.DerInputStream(Base64.getDecoder().decode(keyPem));
 
             DerValue[] seq = derReader.getSequence(0);
 

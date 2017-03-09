@@ -1,6 +1,7 @@
 package com.distelli.europa.db;
 
 import com.distelli.utils.CompositeKey;
+import com.distelli.europa.Constants;
 import com.distelli.europa.notifiers.Notifier;
 import com.distelli.europa.util.Tag;
 import com.distelli.europa.models.*;
@@ -274,7 +275,7 @@ public class RegistryManifestDb extends BaseDb {
     }
 
     public void remove(String domain, String repoId, String tag) {
-        if ( null == domain ) domain = "d0";
+        if ( null == domain ) domain = Constants.DOMAIN_ZERO;
 
         RegistryManifest manifest = null;
         while ( true ) {
@@ -345,12 +346,17 @@ public class RegistryManifestDb extends BaseDb {
     }
 
     public RegistryManifest getManifestByRepoIdTag(String domain, String repoId, String tag) {
-        if ( null == domain ) domain = "d0";
+        if ( null == domain ) domain = Constants.DOMAIN_ZERO;
         return _main.getItem(domain, toRK(repoId, tag));
     }
 
+    public RegistryManifest getManifestByRepoIdManifestId(String domain, String repoId, String manifestid) {
+        if ( null == domain ) domain = Constants.DOMAIN_ZERO;
+        return _byRepoManifestId.getItem(domain.toLowerCase(), toRepoManifestIdRK(repoId, manifestid));
+    }
+
     public List<RegistryManifest> listManifestsByRepoId(String domain, String repoId, PageIterator iterator) {
-        if ( null == domain ) domain = "d0";
+        if ( null == domain ) domain = Constants.DOMAIN_ZERO;
 
         String beginsWith = toRK(repoId, "");
         String marker = iterator.getMarker();

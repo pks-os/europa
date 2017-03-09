@@ -85,7 +85,7 @@ public class AjaxHelperModule extends AbstractModule
 
     protected void addBinding(Class<? extends AjaxHelper> clazz)
     {
-        addBinding(clazz, null);
+        addBinding(clazz, (String[])null);
     }
 
     protected void addBinding(Class<? extends AjaxHelper> clazz, String... paths) {

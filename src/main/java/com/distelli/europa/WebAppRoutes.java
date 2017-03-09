@@ -37,16 +37,18 @@ public class WebAppRoutes
         //API Routes
         ROUTES.add("GET", "/api/v1/repositories", ApiListRepositories.class);
         ROUTES.add("GET", "/api/v1/repositories/:id", ApiGetRepository.class);
-        // ROUTES.add("GET", "/api/v1/repositories/:id/tags", ApiListRepositoryTags.class);
-        // ROUTES.add("GET", "/api/v1/repositories/:id/manifests", ApiListRepositoryManifests.class);
-        // ROUTES.add("GET", "/api/v1/repositories/:id/events", ApiListRepositoryEvents.class);
-        // ROUTES.add("DELETE", "/api/v1/repositories/:id", ApiDeleteRepository.class);
-        // ROUTES.add("PUT", "/api/v1/repositories", ApiCreateRepository.class);
+        ROUTES.add("GET", "/api/v1/repositories/:id/tags", ApiListRepositoryTags.class);
+        ROUTES.add("GET", "/api/v1/repositories/:id/tags/:tag", ApiGetRepositoryTag.class);
+        ROUTES.add("GET", "/api/v1/repositories/:id/images/:sha", ApiGetImageSha.class);
 
-        // ROUTES.add("PUT", "/api/v1/credentials", ApiAddRegistryCredentials.class);
-        // ROUTES.add("GET", "/api/v1/credentials", ApiListRegistryCredentials.class);
-        // ROUTES.add("DELETE", "/api/v1/credentials", ApiDeleteRegistryCredentials.class);
-        // ROUTES.add("GET", "/api/v1/credentials/:id", ApiGetRegistryCredentials.class);
+        ROUTES.add("GET", "/api/v1/repositories/:id/events", ApiListRepositoryEvents.class);
+        ROUTES.add("DELETE", "/api/v1/repositories/:id", ApiDeleteRepository.class);
+        ROUTES.add("PUT", "/api/v1/repositories", ApiCreateRepository.class);
+
+        // ROUTES.add("GET", "/api/v1/registries", ApiListRegistries.class);
+        // ROUTES.add("PUT", "/api/v1/registries", ApiConnectRegistry.class);
+        // ROUTES.add("DELETE", "/api/v1/registries/:id", ApiDisconnectRegistry.class);
+        // ROUTES.add("GET", "/api/v1/registries/:id", ApiGetRegistry.class);
 
         // ROUTES.add("GET", "/api/v1/pipelines", ApiListPipelines.class);
         // ROUTES.add("GET", "/api/v1/pipelines/:name", ApiGetPipeline.class);

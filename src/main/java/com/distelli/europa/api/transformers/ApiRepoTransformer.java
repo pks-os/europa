@@ -20,7 +20,7 @@ import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Singleton
-public class ApiRepoTransformer
+public class ApiRepoTransformer extends TransformerBase
 {
     public ApiRepoTransformer()
     {

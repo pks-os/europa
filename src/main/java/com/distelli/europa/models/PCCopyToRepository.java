@@ -99,7 +99,7 @@ public class PCCopyToRepository extends PipelineComponent {
             throw new IllegalStateException("Tag must not be null");
         }
         // Not configured? Ignore...
-        if ( null == destinationContainerRepoId || 
+        if ( null == destinationContainerRepoId ||
              null == destinationContainerRepoDomain )
         {
             log.error("PipelineComponentId="+getId()+" has null destinationContainerRepoId or destinationContainerRepoDomain");
@@ -353,22 +353,22 @@ public class PCCopyToRepository extends PipelineComponent {
         public GcrManifest getManifest(String repository, String reference) throws IOException {
             return client.getManifest(repository, reference, "application/vnd.docker.distribution.manifest.v2+json");
         }
-            
+
         @Override
         public <T> T getBlob(String repository, String digest, GcrBlobReader<T> reader) throws IOException {
             return client.getBlob(repository, digest, reader);
         }
-            
+
         @Override
         public GcrBlobUpload createBlobUpload(String repository, String digest, String fromRepository) throws IOException {
             return client.createBlobUpload(repository, digest, fromRepository);
         }
-            
+
         @Override
         public GcrBlobMeta blobUploadChunk(GcrBlobUpload blobUpload, InputStream chunk, Long chunkLength, String digest) throws IOException {
             return client.blobUploadChunk(blobUpload, chunk, chunkLength, digest);
         }
-            
+
         @Override
         public GcrManifestMeta putManifest(String repository, String reference, GcrManifest manifest) throws IOException {
             return client.putManifest(repository, reference, manifest);
@@ -502,7 +502,12 @@ public class PCCopyToRepository extends PipelineComponent {
         }
     }
 
-    protected PCCopyToRepository(String id, String destinationContainerRepoDomain, String destinationContainerRepoId, String tag, Long lastExecutionTime, ExecutionStatus lastExecutionStatus) {
+    protected PCCopyToRepository(String id,
+                                 String destinationContainerRepoDomain,
+                                 String destinationContainerRepoId,
+                                 String tag,
+                                 Long lastExecutionTime,
+                                 ExecutionStatus lastExecutionStatus) {
         super(id);
         this.destinationContainerRepoDomain = destinationContainerRepoDomain;
         this.destinationContainerRepoId = destinationContainerRepoId;

@@ -3,7 +3,7 @@ SHELL := /bin/bash
 .PHONY: git-has-pushed git-is-clean assets
 
 all:
-	mvn -q -U dependency:build-classpath compile -DincludeScope=runtime -Dmdep.outputFile=target/.classpath -Dmaven.compiler.debug=false
+	mvn -q -U dependency:build-classpath compile -DincludeScope=runtime -Dmdep.outputFile=target/.classpath -Dmaven.compiler.debug=false 2>&1 | grep -v "warning"
 
 assets:
 	yarn run build-all

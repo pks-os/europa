@@ -17,6 +17,7 @@ import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.europa.models.RegistryProvider;
+import com.distelli.europa.helpers.RepositoryCreator;
 import com.distelli.europa.util.PermissionCheck;
 import com.distelli.utils.CompactUUID;
 import com.distelli.webserver.AjaxClientException;
@@ -35,8 +36,8 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
     protected ContainerRepoDb _repoDb;
     @Inject
     protected PermissionCheck _permissionCheck;
-
-    private final Pattern repoNamePattern = Pattern.compile("[a-zA-Z0-9_\\.-]+");
+    @Inject
+    protected RepositoryCreator _repoCreator;
 
     public CreateLocalRepo()
     {
@@ -49,29 +50,8 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
 
         String ownerDomain = requestContext.getOwnerDomain();
         String repoName = ajaxRequest.getParam("repoName", true);
-        ContainerRepo repo = _repoDb.getRepo(ownerDomain, RegistryProvider.EUROPA, "", repoName);
-        if(repo != null)
-            throw(new AjaxClientException("The specified Repository already exists",
-                                          AjaxErrors.Codes.RepoAlreadyExists,
-                                          400));
-        Matcher m = repoNamePattern.matcher(repoName);
-        if(!m.matches())
-            throw(new AjaxClientException("The Repo Name is invalid. It must match regex [a-zA-Z0-9_.-]",
-                                          AjaxErrors.Codes.BadRepoName,
-                                          400));
-        repo = ContainerRepo.builder()
-            .domain(ownerDomain)
-            .name(repoName)
-            .region("")
-            .provider(RegistryProvider.EUROPA)
-            .local(true)
-            .publicRepo(false)
-            .build();
-
-        repo.setOverviewId(CompactUUID.randomUUID().toString());
-        repo.setId(CompactUUID.randomUUID().toString());
+        ContainerRepo repo = _repoCreator.createLocalRepo(ownerDomain, repoName);
         _repoDb.save(repo);
-
         return repo;
     }
 }

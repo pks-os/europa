@@ -18,12 +18,24 @@ import com.distelli.webserver.MatchedRoute;
 import com.distelli.webserver.RequestHandler;
 import com.distelli.webserver.WebResponse;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Singleton
 public abstract class ApiBase extends RequestHandler<EuropaRequestContext>
 {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    static {
+        OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        OBJECT_MAPPER.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+    }
+
     public ApiBase()
     {
 
@@ -53,6 +65,20 @@ public abstract class ApiBase extends RequestHandler<EuropaRequestContext>
 
         }
         return defaultValue;
+    }
+
+    protected <T> T getContent(Class<T> clazz, EuropaRequestContext requestContext, boolean throwIfNull)
+    {
+        JsonNode jsonContent = requestContext.getJsonContent();
+        if(jsonContent != null)
+        {
+            T contentObj = OBJECT_MAPPER.convertValue(jsonContent, clazz);
+            if(contentObj != null)
+                return contentObj;
+        }
+        if(throwIfNull)
+            throw(new AjaxClientException(JsonError.BadContent));
+        return null;
     }
 
     public WebResponse handleRequest(EuropaRequestContext requestContext) {
