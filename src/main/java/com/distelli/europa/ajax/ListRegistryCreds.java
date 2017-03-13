@@ -44,7 +44,8 @@ public class ListRegistryCreds extends AjaxHelper<EuropaRequestContext>
         _permissionCheck.check(ajaxRequest.getOperation(), requestContext);
 
         PageIterator pageIterator = new PageIterator().pageSize(1000).forward();
-        RegistryProvider provider = ajaxRequest.getParamAsEnum("provider", RegistryProvider.class);
+        RegistryProvider provider = ajaxRequest.getParamAsEnum("provider",
+                                                               RegistryProvider.class);
         String domain = requestContext.getOwnerDomain();
         List<RegistryCred> creds;
         if(provider != null)

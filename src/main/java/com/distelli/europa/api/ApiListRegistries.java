@@ -16,12 +16,10 @@ import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.ajax.AjaxErrors;
 import com.distelli.europa.api.models.*;
 import com.distelli.europa.api.transformers.*;
-import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.db.RegistryCredsDb;
 import com.distelli.europa.db.RegistryManifestDb;
 import com.distelli.europa.db.RepoEventsDb;
-import com.distelli.europa.models.ContainerRepo;
-import com.distelli.europa.models.RegistryManifest;
-import com.distelli.europa.models.RepoEvent;
+import com.distelli.europa.models.RegistryCred;
 import com.distelli.persistence.PageIterator;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.JsonError;
@@ -31,25 +29,24 @@ import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Singleton
-public class ApiListRepositoryEvents extends ApiBase
+public class ApiListRegistries extends ApiBase
 {
     @Inject
-    protected RepoEventsDb _eventsDb;
+    private RegistryCredsDb _db;
     @Inject
-    protected EventsTransformer _eventsTransformer;
+    private RegistryTransformer _registryTransformer;
 
-    public ApiListRepositoryEvents()
+    public ApiListRegistries()
     {
 
     }
 
-    public WebResponse handleApiRequest(EuropaRequestContext requestContext) {
-        String repoId = getPathParam("id", requestContext);
-        String domain = requestContext.getOwnerDomain();
-
-        int pageSize = getParamAsInt("pageSize", 50, requestContext);
+    public WebResponse handleApiRequest(EuropaRequestContext requestContext)
+    {
+        int pageSize = getParamAsInt("pageSize", 100, requestContext);
         String marker = getParam("marker", requestContext);
         String order = getParam("order", requestContext);
+        String domain = requestContext.getOwnerDomain();
         boolean dbAscending = false;
         if(order == null)
             order = Constants.API_ORDER_ASCENDING;
@@ -62,25 +59,24 @@ public class ApiListRepositoryEvents extends ApiBase
             throw(new AjaxClientException("Invalid value for parameter: order",
                                           JsonError.Codes.BadParam,
                                           400));
+
         PageIterator iter = new PageIterator()
         .pageSize(pageSize)
         .marker(marker);
         if(!dbAscending)
             iter.backward();
 
-        List<RepoEvent> events = _eventsDb.listEvents(requestContext.getOwnerDomain(),
-                                                    repoId,
-                                                    iter);
-        List<ApiEvent> apiEvents = _eventsTransformer.transform(events);
+        List<RegistryCred> creds = _db.listAllCreds(domain, iter);
+        List<ApiRegistry> registries = _registryTransformer.transform(creds);
         if(dbAscending)
-            Collections.reverse(apiEvents);
+            Collections.reverse(registries);
 
-        ApiEventList eventList = ApiEventList
+        ApiRegistryList registryList = ApiRegistryList
         .builder()
-        .events(apiEvents)
+        .registries(registries)
         .prevMarker(dbAscending ? iter.getMarker() : iter.getPrevMarker())
         .nextMarker(dbAscending ? iter.getPrevMarker() : iter.getMarker())
         .build();
-        return toJson(eventList);
+        return toJson(registryList);
     }
 }
