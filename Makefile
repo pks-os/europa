@@ -39,3 +39,4 @@ publish: git-is-clean git-is-master
 
 up-deps:
 	mvn -U versions:use-latest-releases versions:update-properties -Dincludes='com.distelli*' -DgenerateBackupPoms=false
+
