@@ -71,8 +71,8 @@ public interface RegistryAccess
         {
             //Don't allow access to non-read operations
             if(!isReadOperation(operationName))
-                throw(new RegistryError("You do not have access to this operation",
-                                        RegistryErrorCode.UNAUTHORIZED));
+                RequireAuthError.throwRequireAuth(
+                    "You do not have access to this operation", requestContext);
             String ownerDomain = requestContext.getOwnerDomain();
             String repoName = requestContext.getMatchedRoute().getParam("name");
             ContainerRepo repo = _repoDb.getLocalRepo(ownerDomain,
@@ -82,8 +82,8 @@ public interface RegistryAccess
                 return;
 
             //We've arrived here so this means that we don't allow access (or the repo was not found).
-            throw(new RegistryError("You do not have access to this operation",
-                                    RegistryErrorCode.UNAUTHORIZED));
+            RequireAuthError.throwRequireAuth(
+                "You do not have access to this operation", requestContext);
         }
     }
 }

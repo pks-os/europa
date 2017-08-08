@@ -66,8 +66,8 @@ public class RegistryTokenHandler extends RegistryBase
             {
                 //If its the public token then reject it
                 if(RegistryToken.isPublicToken(registryApiToken))
-                    throw(new RegistryError("You do not have access to this operation",
-                                            RegistryErrorCode.UNAUTHORIZED));
+                    RequireAuthError.throwRequireAuth(
+                        "You do not have access to this operation", requestContext);
                 //else echo the same token back to the client
                 return toJson(RegistryToken.fromString(registryApiToken));
             }
