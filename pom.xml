@@ -95,6 +95,10 @@
             <version>1.8.1</version>
           </dependency>
         </dependencies>
+        <configuration>
+          <scmCommentPrefix>[skip ci]</scmCommentPrefix>
+          <goals>deploy -Dmaven.test.skip=true</goals>
+        </configuration>
       </plugin>
     </plugins>
     <extensions>

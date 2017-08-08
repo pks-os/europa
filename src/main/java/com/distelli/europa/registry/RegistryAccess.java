@@ -75,11 +75,16 @@ public interface RegistryAccess
                     "You do not have access to this operation", requestContext);
             String ownerDomain = requestContext.getOwnerDomain();
             String repoName = requestContext.getMatchedRoute().getParam("name");
-            ContainerRepo repo = _repoDb.getLocalRepo(ownerDomain,
-                                                      repoName);
-            //if its a public repo then allow acess
-            if(repo != null && repo.isPublicRepo())
-                return;
+
+            // NOTE: repoName is null for _catalog routes... we are erroring on the side of
+            // caution and forcing authorization for this route:
+            if ( null != repoName ) {
+                ContainerRepo repo = _repoDb.getLocalRepo(ownerDomain,
+                                                          repoName);
+                //if its a public repo then allow acess
+                if(repo != null && repo.isPublicRepo())
+                    return;
+            }
 
             //We've arrived here so this means that we don't allow access (or the repo was not found).
             RequireAuthError.throwRequireAuth(
