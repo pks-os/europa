@@ -13,25 +13,34 @@ export default class Footer extends Component {
 		this.state = {};
 	}
 	renderLogos(){
-
 		let logos = [
 			{
-				src: '/public/images/vmdashboard-logo.svg'
+				src: '/public/images/vmdashboard-logo.svg',
+				href: 'https://www.distelli.com/vm-dashboard'
 			},
 			{
-				src: '/public/images/k8sdashboard-logo.svg'
+				src: '/public/images/k8sdashboard-logo.svg',
+				href: 'https://www.distelli.com/kubernetes'
 			},
 			{
-				src: '/public/images/distelli-europa-cr-logo.svg'
+				src: '/public/images/distelli-europa-cr-logo.svg',
+				href: 'https://www.distelli.com/europa'
 			},
 			{
-				src: '/public/images/passly-logo.svg'
+				src: '/public/images/passly-logo.svg',
+				href: 'https://www.passly.io'
 			}
 		];
 
 		return (
 			<div className="LogoContainer">
-				{logos.map((logo, i) => <img key={i} src={logo.src} /> )}
+				{logos.map((logo, i) => {
+					return (
+						<a href={logo.href} key={i} target="_blank">
+							<img src={logo.src} />
+						</a>
+					);
+				})}
 			</div>
 		);
 	}

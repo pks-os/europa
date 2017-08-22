@@ -64,9 +64,12 @@
         width: $max-width;
         margin: 0 auto;
 
-        img {
-            height: 36px;
+        a {
             flex: 1;
+
+            img {
+                height: 36px;
+            }
         }
 
     }
