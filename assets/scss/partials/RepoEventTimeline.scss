@@ -67,7 +67,7 @@
                 }
             }
 
-            i.icon-dis-right.disabled, i.icon-dis-left.disabled {            
+            i.icon-dis-right.disabled, i.icon-dis-left.disabled {
                 color: $grey;
 
                 &:hover {
@@ -115,7 +115,7 @@
 
         i {
             font-size: 1.2rem;
-            margin-right: 7px;
+            margin-right: 21px;
 
             &:hover {
                 cursor: pointer;
@@ -132,7 +132,6 @@
 
         .ImageSha {
             flex: 1;
-            color: $black;
             font-weight: 400;
             font-size: 0.75rem;
             margin-right: 14px;
@@ -148,10 +147,12 @@
         }
 
         .Pushed, .Size {
-            flex: 1;
+            flex: 0.7;
             display: flex;
             flex-direction: row;
+        }
 
+        .Pushed, .Size, .ImageSha {
             .Label {
                 color: $black;
                 font-weight: 400;

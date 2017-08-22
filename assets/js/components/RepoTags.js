@@ -63,9 +63,6 @@ export default class RepoTags extends Component {
 				   data-tip="View Pull Commands For This Tag"
 				   data-for="ToolTipTop"
 				   onClick={() => this.context.actions.toggleSelectedManifest(tag)}/>
-				<span className="ImageSha" data-tip={tag.manifestId} data-for="ToolTipTop">
-					{cleanedSha}
-				</span>
 				<span className="Tags">
 					{tag.tags.map((tag, index) => {
 						return (
@@ -73,6 +70,11 @@ export default class RepoTags extends Component {
 						);
 					})}
 				</span>
+				<span className="ImageSha" data-tip={tag.manifestId} data-for="ToolTipTop">
+					<span className="Label">SHA:&nbsp;</span>
+					<span className="Value">{cleanedSha}</span>
+				</span>
+				
 				<span className="Size">
 					<span className="Label">Virtual Size:&nbsp;</span>
 					<span className="Value">{(tag.virtualSize) ? `${Math.ceil(tag.virtualSize/1000000)}M` : 'Unknown'}</span>
