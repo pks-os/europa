@@ -25,10 +25,6 @@ export default class Footer extends Component {
 			{
 				src: '/public/images/distelli-europa-cr-logo.svg',
 				href: 'https://www.distelli.com/europa'
-			},
-			{
-				src: '/public/images/passly-logo.svg',
-				href: 'https://www.passly.io'
 			}
 		];
 
