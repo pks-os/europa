@@ -411,7 +411,7 @@ function isAddRegistryValid(validateOnInput, skipSetState) {
       requiredLengths = {
         provider: 0,
         username: 0,
-        password: 7,
+        password: 0,
         name: 0,
       };
 
