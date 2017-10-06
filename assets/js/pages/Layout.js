@@ -112,7 +112,7 @@ export default class Layout extends Component {
 
 		if (shouldHighlight
 				|| location.length == 1 && location[0] == "/" && root) {
-			return { background: "#00A79D" }
+			return { background: "#219580" }
 		}
 	}
 	renderNav(){
@@ -120,7 +120,7 @@ export default class Layout extends Component {
 			return (
 				<Link to="/">
 					<div className="LandingPageNav">
-						<img className="PremiumLogo" src="/public/images/distelli-europa-community-logo.svg"/>
+						<img className="PremiumLogo" src="/public/images/puppet/container-registry-community-wt.svg"/>
 					</div>
 				</Link>
 			);
@@ -131,7 +131,7 @@ export default class Layout extends Component {
 			 	<div className="MaxWidthContainer">
 					<div className="FlexRow MainNav">
 						<Link to="/repositories">
-							<img src="/public/images/distelli-europa-community-logo.svg"
+							<img src="/public/images/puppet/container-registry-community-wt.svg"
 									 alt="Distelli Europa" />
 						</Link>
 						<Link to="/repositories"

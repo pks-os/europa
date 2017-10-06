@@ -15,15 +15,15 @@ export default class Footer extends Component {
 	renderLogos(){
 		let logos = [
 			{
-				src: '/public/images/vmdashboard-logo.svg',
-				href: 'https://www.distelli.com/vm-dashboard'
+				src: '/public/images/puppet/pipelines-applications-bk.svg',
+				href: 'https://www.distelli.com/applications'
 			},
 			{
-				src: '/public/images/k8sdashboard-logo.svg',
-				href: 'https://www.distelli.com/kubernetes'
+				src: '/public/images/puppet/pipelines-containers-bk.svg',
+				href: 'https://www.distelli.com/containers'
 			},
 			{
-				src: '/public/images/distelli-europa-cr-logo.svg',
+				src: '/public/images/puppet/container-registry-bk.svg',
 				href: 'https://www.distelli.com/europa'
 			}
 		];
@@ -43,7 +43,7 @@ export default class Footer extends Component {
 	logoFooter(){
 		return (
 			<div className="LogoFooter">
-				<img className="Distelli" src='/public/images/distelli-mark.svg' />
+				<div className="Spacer"/>
 				<h2>Automation for software teams</h2>
 				{this.renderLogos()}
 			</div>
@@ -62,7 +62,7 @@ export default class Footer extends Component {
 				<div className="FooterInside">
 					<div className="Flex1"></div>
 					<div className="Flex1"></div>
-					<div className="Version"><span>Europa&nbsp;</span> {europa} - Version {PAGE_PROPS.version || 'Unknown'}</div>
+					<div className="Version"><span>Puppet&copy; Container Registry&nbsp;</span> {europa} - Version {PAGE_PROPS.version || 'Unknown'}</div>
 				</div>
 			</div>
 		);

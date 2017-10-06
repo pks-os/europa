@@ -16,7 +16,7 @@ export default class LandingPage extends Component {
 		return (
 			<div className="LandingPage">
 				<h1>	
-					Welcome to Europa Community
+					Welcome to <br/>Puppet Container Registry<br/> Community Edition
 				</h1>
 				<div className="FlexRow">
 					<div className='Flex1'>
