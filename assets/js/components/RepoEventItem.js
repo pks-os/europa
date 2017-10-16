@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import WebhookViewer from './../components/WebhookViewer'
 import Loader from './../components/Loader'
 import TimelineIcons from './../util/TimelineIcons'

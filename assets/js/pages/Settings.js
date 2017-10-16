@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import Registries from './../components/Registries'
 import APITokens from './../components/APITokens'
 import StorageSettings from './../components/StorageSettings'

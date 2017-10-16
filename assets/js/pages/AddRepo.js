@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import AddRegistry from './../components/AddRegistry'
 import ContentRow from './../components/ContentRow'
 import Btn from './../components/Btn'

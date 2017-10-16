@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, { Component, PropTypes } from 'react'
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 
 export default  class CenteredConfirm extends Component {
   constructor(props) {
@@ -41,13 +42,13 @@ export default  class CenteredConfirm extends Component {
 }
 
 CenteredConfirm.propTypes = {
-  message: React.PropTypes.string,
-  noMessage: React.PropTypes.bool,
-  containerStyle: React.PropTypes.object,
-  confirmButtonText:  React.PropTypes.string,
-  confirmButtonStyle: React.PropTypes.object,
-  onConfirm: React.PropTypes.func.isRequired,
-  onCancel: React.PropTypes.func.isRequired,
+  message: PropTypes.string,
+  noMessage: PropTypes.bool,
+  containerStyle: PropTypes.object,
+  confirmButtonText:  PropTypes.string,
+  confirmButtonStyle: PropTypes.object,
+  onConfirm: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
 };
 
 CenteredConfirm.defaultProps = {
@@ -55,6 +56,3 @@ CenteredConfirm.defaultProps = {
   message: "Are you sure?",
   confirmButtonStyle: "Continue"
 };
-
-
-

@@ -3,6 +3,7 @@
 */
 
 import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import ContentRow from './../components/ContentRow'
 import Loader from './../components/Loader'
 import Btn from './../components/Btn'
@@ -545,14 +546,14 @@ export default class AddRegistry extends Component {
 }
 
 AddRegistry.propTypes = {
-	standaloneMode: React.PropTypes.bool,
-	isEdit: React.PropTypes.bool
+	standaloneMode: PropTypes.bool,
+	isEdit: PropTypes.bool
 };
 
 AddRegistry.childContextTypes = {
-    actions: React.PropTypes.object
+    actions: PropTypes.object
 };
 
 AddRegistry.contextTypes = {
-    actions: React.PropTypes.object
+    actions: PropTypes.object
 };

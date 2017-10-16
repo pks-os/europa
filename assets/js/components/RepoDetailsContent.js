@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import NPECheck from './../util/NPECheck'
 import RepoOverview from './RepoOverview'
 import RepoEventTimeline from './RepoEventTimeline'

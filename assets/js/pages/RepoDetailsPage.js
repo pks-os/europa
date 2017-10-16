@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import Loader from './../components/Loader'
 import RegistryNames from './../util/RegistryNames'
 import RepoSettings from './../components/RepoSettings'

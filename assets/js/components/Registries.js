@@ -2,7 +2,8 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, {Component, PropTypes} from 'react'
+import React, {Component} from 'react'
+import PropTypes from 'prop-types'
 import RegistryProviderIcons from './../util/RegistryProviderIcons'
 import CenteredConfirm from './../components/CenteredConfirm'
 import Msg from './../components/Msg'
