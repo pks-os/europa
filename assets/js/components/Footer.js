@@ -24,7 +24,7 @@ export default class Footer extends Component {
 			},
 			{
 				src: '/public/images/puppet/container-registry-bk.svg',
-				href: 'https://www.distelli.com/europa'
+				href: 'https://www.distelli.com/registry'
 			}
 		];
 

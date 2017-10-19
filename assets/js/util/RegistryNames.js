@@ -2,7 +2,7 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-export default function RegistryNames(includeEuropa = false){
+export default function RegistryNames(includePuppet = false){
 
 	let RegistryNames = {
 		'GCR' : 'Google Container Registry',
@@ -11,8 +11,8 @@ export default function RegistryNames(includeEuropa = false){
 		// 'PRIVATE': 'Private Registry',
 	};
 
-	if(includeEuropa) {
-		RegistryNames['EUROPA'] = 'Europa Container Registry';
+	if(includePuppet) {
+		RegistryNames['EUROPA'] = 'Puppet Container Registry';
 	}
 
 	return RegistryNames;

@@ -167,7 +167,7 @@ export default class Repositories extends Component {
 						<div className="Flex1" style={{margin: '0 10px'}}>
 							<p>
 								<strong>Local Repositories</strong>&nbsp;
-								 are hosted by Europa and backed by your storage
+								 are hosted by Puppet Container Registry and backed by your storage
 								 backend. Local Repositories support the Docker V2 API and support the
 								 complete range of operations from push and pull to listing tags and
 								 repositories.

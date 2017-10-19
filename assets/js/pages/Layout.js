@@ -132,7 +132,7 @@ export default class Layout extends Component {
 					<div className="FlexRow MainNav">
 						<Link to="/repositories">
 							<img src="/public/images/puppet/container-registry-community-wt.svg"
-									 alt="Distelli Europa" />
+									 alt="Puppet Container Registry" />
 						</Link>
 						<Link to="/repositories"
 							    className="MainNavLink"

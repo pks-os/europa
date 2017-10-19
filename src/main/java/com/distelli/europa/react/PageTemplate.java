@@ -31,7 +31,7 @@ public class PageTemplate
     "  <head>"+
     "    <meta charset=\"utf-8\">"+
     "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">"+
-    "    <link rel=\"icon\" type=\"image/png\" href=\"/public/favicon.png\" />"+
+    "    <link rel=\"icon\" type=\"image/png\" href=\"/public/favicon.png?v=2\" />"+
     "    <title>Puppet© Container Registry</title>"+
     "  </head>"+
     "  <body>"+
