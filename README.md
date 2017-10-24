@@ -3,7 +3,7 @@ Europa is a new Container Registry that makes it easy for software teams to host
 
 <img src="https://www.distelli.com/images/europa.png" width="300px"></img>
 <br/>
-https://www.distelli.com/europa
+https://www.distelli.com/registry
 
 ### Editions
 
