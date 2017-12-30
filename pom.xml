@@ -32,8 +32,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <distelli-common.version>8.0.1</distelli-common.version>
-    <distelli-persistence.version>3.0.5</distelli-persistence.version>
+    <distelli-common.version>9.13.1</distelli-common.version>
+    <distelli-persistence.version>3.5.5</distelli-persistence.version>
   </properties>
 
   <build>
@@ -212,7 +212,7 @@
     <dependency>
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-ecr</artifactId>
-      <version>1.11.68</version>
+      <version>1.11.125</version>
     </dependency>
 
     <dependency>
