@@ -25,6 +25,9 @@ public class RegistryApiRoutes
     }
 
     static {
+        //Kubernetes health check
+        ROUTES.add("GET", "/healthz", RegistryHealthCheck.class);
+
         //Add the routes below this line
         ROUTES.add("GET", "/v2", RegistryVersionCheck.class);
 
