@@ -43,6 +43,7 @@ public class RegistryHealthCheck extends RequestHandler<EuropaRequestContext> {
             return response;
         }
         WebResponse response = new WebResponse(200, "ok");
+        response.setContentType("application/json");
         return response;
     }
 }
