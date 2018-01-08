@@ -33,6 +33,9 @@ public class WebAppRoutes
         ROUTES.add("POST", "/ajax", AjaxRequestHandler.class);
         ROUTES.add("POST", "/storage", AjaxRequestHandler.class);
 
+        //Kubernetes health check
+        ROUTES.add("GET", "/healthz", RegistryHealthCheck.class);
+
         ROUTES.setDefaultRequestHandler(DefaultRequestHandler.class);
     }
 }
