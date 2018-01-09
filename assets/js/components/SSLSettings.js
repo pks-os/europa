@@ -32,7 +32,7 @@ export default class SSLSettings extends Component {
 	saveSSLSettings(){
 		this.context.actions.saveSSLSettings()
 		.then(this.context.actions.getSSLSettings)
-		.then((sslSettings) => this.context.actions.updateDNSName(sslSettings.dnsName))
+		//.then((sslSettings) => this.context.actions.updateDNSName(sslSettings.dnsName))
 		.catch((err) => {
 			console.error(err);
 		});
@@ -55,19 +55,20 @@ export default class SSLSettings extends Component {
 		return className;
 	}
 	renderSSLTextarea(config, i){
-		let value = NPECheck(this.props, `ssl/sslCreds/${config.key}`, '');
+		let value = NPECheck(this.props, `ssl/sslSettings/${config.key}`, '');
 		return (
 			<div className="FlexColumn" key={i}>
 				<label>{config.label}</label>
-				<textarea className={this.getTextareaClassName(config.key)} 
-						  value={value} 
-						  onChange={(e) => this.context.actions.updateSSLCreds(config.key, e)}>
+				<textarea className={this.getTextareaClassName(config.key)}
+						  value={value}
+						  onChange={(e) => this.context.actions.updateSSLSettings(config.key, e)}>
 				</textarea>
 			</div>
 		);
 	}
+
 	renderSSLInputs(){
-		let dnsValue = NPECheck(this.props, `ssl/sslCreds/${dnsNameKey}`, '');
+		let dnsValue = NPECheck(this.props, `ssl/sslSettings/${dnsNameKey}`, '');
 		let className = "BlueBorder FullWidth";
 
 		if(this.props.isLoggedIn) {
@@ -78,7 +79,10 @@ export default class SSLSettings extends Component {
 			<div className="FlexColumn">
 				<div className="FlexColumn">
 					<label>DNS Name</label>
-					<input ref="dnsName" className={className} value={dnsValue} onChange={(e) => this.context.actions.updateSSLCreds(dnsNameKey, e)} />
+					<input ref="dnsName" className={className} value={dnsValue} onChange={(e) => this.context.actions.updateSSLSettings(dnsNameKey, e)} />
+				</div>
+				<div className="FlexRow">
+					<Checkbox onClick={() => this.context.actions.toggleForceHttps()} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)}/>
 				</div>
 				<div className="FlexRow">
 					<Checkbox onClick={() => this.context.actions.toggleEnableSSL()} label="SSL Enabled" isChecked={NPECheck(this.props, 'ssl/sslEnabled', false)}/>
@@ -107,9 +111,10 @@ export default class SSLSettings extends Component {
 					key: caKey
 				}
 			];
-			return textareaConfigs.map((config, i) => this.renderSSLTextarea(config, i))	
+			return textareaConfigs.map((config, i) => this.renderSSLTextarea(config, i))
 		}
 	}
+
 	renderButton(){
 		if(NPECheck(this.props, 'ssl/saveXHR', false)) {
 			return (
@@ -125,9 +130,9 @@ export default class SSLSettings extends Component {
 			errorMsg2 = (errorMsg2) ? `Missing Required Fields: ${errorMsg2}` : null;
 
 			return (
-				<Msg text={(errorMsg || errorMsg2)} 
+				<Msg text={(errorMsg || errorMsg2)}
     				 close={() => this.context.actions.clearSSLErrors()}
-    				 style={{padding: '1rem 0'}}/> 
+    				 style={{padding: '1rem 0'}}/>
 			);
 		}
 
@@ -154,9 +159,9 @@ export default class SSLSettings extends Component {
 
 		if(success) {
 			return (
-				<Msg text="Successfully saved SSL settings." 
+				<Msg text="Successfully saved SSL settings."
 					 isSuccess={true}
-    				 style={{padding: '1rem 0'}}/> 
+    				 style={{padding: '1rem 0'}}/>
 			);
 		}
 	}

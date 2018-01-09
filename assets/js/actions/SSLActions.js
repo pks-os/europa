@@ -13,11 +13,12 @@ export function sslState() {
 		sslEnabled: false,
 		ogSslEnabled: false,
 		hasChanges: false,
-		sslCreds: {
+		sslSettings: {
 			dnsName: '',
 			serverPrivateKey: '',
 			serverCertificate: '',
 			authorityCertificate: '',
+			forceHttps: false,
 		},
 		errorFields: {
 			names: [],
@@ -57,32 +58,40 @@ export function toggleEnableSSL() {
 	});
 }
 
-export function updateSSLCreds(prop, e, eIsValue = false) {
-	let value = (eIsValue) ? e : e.target.value;
-
+export function toggleForceHttps() {
 	this.setState({
 		ssl: GA.modifyProperty(this.state.ssl, {
 			saveSuccess: false,
 			hasChanges: true,
-			sslCreds: {
-				...this.state.ssl.sslCreds,
-				[prop]: value
+			sslSettings: {
+				...this.state.ssl.sslSettings,
+				['forceHttps']: !this.state.ssl.sslSettings.forceHttps
 			}
 		})
 	});
 }
 
+export function updateSSLSettings(prop, e, eIsValue = false) {
+	let value = (eIsValue) ? e : e.target.value;
+	let newState = {
+		ssl: GA.modifyProperty(this.state.ssl, {
+			saveSuccess: false,
+			hasChanges: true,
+			sslSettings: {
+				...this.state.ssl.sslSettings,
+				[prop]: value
+			}
+		})
+	};
 
-export function updateDNSName(dnsName) {
-	this.setState({
-		dnsName: dnsName
-	});
+	this.setState(newState);
 }
+
 
 export function saveSSLSettings() {
 	return new Promise((resolve, reject) => {
 
-		let creds = this.state.ssl.sslCreds
+		let creds = this.state.ssl.sslSettings
 		let isEnabled = NPECheck(this.state, 'ssl/sslEnabled', false)
 
 		if (isEnabled) {
@@ -99,10 +108,10 @@ export function saveSSLSettings() {
 				return
 			}
 
-
 		} else {
 			creds = {
-				dnsName: NPECheck(this.state, 'ssl/sslCreds/dnsName')
+				dnsName: NPECheck(this.state, 'ssl/sslSettings/dnsName'),
+				forceHttps: NPECheck(this.state, 'ssl/sslSettings/forceHttps')
 			}
 		}
 
@@ -152,12 +161,11 @@ export function getSSLSettings() {
 					this.setState({
 						ssl: GA.modifyProperty(this.state.ssl, {
 							getXHR: false,
-							sslCreds: res,
+							sslSettings: res,
+							sslEnabled: sslEnabled,
 							ogSslEnabled: sslEnabled,
 							hasChanges: false,
-							sslEnabled: sslEnabled,
 							isBlocked: false,
-
 						})
 					}, () => resolve(res));
 				})
@@ -192,6 +200,7 @@ export function isSSLValid(sslSettings) {
 		serverPrivateKey: 'Server Private Key',
 		serverCertificate: 'Server Certificate',
 		authorityCertificate: 'Authority Certificate',
+		forceHttps: 'Force HTTPS',
 	};
 
 	let isValid = Validate(sslSettings, required);
