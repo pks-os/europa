@@ -200,7 +200,6 @@ export function isSSLValid(sslSettings) {
 		serverPrivateKey: 'Server Private Key',
 		serverCertificate: 'Server Certificate',
 		authorityCertificate: 'Authority Certificate',
-		forceHttps: 'Force HTTPS',
 	};
 
 	let isValid = Validate(sslSettings, required);
