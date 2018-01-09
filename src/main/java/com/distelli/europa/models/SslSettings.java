@@ -22,16 +22,22 @@ public class SslSettings {
     public static String AUTHORITY_PRIVATE_KEY = "authorityPrivateKey";
     public static String AUTHORITY_CERTIFICATE = "authorityCertificate";
     public static String DNS_NAME = "dnsName";
+    public static String FORCE_HTTPS = "forceHttps";
 
     protected String serverPrivateKey;
     protected String serverCertificate;
     protected String authorityPrivateKey;
     protected String authorityCertificate;
     protected String dnsName;
+    protected Boolean forceHttps;
 
     public static SslSettings fromEuropaSettings(List<EuropaSetting> settings) {
         if ( settings.isEmpty() ) return null;
-        return OM.convertValue(EuropaSetting.asMap(settings), SslSettings.class);
+        Map<String, String> settingsMap = EuropaSetting.asMap(settings);
+        Boolean forceHttpsValue = Boolean.parseBoolean(settingsMap.remove(FORCE_HTTPS));
+        SslSettings convertedSettings = OM.convertValue(settingsMap, SslSettings.class);
+        convertedSettings.setForceHttps(forceHttpsValue);
+        return convertedSettings;
     }
 
     public List<EuropaSetting> toEuropaSettings() {
