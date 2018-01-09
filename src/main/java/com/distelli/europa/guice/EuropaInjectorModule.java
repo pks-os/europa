@@ -58,6 +58,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.ThreadFactory;
 import com.distelli.gcr.GcrClient;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -128,6 +129,11 @@ public class EuropaInjectorModule extends AbstractModule
                 }
             });
         return threadPool;
+    }
+
+    @Provides @Singleton
+    protected ExecutorService getExecutorService() {
+        return getScheduledExecutorService();
     }
 
     @Provides @Singleton

@@ -15,7 +15,7 @@ import com.distelli.europa.db.RegistryBlobDb;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.concurrent.*;
-
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class RegistryHealthCheck extends RequestHandler<EuropaRequestContext> {
     @Inject
@@ -25,71 +25,32 @@ public class RegistryHealthCheck extends RequestHandler<EuropaRequestContext> {
     @Inject
     private Provider<ObjectKeyFactory> _objectKeyFactoryProvider;
     @Inject
-    private ExecutorService _executorService = Executors.newSingleThreadExecutor();
-
-    private  class checkHealth implements Callable{
-
-        @Override
-        public WebResponse call() throws Exception {
-
-            // Check DB connection
-            RegistryBlob blob = null;
-            try {
-                blob = _blobDb.getRegistryBlobById("DNE");
-            } catch (Exception e) {
-                System.out.println(e);
-                WebResponse response = new WebResponse(503, "Database connection failed");
-                response.setContentType("application/json");
-                return response;
-            }
-
-            //Check Object Store connection
-            ObjectKeyFactory objectKeyFactory = _objectKeyFactoryProvider.get();
-            ObjectKey objKey = objectKeyFactory.forRegistryBlobId(blob.getBlobId());
-            ObjectStore objectStore = _objectStoreProvider.get();
-            // Check that object store is consistent with DB:
-            ObjectMetadata meta = objectStore.head(objKey);
-            if ( null == meta ) {
-                WebResponse response = new WebResponse(503, "Object store connection failed");
-                response.setContentType("application/json");
-                return response;
-            }
-
-            WebResponse response = new WebResponse(200, "ok");
-            response.setContentType("application/json");
-            return response;
-
-        }
-    }
+    private ExecutorService _executorService;
 
     public WebResponse handleRequest(EuropaRequestContext requestContext) {
+        Future<?> healthFuture = _executorService.submit(
+            () -> {
+                // Try to round-trip the DB:
+                _blobDb.getRegistryBlobById("DNE");
 
-        /*if (null == blob) {
-            WebResponse response = new WebResponse(503, "Database connection failed");
-            response.setContentType("application/json");
-            return response;
-        }
-        //Check Object Store connection
-        ObjectKeyFactory objectKeyFactory = _objectKeyFactoryProvider.get();
-        ObjectKey objKey = objectKeyFactory.forRegistryBlobId(blob.getBlobId());
-        ObjectStore objectStore = _objectStoreProvider.get();
-        // Check that object store is consistent with DB:
-        ObjectMetadata meta = objectStore.head(objKey);
-        if ( null == meta ) {
-            WebResponse response = new WebResponse(503, "Object store connection failed");
-            response.setContentType("application/json");
-            return response;
-        }
-        WebResponse response = new WebResponse(200, "ok");
-        response.setContentType("application/json");
-        return response;*/
-        Future<WebResponse> healthFuture = _executorService.submit(new checkHealth());
+                // Try to round-trip the object store:
+                ObjectKeyFactory objectKeyFactory = _objectKeyFactoryProvider.get();
+                ObjectKey objKey = objectKeyFactory.forRegistryBlobId("DNE");
+
+                // Check that object store is consistent with DB:
+                _objectStoreProvider.get().head(objKey);
+            });
         try {
             healthFuture.get(5, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            e.printStackTrace();
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+            WebResponse response = new WebResponse(503);
+            response.setContentType("text/plain");
+            response.setResponseContent(ex.getMessage().getBytes(UTF_8));
+            return response;
         }
 
-        return null;
+        WebResponse response = new WebResponse(200, "ok\n");
+        response.setContentType("text/plain");
+        return response;
     }
 }
