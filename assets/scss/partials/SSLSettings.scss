@@ -18,13 +18,20 @@
         height: 200px;
     }
 
-    .UnsavedChanges {
+    .UnsavedChanges, .CheckboxDisabled {
         font-size: 0.75rem;
-        color: $red;
         width: 154px;
         left: 50%;
         position: relative;
         margin-left: -163px;
+    }
+
+    .UnsavedChanges {
+        color: $red;
+    }
+
+    .CheckboxDisabled {
+        color: $grey;
     }
 }
 

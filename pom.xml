@@ -32,7 +32,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <distelli-common.version>9.13.1</distelli-common.version>
+    <distelli-common.version>9.13.2</distelli-common.version>
     <distelli-persistence.version>3.5.5</distelli-persistence.version>
   </properties>
 

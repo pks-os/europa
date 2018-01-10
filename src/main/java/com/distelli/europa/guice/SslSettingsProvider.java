@@ -36,8 +36,6 @@ public class SslSettingsProvider implements Provider<SslSettings>
 
     public synchronized SslSettings get()
     {
-        if(_sslSettings != null)
-            return _sslSettings;
         List<EuropaSetting> settings = _settingsDb.listRootSettingsByType(EuropaSettingType.SSL);
         _sslSettings = SslSettings.fromEuropaSettings(settings);
         return _sslSettings;
