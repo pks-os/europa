@@ -81,9 +81,7 @@ export default class SSLSettings extends Component {
 					<label>DNS Name</label>
 					<input ref="dnsName" className={className} value={dnsValue} onChange={(e) => this.context.actions.updateSSLSettings(dnsNameKey, e)} />
 				</div>
-				<div className="FlexRow">
-					<Checkbox onClick={() => this.context.actions.toggleForceHttps()} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)}/>
-				</div>
+				{this.renderForceHttps()}
 				<div className="FlexRow">
 					<Checkbox onClick={() => this.context.actions.toggleEnableSSL()} label="SSL Enabled" isChecked={NPECheck(this.props, 'ssl/sslEnabled', false)}/>
 					{this.renderUnsavedChanges()}
@@ -94,6 +92,26 @@ export default class SSLSettings extends Component {
 			</div>
 		);
 	}
+
+	renderForceHttps(){
+		let isEnabled = (window.location.protocol == 'https:');
+		if(isEnabled) {
+			return (
+				<div className="FlexRow">
+					<Checkbox onClick={() => this.context.actions.toggleForceHttps()} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)}/>
+				</div>
+			);
+		}
+		else {
+			return (
+				<div className="FlexRow">
+					<Checkbox onClick={() => {}} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)} disabled={true}/>
+					<span className="CheckboxDisabled">Must access page using HTTPS to modify setting</span>
+				</div>
+			);
+		}
+	}
+
 	renderTextAreas(){
 		if(NPECheck(this.props, 'ssl/sslEnabled', false)) {
 

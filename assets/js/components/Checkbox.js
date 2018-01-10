@@ -17,6 +17,10 @@ export default class Checkbox extends Component {
 				className += ' Inactive';
 			}
 
+			if(this.props.disabled) {
+				className += ' Disabled';
+			}
+
 			return (
 				<label className={className}
 				       style={{margin: '0'}}>
@@ -26,8 +30,12 @@ export default class Checkbox extends Component {
 		}
 	}
 	renderIcon(){
-		let className = (this.props.isChecked) ? 'icon icon-dis-box-check' 
+		let className = (this.props.isChecked) ? 'icon icon-dis-box-check'
 											   : 'icon icon-dis-box-uncheck Inactive';
+
+		if(this.props.disabled) {
+			className += ' Disabled';
+		}
 
 		if(this.props.iconClassName) {
 			className += ` ${this.props.iconClassName}`;
@@ -51,6 +59,7 @@ Checkbox.propTypes = {
 	label: PropTypes.string,
 	onClick: PropTypes.func.isRequired,
 	isChecked: PropTypes.bool.isRequired,
+	disabled: PropTypes.bool,
 	iconClassName: PropTypes.string,
 	labelClassName: PropTypes.string
 };
