@@ -18,6 +18,8 @@ public class ForceHttpsFilter implements RequestFilter<EuropaRequestContext>
 {
     @Inject
     protected Provider<SslSettings> _sslSettingsProvider;
+    @Inject
+    private HttpAlwaysAllowedPaths _httpAlwaysAllowedPaths;
 
     public ForceHttpsFilter()
     {
@@ -30,24 +32,23 @@ public class ForceHttpsFilter implements RequestFilter<EuropaRequestContext>
         String protocol = requestContext.getProto();
         String path = requestContext.getPath();
         // The health check endpoint needs to work over HTTP
-        if(protocol.equalsIgnoreCase("http") && !path.equalsIgnoreCase("/healthz")) {
+        if(protocol.equalsIgnoreCase("http") && !_httpAlwaysAllowedPaths.isHttpAlwaysAllowedPath(path)) {
             SslSettings sslSettings = _sslSettingsProvider.get();
             if (sslSettings.getForceHttps()) {
-                List<String> newLocationParts = new ArrayList<>();
-                newLocationParts.add("https://");
+                StringBuilder newLocation = new StringBuilder();
+                newLocation.append("https://");
                 String hostName = sslSettings.getDnsName();
                 if (null == hostName) {
                     hostName = requestContext.getHost("");
                 }
-                newLocationParts.add(hostName);
-                newLocationParts.add(requestContext.getOriginalPath());
+                newLocation.append(hostName);
+                newLocation.append(requestContext.getOriginalPath());
                 if (null != requestContext.getQueryString()) {
-                    newLocationParts.add("?");
-                    newLocationParts.add(requestContext.getQueryString());
+                    newLocation.append("?");
+                    newLocation.append(requestContext.getQueryString());
                 }
-                String newLocation = String.join("", newLocationParts);
                 WebResponse redirectResponse = new WebResponse(307);
-                redirectResponse.setResponseHeader(WebConstants.LOCATION_HEADER, newLocation);
+                redirectResponse.setResponseHeader(WebConstants.LOCATION_HEADER, newLocation.toString());
                 return redirectResponse;
             }
         }
