@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.distelli.europa.EuropaRequestContext;
+import lombok.Getter;
 import org.eclipse.jetty.http.HttpMethod;
 import com.distelli.europa.EuropaConfiguration;
 import com.distelli.europa.db.ContainerRepoDb;
@@ -28,7 +29,7 @@ import lombok.extern.log4j.Log4j;
 public class RegistryCatalog extends RegistryBase {
     private static int DEFAULT_PAGE_SIZE = 100;
     @Inject
-    private ContainerRepoDb _reposDb;
+    protected ContainerRepoDb _reposDb;
 
     private static class Response {
         public List<String> repositories = new ArrayList<String>();
@@ -41,21 +42,25 @@ public class RegistryCatalog extends RegistryBase {
             .pageSize(getPageSize(requestContext))
             .marker(requestContext.getParameter("last"));
 
-        List<ContainerRepo> repoList = _reposDb.listEuropaRepos(ownerDomain,
-                                                                pageIterator);
+        List<RepoOwnerUsernameMap> repoList = listRepositories(ownerUsername, ownerDomain, pageIterator);
 
         Map<ContainerRepo, Boolean> permissionResult = _permissionCheck.checkBatch(this.getClass().getSimpleName(),
                                                                                    requestContext,
-                                                                                   repoList);
+                                                                                   repoList
+                                                                                       .stream()
+                                                                                       .map((x) -> x.getRepo())
+                                                                                       .collect(Collectors.toList()));
         Response response = new Response();
-        for(ContainerRepo repo : repoList)
+        for(RepoOwnerUsernameMap repoData : repoList)
         {
+            String repoOwnerUsername = repoData.getOwner();
+            ContainerRepo repo = repoData.getRepo();
             boolean allow = repo.isPublicRepo();
             if(!allow)
                 allow = permissionResult.get(repo);
             if(allow)
             {
-                String repoName = joinWithSlash(ownerUsername, repo.getName());
+                String repoName = joinWithSlash(repoOwnerUsername, repo.getName());
                 response.repositories.add(repoName);
             }
         }
@@ -73,5 +78,25 @@ public class RegistryCatalog extends RegistryBase {
             webResponse.setResponseHeader("Link", location + "; rel=\"next\"");
         }
         return webResponse;
+    }
+
+    protected List<RepoOwnerUsernameMap> listRepositories(String ownerUsername, String ownerDomain, PageIterator pageIterator) {
+        return _reposDb.listEuropaRepos(ownerDomain, pageIterator)
+            .stream()
+            .map((repo) -> new RepoOwnerUsernameMap(ownerUsername, repo))
+            .collect(Collectors.toList());
+    }
+
+    protected class RepoOwnerUsernameMap {
+        @Getter
+        private final String owner;
+        @Getter
+        private final ContainerRepo repo;
+
+        public RepoOwnerUsernameMap(String ownerUsername, ContainerRepo containerRepo)
+        {
+            owner = ownerUsername;
+            repo = containerRepo;
+        }
     }
 }
