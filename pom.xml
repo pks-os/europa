@@ -1,10 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.distelli.europa</groupId>
   <artifactId>Europa</artifactId>
-  <version>1.2.10-SNAPSHOT</version>
+  <version>1.2.10</version>
   <packaging>jar</packaging>
 
   <name>Europa</name>
@@ -13,7 +12,7 @@
   <scm>
     <connection>scm:git:git@github.com:puppetlabs/europa.git</connection>
     <url>https://github.com/puppetlabs/europa.git</url>
-    <tag>HEAD</tag>
+    <tag>Europa-1.2.10</tag>
   </scm>
 
   <repositories>
@@ -79,7 +78,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.5</version>
         <configuration>
-          <argLine/>
+          <argLine />
           <reportFormat>brief</reportFormat>
           <useFile>false</useFile>
           <disableXmlReport>true</disableXmlReport>
