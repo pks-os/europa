@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.distelli.europa.filters.ForceHttpsFilter;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ErrorHandler;
 import org.eclipse.jetty.servlet.DefaultServlet;
@@ -130,7 +131,7 @@ public class Europa
 
     protected void initializeWebServer(Injector injector)
     {
-        _webappFilters = Arrays.asList(injector.getInstance(StorageInitFilter.class));
+        _webappFilters = Arrays.asList(injector.getInstance(StorageInitFilter.class), injector.getInstance(ForceHttpsFilter.class));
         _registryApiFilters = Arrays.asList(injector.getInstance(RegistryAuthFilter.class));
 
         _requestContextFactory = new RequestContextFactory() {
