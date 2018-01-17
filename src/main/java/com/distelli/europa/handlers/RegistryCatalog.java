@@ -8,19 +8,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.distelli.europa.EuropaRequestContext;
-import org.eclipse.jetty.http.HttpMethod;
-import com.distelli.europa.EuropaConfiguration;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.models.ContainerRepo;
-import com.distelli.europa.models.RegistryProvider;
-import com.distelli.europa.registry.RegistryError;
-import com.distelli.europa.registry.RegistryErrorCode;
 import com.distelli.persistence.PageIterator;
-import com.distelli.webserver.RequestContext;
-import com.distelli.webserver.RequestHandler;
 import com.distelli.webserver.WebResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -41,13 +32,14 @@ public class RegistryCatalog extends RegistryBase {
             .pageSize(getPageSize(requestContext))
             .marker(requestContext.getParameter("last"));
 
-        List<ContainerRepo> repoList = _reposDb.listEuropaRepos(ownerDomain,
-                                                                pageIterator);
+        List<ContainerRepo> repoList = listRepositories(ownerUsername, ownerDomain, pageIterator);
 
         Map<ContainerRepo, Boolean> permissionResult = _permissionCheck.checkBatch(this.getClass().getSimpleName(),
                                                                                    requestContext,
                                                                                    repoList);
         Response response = new Response();
+        Map<String, String> usernameCache = new HashMap<>();
+        usernameCache.put(ownerDomain, ownerUsername);
         for(ContainerRepo repo : repoList)
         {
             boolean allow = repo.isPublicRepo();
@@ -55,7 +47,7 @@ public class RegistryCatalog extends RegistryBase {
                 allow = permissionResult.get(repo);
             if(allow)
             {
-                String repoName = joinWithSlash(ownerUsername, repo.getName());
+                String repoName = joinWithSlash(getUsername(usernameCache, repo.getDomain()), repo.getName());
                 response.repositories.add(repoName);
             }
         }
@@ -73,5 +65,13 @@ public class RegistryCatalog extends RegistryBase {
             webResponse.setResponseHeader("Link", location + "; rel=\"next\"");
         }
         return webResponse;
+    }
+
+    protected List<ContainerRepo> listRepositories(String ownerUsername, String ownerDomain, PageIterator pageIterator) {
+        return _reposDb.listEuropaRepos(ownerDomain, pageIterator);
+    }
+
+    protected String getUsername(Map<String, String> usernameCache, String domain) {
+        return usernameCache.get(domain);
     }
 }
