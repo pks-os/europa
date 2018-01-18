@@ -22,3 +22,5 @@ europa-config.sh
 europa-test-config.sh
 EuropaConfig.json
 EuropaTestConfig.json
+.idea/*
+*.iml
