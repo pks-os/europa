@@ -10,8 +10,6 @@ import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
 
 @Log4j
 public class ForceHttpsFilter implements RequestFilter<EuropaRequestContext>
@@ -34,7 +32,7 @@ public class ForceHttpsFilter implements RequestFilter<EuropaRequestContext>
         // The health check endpoint needs to work over HTTP
         if(protocol.equalsIgnoreCase("http") && !_httpAlwaysAllowedPaths.isHttpAlwaysAllowedPath(path)) {
             SslSettings sslSettings = _sslSettingsProvider.get();
-            if (sslSettings.getForceHttps()) {
+            if (sslSettings != null && sslSettings.getForceHttps()) {
                 StringBuilder newLocation = new StringBuilder();
                 newLocation.append("https://");
                 String hostName = sslSettings.getDnsName();
