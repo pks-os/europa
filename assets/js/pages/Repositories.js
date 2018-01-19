@@ -24,7 +24,12 @@ export default class Repositories extends Component {
 	}
 	componentDidMount() {
 		this.context.actions.listRepos();
+		this.context.actions.listAuthTokens();
 	}
+    createAuthToken(){
+        this.context.actions.createAuthToken()
+            .then(this.context.actions.listAuthTokens);
+    }
 	toAddRepo(){
 		this.context.router.push('/new-repository');
 	}
@@ -156,6 +161,49 @@ export default class Repositories extends Component {
 			</div>
 		);
 	}
+	renderNoAPITokens() {
+        let tokens = NPECheck(this.props, 'settings/tokens/allTokens', []).filter(function (el) {
+            return el.status == "ACTIVE";
+        });
+        if(tokens.length == 0) {
+            return (
+                <div className="NoContent">
+                    <h4>Create an API token and log in to the container registry before pushing your first container</h4>
+                    <Btn className="LargeBlueButton"
+                         text="Create Token"
+                         onClick={() => this.createAuthToken()}/>
+                </div>
+            );
+        } else {
+            // get the most recently created token
+            let token = tokens.sort(function (a,b) {
+                if (a.created < b.created)
+                    return -1;
+                if (a.created > b.created)
+                    return 1;
+                return 0;
+            })[0].token;
+
+            return (
+                <div className="FlexColumn NewRepoCommands">
+                    <div className="HelperText">Log in to Puppet Container Registry before pushing containers</div>
+                    <div className="HelperText FlexRow">
+                        <div className="Code">
+                            <div id="DockerLoginCopyCommands" style={{display: 'none'}}>
+                                docker&nbsp;login&nbsp;-u&nbsp;TOKEN&nbsp;--password&nbsp;{`${token}`}&nbsp;{`${this.props.dnsName}`}
+                            </div>
+                            <div id="maskedDockerLoginCopyCommands">
+                                docker&nbsp;login&nbsp;-u&nbsp;TOKEN&nbsp;--password&nbsp;•••••••••&nbsp;{`${this.props.dnsName}`}<i className="icon icon-dis-copy"
+                                                                                                                                                  onClick={() => CopyToClipboard(document.getElementById('DockerLoginCopyCommands'))}
+                                                                                                                                                  data-tip="Click To Copy"
+                                                                                                                                                  data-for="ToolTipTop" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+	}
 	renderNoRepositories(){
 		return (
 			<div className="ContentContainer">
@@ -163,6 +211,9 @@ export default class Repositories extends Component {
 					<h3>
 						You have no container repositories
 					</h3>
+                    <div className="FlexRow" style={{margin: '20px 10px'}}>
+                        {this.renderNoAPITokens()}
+                    </div>
 					<div className="FlexRow">
 						<div className="Flex1" style={{margin: '0 10px'}}>
 							<p>
@@ -202,13 +253,15 @@ export default class Repositories extends Component {
 						<div className="HelperText">or</div>
 						<div className="HelperText">Push a Docker image to a local repository</div>
 						<div className="HelperText FlexRow">
-							<div className="Code">
-								<span>$&nbsp;<span id="copyCommands">docker push&nbsp;{`${this.props.dnsName}/${(this.props.isLoggedIn && this.props.isEnterprise) ? NPECheck(this.props, 'ctx/username', '') + '/': ''}REPO_NAME[:IMAGE_TAG]`}</span></span>
-								<i className="icon icon-dis-copy"
-								onClick={() => CopyToClipboard(document.getElementById('copyCommands'))}
-								data-tip="Click To Copy"
-								data-for="ToolTipTop" />
-							</div>
+                            <div className="Code">
+								<div id="dockerPushCopyCommands">
+                                    docker&nbsp;push&nbsp;{`${this.props.dnsName}/${(this.props.isLoggedIn && this.props.isEnterprise) ? NPECheck(this.props, 'ctx/username', '') + '/': ''}REPO_NAME[:IMAGE_TAG]`}
+                                    <i className="icon icon-dis-copy"
+                                    onClick={() => CopyToClipboard(document.getElementById('dockerPushCopyCommands'))}
+                                    data-tip="Click To Copy"
+                                    data-for="ToolTipTop" />
+                                </div>
+                            </div>
 						</div>
 					</div>
 				</div>
