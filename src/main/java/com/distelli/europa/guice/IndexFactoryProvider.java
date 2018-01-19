@@ -40,25 +40,35 @@ public class IndexFactoryProvider implements Provider<Index.Factory>
 
     private URI _endpoint;
     private CredPair _creds;
+    private String _tableNameFormat;
     private boolean _init = false;
     private Throwable _initFailure = null;
     private Index.Factory _indexFactory;
     private float _scaleFactor;
 
     public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds) {
-        this(defaultEndpoint, defaultCreds, 1.0f);
+        this(defaultEndpoint, defaultCreds, null, 1.0f);
     }
 
-    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, float scaleFactor)
+    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, String dbPrefix) {
+        this(defaultEndpoint, defaultCreds, dbPrefix, 1.0f);
+    }
+
+    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, float scaleFactor) {
+        this(defaultEndpoint, defaultCreds, null, scaleFactor);
+    }
+
+    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, String dbPrefix, float scaleFactor)
     {
         _scaleFactor = scaleFactor;
         _endpoint = defaultEndpoint;
         _creds = defaultCreds;
+        _tableNameFormat = (null == dbPrefix) ? "%s.europa" : dbPrefix+"-%s.europa";
         _indexFactory = new Index.Factory() {
                 @Override
                 public <T> Index.Builder<T> create(Class<T> type) {
                     return _baseIndexFactory.create(type)
-                        .withTableNameFormat("%s.europa") //TODO: Add prefix support
+                        .withTableNameFormat(_tableNameFormat)
                         .withEndpoint(_endpoint)
                         .withCredProvider(() -> _creds);
                 }
@@ -92,7 +102,7 @@ public class IndexFactoryProvider implements Provider<Index.Factory>
         try {
             log.info("DB schema initializing");
             _baseSchemaFactory.create()
-                .withTableNameFormat("%s.europa") //TODO: Add prefix support
+                .withTableNameFormat(_tableNameFormat) //TODO: Add prefix support
                 .withEndpoint(_endpoint)
                 .withCredProvider(() -> _creds)
                 .build()
