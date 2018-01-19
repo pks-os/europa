@@ -63,7 +63,7 @@ public class IndexFactoryProvider implements Provider<Index.Factory>
         _scaleFactor = scaleFactor;
         _endpoint = defaultEndpoint;
         _creds = defaultCreds;
-        _tableNameFormat = (null == dbPrefix) ? "%s.europa" : dbPrefix+"-%s.europa";
+        _tableNameFormat = (null == dbPrefix) ? "%s.europa" : (dbPrefix.replaceAll("\\W", "_") + "-%s.europa");
         _indexFactory = new Index.Factory() {
                 @Override
                 public <T> Index.Builder<T> create(Class<T> type) {
@@ -102,7 +102,7 @@ public class IndexFactoryProvider implements Provider<Index.Factory>
         try {
             log.info("DB schema initializing");
             _baseSchemaFactory.create()
-                .withTableNameFormat(_tableNameFormat) //TODO: Add prefix support
+                .withTableNameFormat(_tableNameFormat)
                 .withEndpoint(_endpoint)
                 .withCredProvider(() -> _creds)
                 .build()
