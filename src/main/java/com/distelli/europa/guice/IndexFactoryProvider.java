@@ -63,7 +63,7 @@ public class IndexFactoryProvider implements Provider<Index.Factory>
         _scaleFactor = scaleFactor;
         _endpoint = defaultEndpoint;
         _creds = defaultCreds;
-        _tableNameFormat = (null == dbPrefix) ? "%s.europa" : (dbPrefix.replaceAll("\\W", "_") + "-%s.europa");
+        _tableNameFormat = (null == dbPrefix) ? "%s.europa" : (dbPrefix.replace("%", "%%") + "-%s.europa");
         _indexFactory = new Index.Factory() {
                 @Override
                 public <T> Index.Builder<T> create(Class<T> type) {
