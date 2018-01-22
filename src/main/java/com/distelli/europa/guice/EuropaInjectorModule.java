@@ -152,6 +152,7 @@ public class EuropaInjectorModule extends AbstractModule
         CredPair creds = new CredPair()
         .withKeyId(_europaConfiguration.getDbUser())
         .withSecret(_europaConfiguration.getDbPass());
+        String dbPrefix = _europaConfiguration.getDbPrefix();
 
         OptionalBinder.newOptionalBinder(binder(), PermissionCheck.class)
             .setDefault().to(PermissionCheck.Default.class);
@@ -164,7 +165,7 @@ public class EuropaInjectorModule extends AbstractModule
             .toProvider(() -> new GcrClient.Builder().connectionPool(sharedPool));
         bind(DockerHubClient.Builder.class)
             .toProvider(() -> new DockerHubClient.Builder().connectionPool(sharedPool));
-        bind(Index.Factory.class).toProvider(new IndexFactoryProvider(endpoint, creds));
+        bind(Index.Factory.class).toProvider(new IndexFactoryProvider(endpoint, creds, dbPrefix));
         configureEuropaConfiguration();
         bind(ObjectStore.class).toProvider(new ObjectStoreProvider());
         bind(DnsSettings.class).toProvider(new DnsSettingsProvider());

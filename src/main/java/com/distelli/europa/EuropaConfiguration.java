@@ -27,6 +27,8 @@ public class EuropaConfiguration
     @Getter @Setter
     protected String dbPass;
     @Getter @Setter
+    protected String dbPrefix;
+    @Getter @Setter
     protected int dbMaxPoolSize = 2;
     @Getter @Setter
     protected EuropaStage stage;
@@ -52,6 +54,7 @@ public class EuropaConfiguration
         String dbEndpoint = getEnvVar("EUROPA_DB_ENDPOINT");
         String dbUser = getEnvVar("EUROPA_DB_USER");
         String dbPass = getEnvVar("EUROPA_DB_PASS");
+        String dbPrefix = getEnvVar("EUROPA_DB_PREFIX", false);
         int dbPoolSize = 2;
         String dbPoolSizeStr = null;
         try {
@@ -67,6 +70,7 @@ public class EuropaConfiguration
         config.setDbEndpoint(dbEndpoint);
         config.setDbUser(dbUser);
         config.setDbPass(dbPass);
+        config.setDbPrefix(dbPrefix);
         config.setDbMaxPoolSize(dbPoolSize);
         return config;
     }
