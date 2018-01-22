@@ -15,8 +15,6 @@ import com.distelli.persistence.IndexDescription;
 import com.distelli.persistence.Schema;
 import com.distelli.persistence.TableDescription;
 import java.net.URI;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -44,23 +42,10 @@ public class IndexFactoryProvider implements Provider<Index.Factory>
     private boolean _init = false;
     private Throwable _initFailure = null;
     private Index.Factory _indexFactory;
-    private float _scaleFactor;
 
-    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds) {
-        this(defaultEndpoint, defaultCreds, null, 1.0f);
-    }
-
-    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, String dbPrefix) {
-        this(defaultEndpoint, defaultCreds, dbPrefix, 1.0f);
-    }
-
-    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, float scaleFactor) {
-        this(defaultEndpoint, defaultCreds, null, scaleFactor);
-    }
-
-    public IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, String dbPrefix, float scaleFactor)
+    // IndexFactoryProvider should only be used by EuropaInjectorModule
+    protected IndexFactoryProvider(URI defaultEndpoint, CredPair defaultCreds, String dbPrefix)
     {
-        _scaleFactor = scaleFactor;
         _endpoint = defaultEndpoint;
         _creds = defaultCreds;
         _tableNameFormat = (null == dbPrefix) ? "%s.europa" : (dbPrefix.replace("%", "%%") + "-%s.europa");
