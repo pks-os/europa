@@ -8,49 +8,31 @@
 */
 package com.distelli.europa;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.distelli.europa.filters.ForceHttpsFilter;
-import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.ErrorHandler;
-import org.eclipse.jetty.servlet.DefaultServlet;
-import org.eclipse.jetty.servlet.ServletHolder;
 import com.distelli.europa.EuropaConfiguration.EuropaStage;
-import com.distelli.europa.db.RegistryBlobDb;
-import com.distelli.europa.db.TokenAuthDb;
-import com.distelli.europa.filters.StorageInitFilter;
+import com.distelli.europa.filters.ForceHttpsFilter;
 import com.distelli.europa.filters.RegistryAuthFilter;
-import com.distelli.europa.guice.*;
+import com.distelli.europa.filters.StorageInitFilter;
+import com.distelli.europa.guice.AjaxHelperModule;
+import com.distelli.europa.guice.EuropaInjectorModule;
 import com.distelli.europa.handlers.StaticContentErrorHandler;
 import com.distelli.europa.monitor.DispatchRepoMonitorTasks;
-import com.distelli.europa.util.*;
+import com.distelli.europa.util.CmdLineArgs;
 import com.distelli.objectStore.impl.ObjectStoreModule;
 import com.distelli.persistence.impl.PersistenceModule;
-import com.distelli.utils.Log4JConfigurator;
-import com.distelli.europa.db.TokenAuthDb;
-import com.distelli.europa.db.RegistryBlobDb;
-import com.distelli.europa.db.SequenceDb;
-import com.distelli.europa.db.ContainerRepoDb;
-import com.distelli.europa.db.RegistryCredsDb;
-import com.distelli.europa.db.NotificationsDb;
-import com.distelli.europa.db.RepoEventsDb;
-import com.distelli.europa.db.RegistryManifestDb;
 import com.distelli.webserver.*;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
 import com.google.inject.Stage;
-import java.util.Arrays;
 import lombok.extern.log4j.Log4j;
-import java.util.List;
+import org.eclipse.jetty.servlet.DefaultServlet;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 @Log4j
 public class Europa
@@ -77,24 +59,11 @@ public class Europa
     public Europa(String[] args)
     {
         _cmdLineArgs = new CmdLineArgs(args);
-        boolean logToConsole = _cmdLineArgs.hasOption(Constants.LOG_TO_CONSOLE_ARG);
         // Initialize Logging
         File logsDir = new File("./logs/");
         if(!logsDir.exists())
             logsDir.mkdirs();
 
-        if(logToConsole)
-            Log4JConfigurator.configure(true);
-        else
-            Log4JConfigurator.configure(logsDir, "Europa");
-        Log4JConfigurator.setLogLevel("INFO");
-        Log4JConfigurator.setLogLevel("com.distelli.europa.registry", "DEBUG");
-        //Log4JConfigurator.setLogLevel("com.distelli.europa", "DEBUG");
-        //Log4JConfigurator.setLogLevel("com.distelli.webserver", "ERROR");
-        //Log4JConfigurator.setLogLevel("com.distelli.gcr", "ERROR");
-        //Log4JConfigurator.setLogLevel("com.distelli.europa.monitor", "DEBUG");
-        //Log4JConfigurator.setLogLevel("com.distelli.webserver", "DEBUG");
-        //Log4JConfigurator.setLogLevel("com.distelli.persistence", "DEBUG");
         _configFilePath = _cmdLineArgs.getOption("config");
         String portStr = _cmdLineArgs.getOption("port");
         if(portStr != null)
