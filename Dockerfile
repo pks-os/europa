@@ -3,6 +3,7 @@ FROM openjdk:8
 ADD target/dependency/*.jar target/*.jar /europa-85fac6ec/lib/
 ADD run /europa-85fac6ec/run
 ADD public /europa-85fac6ec/public
+ADD log4j-console-only.properties /europa-85fac6ec/log4j-console-only.properties
 
 EXPOSE 80
 EXPOSE 443
