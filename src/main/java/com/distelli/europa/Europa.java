@@ -71,11 +71,7 @@ public class Europa
     public Europa(String[] args)
     {
         _cmdLineArgs = new CmdLineArgs(args);
-        // Initialize Logging
-        File logsDir = new File("./logs/");
-        if(!logsDir.exists())
-            logsDir.mkdirs();
-
+        
         _configFilePath = _cmdLineArgs.getOption("config");
         String portStr = _cmdLineArgs.getOption("port");
         if(portStr != null)
