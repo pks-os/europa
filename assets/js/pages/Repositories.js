@@ -236,7 +236,7 @@ export default class Repositories extends Component {
 							<p>
 								<strong>Remote Repositories</strong>&nbsp;
 								are hosted in third party registries such as EC2
-								Container Registry or Google Container Registry. Europa can scan these
+								Container Registry or Google Container Registry. Puppet Container Registry can scan these
 								remote registries and allow you to create pipelines to them and
 								mirror remote repositories locally.
 							</p>
