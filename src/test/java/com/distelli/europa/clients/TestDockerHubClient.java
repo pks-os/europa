@@ -1,5 +1,6 @@
 package com.distelli.europa.clients;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.Before;
 import javax.inject.Inject;
@@ -23,6 +24,7 @@ public class TestDockerHubClient {
         Guice.createInjector(new EuropaTestModule())
             .injectMembers(this);
     }
+    @Ignore("replace with a test that actually tests something")
     @Test
     public void testListRepositories() throws Exception {
         DockerHubClient client = _dhClientBuilderProvider.get()
