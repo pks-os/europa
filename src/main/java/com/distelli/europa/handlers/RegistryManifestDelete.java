@@ -1,6 +1,8 @@
 package com.distelli.europa.handlers;
 
 import com.distelli.europa.EuropaRequestContext;
+import com.distelli.europa.registry.RegistryError;
+import com.distelli.europa.registry.RegistryErrorCode;
 import org.eclipse.jetty.http.HttpMethod;
 import com.distelli.webserver.RequestHandler;
 import com.distelli.webserver.WebResponse;
@@ -16,7 +18,7 @@ import lombok.extern.log4j.Log4j;
 @Singleton
 public class RegistryManifestDelete extends RegistryBase {
     public WebResponse handleRegistryRequest(EuropaRequestContext requestContext) {
-        WebResponse response = new WebResponse(200);
-        return response;
+        throw (new RegistryError("Method not implemented",
+                                 RegistryErrorCode.UNSUPPORTED));
     }
 }

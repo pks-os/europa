@@ -8,24 +8,27 @@
 */
 package com.distelli.europa;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.servlet.DefaultServlet;
+import com.distelli.europa.security.HandlerAccessRules;
+import com.distelli.europa.security.Permission;
 import com.distelli.webserver.RouteMatcher;
 import com.distelli.europa.handlers.*;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
-public class RegistryApiRoutes
-{
+public class RegistryApiRoutes {
     private static final RouteMatcher ROUTES = new RouteMatcher();
+    private static final HandlerAccessRules ACCESS_RULES = new HandlerAccessRules();
+
     public static RouteMatcher getRouteMatcher() {
         return ROUTES;
     }
 
+    public static HandlerAccessRules getAccessRules() {
+        return ACCESS_RULES;
+    }
+
     static {
-        //Add the routes below this line
+        // Add the routes below this line
         ROUTES.add("GET", "/v2", RegistryVersionCheck.class);
 
         // Manifest:
