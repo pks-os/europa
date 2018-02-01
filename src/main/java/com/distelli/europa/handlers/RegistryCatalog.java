@@ -68,9 +68,6 @@ public class RegistryCatalog extends RegistryBase {
     }
 
     protected List<ContainerRepo> listRepositories(String ownerUsername, String ownerDomain, PageIterator pageIterator) {
-        if (ownerDomain == null) {
-            return new ArrayList<>();
-        }
         return _reposDb.listEuropaRepos(ownerDomain, pageIterator);
     }
 

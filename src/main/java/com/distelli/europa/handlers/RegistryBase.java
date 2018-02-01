@@ -1,27 +1,33 @@
 package com.distelli.europa.handlers;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringJoiner;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import org.eclipse.jetty.http.HttpMethod;
 import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.guice.ObjectStoreNotInitialized;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.europa.models.RegistryProvider;
+import com.distelli.europa.registry.RegistryAuth;
 import com.distelli.europa.registry.RegistryError;
 import com.distelli.europa.registry.RegistryErrorCode;
 import com.distelli.europa.util.PermissionCheck;
 import com.distelli.utils.CompactUUID;
+import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.RequestContext;
 import com.distelli.webserver.RequestHandler;
 import com.distelli.webserver.WebResponse;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.log4j.Log4j;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Map;
-import java.util.StringJoiner;
+import lombok.extern.log4j.Log4j;
 
 @Log4j
 @Singleton
@@ -36,10 +42,15 @@ public abstract class RegistryBase extends RequestHandler<EuropaRequestContext>
     @Inject
     private ContainerRepoDb _repoDb;
     @Inject
+    private ContainerRepo _repo;
+    @Inject
     protected PermissionCheck _permissionCheck;
 
     public WebResponse handleRequest(EuropaRequestContext requestContext) {
         try {
+            String operationName = this.getClass().getSimpleName();
+            if(_permissionCheck != null)
+                _permissionCheck.checkRegistryAccess(operationName, requestContext);
             return handleRegistryRequest(requestContext);
         } catch ( RegistryError ex ) {
             return handleError(ex);

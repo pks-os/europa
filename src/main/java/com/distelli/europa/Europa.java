@@ -95,6 +95,7 @@ public class Europa
                 throw(new RuntimeException("Invalid value for stage: "+stageArg, t));
             }
         }
+        initialize();
     }
 
     protected void initializeWebServer(Injector injector)
@@ -136,49 +137,43 @@ public class Europa
         initializeWebServer(injector);
     }
 
-    protected WebServlet<EuropaRequestContext> createWebappServlet() {
-        WebServlet<EuropaRequestContext> servlet = new WebServlet<>(_webappRouteMatcher, _requestHandlerFactory);
-        servlet.setRequestContextFactory(_requestContextFactory);
-        if(_webappFilters != null) {
-            servlet.setRequestFilters(_webappFilters);
-        }
-        return servlet;
-    }
-
-    protected ServletHolder createStaticServletHolder() {
-        ServletHolder holder = new ServletHolder(DefaultServlet.class);
-        holder.setInitParameter("resourceBase", "./public");
-        holder.setInitParameter("dirAllowed","true");
-        holder.setInitParameter("pathInfoOnly","true");
-        holder.setInitParameter("etags", "true");
-        holder.setInitParameter("gzip", "true");
-        holder.setInitParameter("cacheControl", "max-age=3600");
-        return holder;
-    }
-
-    protected WebServlet<EuropaRequestContext> createRegistryApiServlet() {
-        WebServlet<EuropaRequestContext> servlet = new WebServlet<>(_registryApiRouteMatcher, _requestHandlerFactory);
-        servlet.setRequestContextFactory(new RequestContextFactory() {
-            public EuropaRequestContext getRequestContext(HTTPMethod method, HttpServletRequest request) {
-                return new EuropaRequestContext(method, request, false);
-            }
-        });
-        servlet.setRequestFilters(_registryApiFilters);
-        return servlet;
-    }
-
     public void start()
     {
         _dispatchRepoMonitorTasks.schedule();
 
-        WebServlet<EuropaRequestContext> webappServlet = createWebappServlet();
-        ServletHolder staticHolder = createStaticServletHolder();
-        WebServlet<EuropaRequestContext> registryApiServlet = createRegistryApiServlet();
+        WebServlet<EuropaRequestContext> servlet =
+            new WebServlet<EuropaRequestContext>(_webappRouteMatcher, _requestHandlerFactory);
+        servlet.setRequestContextFactory(_requestContextFactory);
+        if(_webappFilters != null)
+            servlet.setRequestFilters(_webappFilters);
 
-        WebServer webServer = new WebServer(_port, webappServlet, "/", _sslPort, _sslContextFactory);
+        WebServer webServer = new WebServer(_port, servlet, "/", _sslPort, _sslContextFactory);
+
+        ServletHolder staticHolder = new ServletHolder(DefaultServlet.class);
+        staticHolder.setInitParameter("resourceBase", "./public");
+        staticHolder.setInitParameter("dirAllowed","true");
+        staticHolder.setInitParameter("pathInfoOnly","true");
+        staticHolder.setInitParameter("etags", "true");
+        staticHolder.setInitParameter("gzip", "true");
+        staticHolder.setInitParameter("cacheControl", "max-age=3600");
         webServer.addStandardServlet("/public/*", staticHolder);
+
+        WebServlet<EuropaRequestContext> registryApiServlet =
+            new WebServlet<EuropaRequestContext>(_registryApiRouteMatcher, _requestHandlerFactory);
+        servlet.setRequestContextFactory(_requestContextFactory);
+
+        //Registry API Servlet uses the same request context (and
+        //similar factory) as the main webapp servlet with the only
+        //difference being that unmarshallJson is set to false
+        registryApiServlet.setRequestContextFactory(new RequestContextFactory() {
+                public RequestContext getRequestContext(HTTPMethod method, HttpServletRequest request) {
+                    return new EuropaRequestContext(method, request, false);
+                }
+            });
+        registryApiServlet.setRequestFilters(_registryApiFilters);
         webServer.addWebServlet("/v2/*", registryApiServlet);
         webServer.addWebServlet("/v1/*", registryApiServlet);
+
         webServer.setErrorHandler(_staticContentErrorHandler);
         webServer.start();
     }
@@ -186,7 +181,6 @@ public class Europa
     public static void main(String[] args)
     {
         Europa europa = new Europa(args);
-        europa.initialize();
         europa.start();
     }
 }
