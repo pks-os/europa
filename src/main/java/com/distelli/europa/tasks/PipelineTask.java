@@ -1,26 +1,25 @@
 package com.distelli.europa.tasks;
 
-import com.distelli.europa.db.TasksDb;
-import com.distelli.europa.db.PipelineDb;
 import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.db.PipelineDb;
 import com.distelli.europa.db.RegistryManifestDb;
-import com.distelli.europa.pipeline.RunPipeline;
-import com.distelli.europa.models.RawTaskEntry;
-import com.distelli.europa.models.Monitor;
-import com.distelli.europa.models.Pipeline;
 import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.Pipeline;
+import com.distelli.europa.models.RawTaskEntry;
 import com.distelli.europa.models.RegistryManifest;
+import com.distelli.europa.pipeline.RunPipeline;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Injector;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
+
 import javax.inject.Inject;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 
 @Log4j
 @Data
@@ -82,7 +81,7 @@ public class PipelineTask implements Task {
                     reference = manifestId;
                 }
             }
-            _runPipeline.runPipeline(pipeline, repo, reference, manifestId);
+            _runPipeline.runPipeline(pipeline.getComponents(), repo, reference, manifestId, null);
         }
     }
 

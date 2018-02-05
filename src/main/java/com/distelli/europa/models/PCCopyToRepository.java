@@ -1,57 +1,55 @@
 package com.distelli.europa.models;
 
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Singular;
-import javax.inject.Inject;
-import com.distelli.europa.db.RegistryManifestDb;
+import com.distelli.europa.clients.ECRClient;
 import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.db.RegistryBlobDb;
+import com.distelli.europa.db.RegistryCredsDb;
+import com.distelli.europa.db.RegistryManifestDb;
 import com.distelli.europa.db.RepoEventsDb;
-import lombok.extern.log4j.Log4j;
-import java.util.Collections;
-import com.distelli.webserver.AjaxClientException;
-import com.distelli.webserver.JsonError;
-import javax.inject.Provider;
+import com.distelli.europa.util.ObjectKeyFactory;
 import com.distelli.gcr.GcrClient;
 import com.distelli.gcr.GcrRegion;
-import com.distelli.gcr.exceptions.GcrException;
-import com.distelli.gcr.models.GcrManifestV2Schema1;
-import com.distelli.gcr.models.GcrManifestMeta;
-import com.distelli.gcr.models.GcrManifest;
-import com.distelli.gcr.models.GcrBlobUpload;
-import com.distelli.gcr.models.GcrBlobReader;
-import com.distelli.gcr.models.GcrBlobMeta;
 import com.distelli.gcr.auth.GcrCredentials;
 import com.distelli.gcr.auth.GcrServiceAccountCredentials;
-import com.distelli.europa.db.RegistryCredsDb;
-import com.distelli.europa.db.RegistryBlobDb;
-import com.distelli.europa.clients.ECRClient;
-import java.net.URI;
-import java.io.IOException;
-import java.io.InputStream;
-import com.distelli.objectStore.ObjectStore;
+import com.distelli.gcr.models.GcrBlobMeta;
+import com.distelli.gcr.models.GcrBlobReader;
+import com.distelli.gcr.models.GcrBlobUpload;
+import com.distelli.gcr.models.GcrManifest;
+import com.distelli.gcr.models.GcrManifestMeta;
 import com.distelli.objectStore.ObjectKey;
-import com.distelli.europa.util.ObjectKeyFactory;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static com.distelli.europa.Constants.DOMAIN_ZERO;
-import java.util.List;
-import java.util.ArrayList;
-import java.io.ByteArrayInputStream;
+import com.distelli.objectStore.ObjectStore;
 import com.distelli.utils.CountingInputStream;
 import com.distelli.utils.ResettableInputStream;
-import java.security.MessageDigest;
-import java.security.DigestInputStream;
-import static javax.xml.bind.DatatypeConverter.printHexBinary;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.JsonError;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import okhttp3.ConnectionPool;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import okhttp3.HttpUrl;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.Base64;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Collections;
+import java.util.List;
+
+import static com.distelli.europa.Constants.DOMAIN_ZERO;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 /**
  * Pipeline component that copies from one repository to another.
@@ -88,7 +86,7 @@ public class PCCopyToRepository extends PipelineComponent {
     private ConnectionPool _connectionPool;
 
     @Override
-    public boolean execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha) throws Exception {
+    public boolean execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha, String destinationTag) throws Exception {
         if ( null == _repoDb || null == _manifestDb ) {
             throw new IllegalStateException("Injector.injectMembers(this) has not been called");
         }
@@ -99,7 +97,7 @@ public class PCCopyToRepository extends PipelineComponent {
             throw new IllegalStateException("Tag must not be null");
         }
         // Not configured? Ignore...
-        if ( null == destinationContainerRepoId || 
+        if ( null == destinationContainerRepoId ||
              null == destinationContainerRepoDomain )
         {
             log.error("PipelineComponentId="+getId()+" has null destinationContainerRepoId or destinationContainerRepoDomain");
@@ -125,6 +123,15 @@ public class PCCopyToRepository extends PipelineComponent {
                       destinationContainerRepoId);
             return true;
         }
+
+        if ( null == tag ) {
+            if ( null == destinationTag ) {
+                destinationTag = srcTag;
+            }
+        } else {
+            destinationTag = tag;
+        }
+
         if ( srcRepo.isLocal() && destRepo.isLocal() ) {
             // Optimization, simply update the DB:
             RegistryManifest manifest = _manifestDb.getManifestByRepoIdTag(
@@ -139,7 +146,7 @@ public class PCCopyToRepository extends PipelineComponent {
             RegistryManifest copy = manifest.toBuilder()
                 .domain(destRepo.getDomain())
                 .containerRepoId(destRepo.getId())
-                .tag(null == tag ? srcTag : tag)
+                .tag(destinationTag)
                 .build();
             _manifestDb.put(copy);
             RepoEvent event = RepoEvent.builder()
@@ -166,10 +173,8 @@ public class PCCopyToRepository extends PipelineComponent {
                 log.error("Manifest not found for repo="+srcRepo.getName()+" ref="+manifestDigestSha);
                 return true;
             }
-            String reference = tag;
-            if ( null == reference ) reference = srcTag;
 
-            genericCopy(manifest, srcRegistry, srcRepo.getName(), srcTag, crossRepositoryBlobMount, dstRegistry, destRepo.getName(),reference);
+            genericCopy(manifest, srcRegistry, srcRepo.getName(), srcTag, crossRepositoryBlobMount, dstRegistry, destRepo.getName(), destinationTag);
         }
         return true;
     }
@@ -353,22 +358,22 @@ public class PCCopyToRepository extends PipelineComponent {
         public GcrManifest getManifest(String repository, String reference) throws IOException {
             return client.getManifest(repository, reference, "application/vnd.docker.distribution.manifest.v2+json");
         }
-            
+
         @Override
         public <T> T getBlob(String repository, String digest, GcrBlobReader<T> reader) throws IOException {
             return client.getBlob(repository, digest, reader);
         }
-            
+
         @Override
         public GcrBlobUpload createBlobUpload(String repository, String digest, String fromRepository) throws IOException {
             return client.createBlobUpload(repository, digest, fromRepository);
         }
-            
+
         @Override
         public GcrBlobMeta blobUploadChunk(GcrBlobUpload blobUpload, InputStream chunk, Long chunkLength, String digest) throws IOException {
             return client.blobUploadChunk(blobUpload, chunk, chunkLength, digest);
         }
-            
+
         @Override
         public GcrManifestMeta putManifest(String repository, String reference, GcrManifest manifest) throws IOException {
             return client.putManifest(repository, reference, manifest);
