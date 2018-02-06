@@ -81,7 +81,7 @@ public class PipelineTask implements Task {
                     reference = manifestId;
                 }
             }
-            _runPipeline.runPipeline(pipeline.getComponents(), repo, reference, manifestId, null);
+            _runPipeline.runPipeline(pipeline.getComponents(), repo, reference, manifestId);
         }
     }
 

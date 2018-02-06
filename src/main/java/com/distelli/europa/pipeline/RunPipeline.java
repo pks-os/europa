@@ -18,12 +18,19 @@ public class RunPipeline {
     public void runPipeline(List<PipelineComponent> components,
                             ContainerRepo srcRepo,
                             String srcTag,
-                            String digest,
-                            String destinationTag) {
+                            String digest) {
+        PipelineComponent.PipelineComponentResult result;
         for ( PipelineComponent component : components) {
             try {
                 _injector.injectMembers(component);
-                if ( ! component.execute(srcRepo, srcTag, digest, destinationTag) ) break;
+                result = component.execute(srcRepo, srcTag, digest);
+                if (result.isSuccessful()) {
+                    srcRepo = result.getRepo();
+                    srcTag = result.getTag();
+                    digest = result.getManifestDigestSha();
+                } else {
+                    break;
+                }
             } catch ( Exception ex ) {
                 // Ignore exceptions caused by threads being interrupted:
                 if ( ex instanceof java.io.InterruptedIOException ) return;

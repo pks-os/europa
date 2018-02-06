@@ -4,6 +4,7 @@ import com.distelli.webserver.AjaxClientException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Value;
 
 @Data
 @NoArgsConstructor
@@ -12,12 +13,16 @@ public class PipelineComponent {
     private String id;
 
     // Used by RunPipeline:
-    public boolean execute(ContainerRepo repo, String tag, String manifestDigestSha) throws Exception {
-        return execute(repo, tag, manifestDigestSha, null);
+    public PipelineComponentResult execute(ContainerRepo repo, String tag, String manifestDigestSha) throws Exception {
+        return (new PipelineComponentResult(true, repo, tag, manifestDigestSha));
     }
 
-    public boolean execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha, String destinationTag) throws Exception {
-        return true;
+    @Value
+    public class PipelineComponentResult {
+        boolean successful;
+        ContainerRepo repo;
+        String tag;
+        String manifestDigestSha;
     }
 
     // Used by AddPipelineComponent AJAX handler:
