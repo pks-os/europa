@@ -17,18 +17,18 @@ public class PipelineComponent {
     /**
      * Run the pipeline stage
      *
-     * @param repo the source repo with the image being promoted
-     * @param tag the tag of the image to be promoted
-     * @param manifestDigestSha the SHA digest of the manifest of the image to
-     *                          be promoted
+     * @param promotedImage the metadata about the previous image
      * @return the metadata about the image that was promoted, or an empty
      *         Optional if the stage failed and the pipeline should stop
      * @throws Exception
      */
-    public Optional<PromotedImage> execute(ContainerRepo repo, String tag, String manifestDigestSha) throws Exception {
-        return (Optional.of(new PromotedImage(repo, tag, manifestDigestSha)));
+    public Optional<PromotedImage> execute(PromotedImage promotedImage) throws Exception {
+        return (Optional.of(promotedImage));
     }
 
+    /**
+     * The metadata about an image that was promoted through a pipeline stage
+     */
     @Value
     public static final class PromotedImage {
         private final ContainerRepo repo;

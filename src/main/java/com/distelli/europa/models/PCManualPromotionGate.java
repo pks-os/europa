@@ -14,13 +14,11 @@ public class PCManualPromotionGate extends PipelineComponent {
     /**
      * Always ends pipeline execution
      *
-     * @param srcRepo Ignored
-     * @param srcTag Ignored
-     * @param manifestDigestSha Ignored
+     * @param promotedImage Ignored
      * @return Always an empty Optional
      */
     @Override
-    public Optional<PromotedImage> execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha) {
+    public Optional<PromotedImage> execute(PromotedImage promotedImage) {
         return (Optional.empty());
     }
 }

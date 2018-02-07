@@ -20,18 +20,14 @@ public class RunPipeline {
                             ContainerRepo srcRepo,
                             String srcTag,
                             String digest) {
-        Optional<PipelineComponent.PromotedImage> result;
+        Optional<PipelineComponent.PromotedImage> result = Optional.of(new PipelineComponent.PromotedImage(srcRepo, srcTag, digest));
         for ( PipelineComponent component : components) {
             try {
-                _injector.injectMembers(component);
-                result = component.execute(srcRepo, srcTag, digest);
-                if (result.isPresent()) {
-                    srcRepo = result.get().getRepo();
-                    srcTag = result.get().getTag();
-                    digest = result.get().getManifestDigestSha();
-                } else {
+                if (!result.isPresent()) {
                     break;
                 }
+                _injector.injectMembers(component);
+                result = component.execute(result.get());
             } catch ( Exception ex ) {
                 // Ignore exceptions caused by threads being interrupted:
                 if ( ex instanceof java.io.InterruptedIOException ) return;

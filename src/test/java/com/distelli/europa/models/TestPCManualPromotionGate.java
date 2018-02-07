@@ -11,7 +11,7 @@ public class TestPCManualPromotionGate {
     @Test
     public void test() throws Exception {
         PipelineComponent pipelineComponent = new PCManualPromotionGate();
-        Optional<PipelineComponent.PromotedImage> result = pipelineComponent.execute(null, null, null);
+        Optional<PipelineComponent.PromotedImage> result = pipelineComponent.execute(null);
         assertThat(result.isPresent(), equalTo(false));
     }
 }
