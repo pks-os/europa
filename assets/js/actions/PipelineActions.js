@@ -465,3 +465,11 @@ export function removeMainPipelineStage() {
     });
   });
 }
+
+export function guessPipelineComponentType(component) {
+  if (("destinationContainerRepoDomain" in component) || ("destinationContainerRepoId" in component)) {
+    return "CopyToRepository";
+  } else {
+    return "ManualPromotionGate";
+  }
+}

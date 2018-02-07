@@ -10,6 +10,7 @@ import AccessDenied from './../components/AccessDenied'
 import CenteredConfirm from './../components/CenteredConfirm'
 import PipelineStageItem from './../components/PipelineStageItem'
 import PipelineConnectRepository from './../components/PipelineConnectRepository'
+import {guessPipelineComponentType} from "../actions/PipelineActions";
 
 export default class Pipeline extends Component {
   constructor(props) {
@@ -21,7 +22,7 @@ export default class Pipeline extends Component {
   }
   componentDidMount() {
     let id = `${(this.props.isEnterprise) ? this.props.ctx.domain : 'd0'}:${this.props.params.pipelineId}`
-    
+
     this.context.actions.listRepos()
     .then(() => this.context.actions.getPipeline(id))
     .then(pipeline => {
@@ -82,20 +83,37 @@ export default class Pipeline extends Component {
   }
   renderPipeline() {
     if (!this.props.reposMap) return;
-    let repoContainerPipeline = this.props.reposMap[this.props.pipelineStore.pipeline.containerRepoId]
+    let repoContainerPipeline = this.props.reposMap[this.props.pipelineStore.pipeline.containerRepoId];
+    let pipelineComponents = this.props.pipelineStore.pipeline.components.slice();
+    let pipelineComponentsToRender = [];
+
+    while (pipelineComponents.length > 0) {
+      let nextComponent = pipelineComponents.shift();
+      let automatic = true;
+      if (this.context.actions.guessPipelineComponentType(nextComponent) === "ManualPromotionGate") {
+        automatic = false;
+        nextComponent = pipelineComponents.shift();
+      }
+      pipelineComponentsToRender.push([nextComponent, automatic])
+    }
 
     return (
       <div>
         <PipelineStageItem {...this.props}
                            firstStage={true}
                            repo={repoContainerPipeline} />
-        {this.props.pipelineStore.pipeline.components.map((component, idx) => {
+        {pipelineComponentsToRender.map((val) => {
+          let component = val[0];
+          let automatic = val[1];
+          let idx = this.props.pipelineStore.pipeline.components.indexOf(component);
+
           return (
             <PipelineStageItem {...this.props}
                                key={component.id}
                                idx={idx}
                                pipelineComponentObj={component}
-                               repo={this.props.reposMap[component.destinationContainerRepoId]} />
+                               repo={this.props.reposMap[component.destinationContainerRepoId]}
+                               automatic={automatic} />
           );
         })}
         <div className="FlexRow JustifyCenter AlignCenter">
@@ -107,6 +125,9 @@ export default class Pipeline extends Component {
         </div>
       </div>
     );
+  }
+  renderPipelineStage(currentStage, previousStage) {
+
   }
   // Connect Repo
   renderConnectRepo() {
@@ -203,7 +224,7 @@ export default class Pipeline extends Component {
 
     if(NPECheck(this.props, 'pipelineStore/noPipeline', false)) {
       return (
-        <NotFound {...this.props} message="Pipeline Not Found."/> 
+        <NotFound {...this.props} message="Pipeline Not Found."/>
       );
     }
 

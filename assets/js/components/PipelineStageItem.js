@@ -20,15 +20,25 @@ export default class PipelineStageItem extends Component {
   renderTrigger(repo) {
     if (!repo) return;
     if (this.props.empty) return;
-    // Don't render for the last stage
-    if (this.props.pipelineStore.pipeline.components.length - 1 == this.props.idx) return;
-    if (this.props.pipelineStore.pipeline.components.length == 0
-        && this.props.firstStage) return;
-
+    if (this.props.firstStage) return;
+    let imageName = (this.props.automatic) ? "dis-pipeline-green.svg" : "dis-pipeline-yellow.svg";
+    let checkboxClasses = (this.props.automatic) ? "icon-dis-box-check cursor-on-hover" : "icon-dis-box-uncheck cursor-on-hover";
+    // TODO: implement checkbox handling
+    // TODO: implement promote button
     return (
       <div className="stage-trigger">
         <div className="stage-trigger-pipe">
-          <img src="/public/images/dis-pipeline-green.svg" />
+          <img src={`/public/images/${imageName}`} />
+        </div>
+        <div className="stage-trigger-toggle">
+          <div className="stage-trigger-toggle-check">
+            <div className="stage-trigger-auto">
+              <i className={checkboxClasses}
+                 /*onClick={}*/ />
+              <span>Auto Promote on Image Event</span>
+            </div>
+              {/*this.renderPromoteButton()*/}
+          </div>
         </div>
       </div>
     );
@@ -42,6 +52,7 @@ export default class PipelineStageItem extends Component {
     // If repo is null, the user doesn't have access
     return (
       <div className="pipeline-stage-item">
+        {this.renderTrigger(repo)}
         <div className="pipeline-grey-wrap">
           <div className="stage-destination-wrap">
             <div className="left-icon-col" style={ {background: "#2E5597"} }>
@@ -52,7 +63,6 @@ export default class PipelineStageItem extends Component {
             </div>
           </div>
         </div>
-        {this.renderTrigger(repo)}
       </div>
     );
   }
