@@ -9,6 +9,7 @@ import Dropdown from './../components/Dropdown'
 import CenteredConfirm from './../components/CenteredConfirm'
 import RegistryProviderIcons from './../util/RegistryProviderIcons'
 import Msg from './../components/Msg'
+import * as PipelineComponents from '../util/PipelineComponents';
 
 export default class PipelineConnectRepository extends Component {
   constructor(props) {
@@ -35,7 +36,7 @@ export default class PipelineConnectRepository extends Component {
                          confirmButtonStyle={{}}
                          onConfirm={ this.props.initialConnect
                                      ? this.context.actions.setContainerRepo
-                                     : this.context.actions.addPipelineComponent }
+                                     : () => this.context.actions.addPipelineComponent(PipelineComponents.types.copyToRepository) }
                          onCancel={ () => this.context.actions.setPipelinePageSection(null) } />
       </div>
     );
@@ -99,7 +100,7 @@ export default class PipelineConnectRepository extends Component {
                         renderItem={(repo, index) => this.renderRepoItem(repo, index)}
                         inputPlaceholder="Docker Image Repository"
                         inputClassName="BlueBorder FullWidth White"
-                        inputValue={NPECheck(this.props.pipelineStore, 'repoConnectTemplate/name', "")}
+                        inputValue={NPECheck(this.props.pipelineStore, 'newComponentData/destinationContainerRepoName', "")}
                         className="Flex1" />
             </div>
             <div className="Flex1">

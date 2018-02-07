@@ -10,7 +10,7 @@ import AccessDenied from './../components/AccessDenied'
 import CenteredConfirm from './../components/CenteredConfirm'
 import PipelineStageItem from './../components/PipelineStageItem'
 import PipelineConnectRepository from './../components/PipelineConnectRepository'
-import {guessPipelineComponentType} from "../actions/PipelineActions";
+import * as PipelineComponents from '../util/PipelineComponents';
 
 export default class Pipeline extends Component {
   constructor(props) {
@@ -83,15 +83,21 @@ export default class Pipeline extends Component {
   }
   renderPipeline() {
     if (!this.props.reposMap) return;
-    let repoContainerPipeline = this.props.reposMap[this.props.pipelineStore.pipeline.containerRepoId];
+    let repoContainerPipeline = NPECheck(this.props, "pipelineStore/pipeline/containerRepoId", null);
+    if (!repoContainerPipeline) {
+        return <Msg text="No pipeline data found" />
+    }
     let pipelineComponents = this.props.pipelineStore.pipeline.components.slice();
     let pipelineComponentsToRender = [];
 
     while (pipelineComponents.length > 0) {
       let nextComponent = pipelineComponents.shift();
       let automatic = true;
-      if (this.context.actions.guessPipelineComponentType(nextComponent) === "ManualPromotionGate") {
-        automatic = false;
+      let componentType = PipelineComponents.guessPipelineComponentType(nextComponent);
+      if (!componentType.visible) {
+        if (componentType === PipelineComponents.types.manualPromotionGate) {
+          automatic = false;
+        }
         nextComponent = pipelineComponents.shift();
       }
       pipelineComponentsToRender.push([nextComponent, automatic])

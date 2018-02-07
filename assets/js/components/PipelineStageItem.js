@@ -34,7 +34,7 @@ export default class PipelineStageItem extends Component {
           <div className="stage-trigger-toggle-check">
             <div className="stage-trigger-auto">
               <i className={checkboxClasses}
-                 /*onClick={}*/ />
+                 onClick={() => this.context.actions.togglePipelineComponentAutomaticPromotion(this.props.pipelineComponentObj)} />
               <span>Auto Promote on Image Event</span>
             </div>
               {/*this.renderPromoteButton()*/}
