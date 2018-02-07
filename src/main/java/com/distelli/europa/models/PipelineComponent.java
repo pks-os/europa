@@ -1,11 +1,12 @@
 package com.distelli.europa.models;
 
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.Singular;
 import com.distelli.webserver.AjaxClientException;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.Value;
+
+import java.util.Optional;
 
 @Data
 @NoArgsConstructor
@@ -13,9 +14,26 @@ import com.distelli.webserver.AjaxClientException;
 public class PipelineComponent {
     private String id;
 
-    // Used by RunPipeline:
-    public boolean execute(ContainerRepo repo, String tag, String manifestDigestSha) throws Exception {
-        return true;
+    /**
+     * Run the pipeline stage
+     *
+     * @param promotedImage the metadata about the previous image
+     * @return the metadata about the image that was promoted, or an empty
+     *         Optional if the stage failed and the pipeline should stop
+     * @throws Exception
+     */
+    public Optional<PromotedImage> execute(PromotedImage promotedImage) throws Exception {
+        return (Optional.of(promotedImage));
+    }
+
+    /**
+     * The metadata about an image that was promoted through a pipeline stage
+     */
+    @Value
+    public static final class PromotedImage {
+        private final ContainerRepo repo;
+        private final String tag;
+        private final String manifestDigestSha;
     }
 
     // Used by AddPipelineComponent AJAX handler:
