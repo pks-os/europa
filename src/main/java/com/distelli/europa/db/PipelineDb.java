@@ -1,20 +1,11 @@
 package com.distelli.europa.db;
 
-import lombok.extern.log4j.Log4j;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import javax.inject.Singleton;
-import javax.inject.Inject;
-import java.util.TreeSet;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
 import com.distelli.europa.models.ExecutionStatus;
+import com.distelli.europa.models.PCCopyToRepository;
+import com.distelli.europa.models.PCManualPromotionGate;
 import com.distelli.europa.models.Pipeline;
 import com.distelli.europa.models.PipelineComponent;
-import com.distelli.europa.models.PCCopyToRepository;
-import com.distelli.persistence.AttrDescription;
+import com.distelli.jackson.transform.TransformModule;
 import com.distelli.persistence.AttrType;
 import com.distelli.persistence.ConvertMarker;
 import com.distelli.persistence.Index;
@@ -22,14 +13,23 @@ import com.distelli.persistence.IndexDescription;
 import com.distelli.persistence.IndexType;
 import com.distelli.persistence.PageIterator;
 import com.distelli.persistence.TableDescription;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.distelli.jackson.transform.TransformModule;
 import com.distelli.utils.CompactUUID;
-import java.util.stream.Collectors;
-import javax.persistence.RollbackException;
-import javax.persistence.EntityNotFoundException;
-import java.lang.reflect.InvocationTargetException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.RollbackException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 @Log4j
 @Singleton
@@ -46,7 +46,8 @@ public class PipelineDb extends BaseDb
 
     private static final List<Class<? extends PipelineComponent>> PIPELINE_COMPONENT_TYPES = Arrays.asList(
         // NOTE: Order matters! Always add new elements to the end!
-        PCCopyToRepository.class);
+        PCCopyToRepository.class,
+        PCManualPromotionGate.class);
 
     // The indexes contain pipeline items, since some things
     // in the index are pipeline objects and other things are

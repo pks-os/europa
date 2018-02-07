@@ -8,16 +8,56 @@
 */
 package com.distelli.europa.guice;
 
+import com.distelli.europa.ajax.AddPipelineComponent;
+import com.distelli.europa.ajax.CreateAuthToken;
+import com.distelli.europa.ajax.CreateLocalRepo;
+import com.distelli.europa.ajax.DeleteAuthToken;
+import com.distelli.europa.ajax.DeleteContainerRepo;
+import com.distelli.europa.ajax.DeletePipelineContainerRepoId;
+import com.distelli.europa.ajax.DeleteRegistryCreds;
+import com.distelli.europa.ajax.DeleteRepoNotification;
+import com.distelli.europa.ajax.GetContainerRepo;
+import com.distelli.europa.ajax.GetNotificationRecord;
+import com.distelli.europa.ajax.GetPipeline;
+import com.distelli.europa.ajax.GetRegionsForProvider;
+import com.distelli.europa.ajax.GetRepoOverview;
+import com.distelli.europa.ajax.GetSslSettings;
+import com.distelli.europa.ajax.GetStorageSettings;
+import com.distelli.europa.ajax.ListAuthTokens;
+import com.distelli.europa.ajax.ListContainerRepos;
+import com.distelli.europa.ajax.ListPipelines;
+import com.distelli.europa.ajax.ListRegistryCreds;
+import com.distelli.europa.ajax.ListRepoEvents;
+import com.distelli.europa.ajax.ListRepoManifests;
+import com.distelli.europa.ajax.ListRepoNotifications;
+import com.distelli.europa.ajax.ListReposInRegistry;
+import com.distelli.europa.ajax.MovePipelineComponent;
+import com.distelli.europa.ajax.NewPipeline;
+import com.distelli.europa.ajax.RedeliverWebhook;
+import com.distelli.europa.ajax.RemovePipeline;
+import com.distelli.europa.ajax.RemovePipelineComponent;
+import com.distelli.europa.ajax.RunPipelineManualPromotion;
+import com.distelli.europa.ajax.SaveContainerRepo;
+import com.distelli.europa.ajax.SaveGcrServiceAccountCreds;
+import com.distelli.europa.ajax.SaveRegistryCreds;
+import com.distelli.europa.ajax.SaveRepoNotification;
+import com.distelli.europa.ajax.SaveRepoOverview;
+import com.distelli.europa.ajax.SaveSslSettings;
+import com.distelli.europa.ajax.SaveStorageSettings;
+import com.distelli.europa.ajax.SetAuthTokenStatus;
+import com.distelli.europa.ajax.SetPipelineContainerRepoId;
+import com.distelli.europa.ajax.SetRepoPublic;
+import com.distelli.europa.ajax.TestWebhookDelivery;
+import com.distelli.europa.ajax.UpdateStorageCreds;
+import com.distelli.webserver.AjaxHelper;
+import com.distelli.webserver.AjaxHelperMap;
+import com.google.inject.AbstractModule;
+import com.google.inject.TypeLiteral;
+import com.google.inject.multibindings.MapBinder;
+import lombok.extern.log4j.Log4j;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import com.distelli.europa.ajax.*;
-import com.distelli.webserver.*;
-import com.google.inject.TypeLiteral;
-import com.google.inject.AbstractModule;
-import com.google.inject.multibindings.MapBinder;
-
-import lombok.extern.log4j.Log4j;
 
 @Log4j
 public class AjaxHelperModule extends AbstractModule
@@ -39,6 +79,7 @@ public class AjaxHelperModule extends AbstractModule
         addBinding(AddPipelineComponent.class);
         addBinding(MovePipelineComponent.class);
         addBinding(RemovePipelineComponent.class);
+        addBinding(RunPipelineManualPromotion.class);
 
         addBinding(GetRegionsForProvider.class);
         addBinding(ListReposInRegistry.class);

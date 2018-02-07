@@ -18,6 +18,7 @@ public class AjaxErrors
         public static final String PipelineNotFound = "PipelineNotFound";
         public static final String BadRepoName = "BadRepoName";
         public static final String BadPipelineName = "BadPipelineName";
+        public static final String BadPipelineComponent = "BadPipelineComponent";
         public static final String BadS3Credentials = "BadS3Credentials";
         public static final String BadS3Bucket = "BadS3Bucket";
         public static final String BadS3Settings = "BadS3Settings";
