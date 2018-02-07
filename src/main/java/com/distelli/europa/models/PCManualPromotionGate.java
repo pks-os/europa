@@ -3,6 +3,8 @@ package com.distelli.europa.models;
 import lombok.Data;
 import lombok.extern.log4j.Log4j;
 
+import java.util.Optional;
+
 /**
  * Pipeline component representing a manual promotion gate
  */
@@ -10,15 +12,15 @@ import lombok.extern.log4j.Log4j;
 @Data
 public class PCManualPromotionGate extends PipelineComponent {
     /**
-     * Always returns {@code false}
+     * Always ends pipeline execution
      *
      * @param srcRepo Ignored
      * @param srcTag Ignored
      * @param manifestDigestSha Ignored
-     * @return Always {@code false}
+     * @return Always an empty Optional
      */
     @Override
-    public PipelineComponentResult execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha) {
-        return (new PipelineComponentResult(false, srcRepo, srcTag, manifestDigestSha));
+    public Optional<PromotedImage> execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha) {
+        return (Optional.empty());
     }
 }

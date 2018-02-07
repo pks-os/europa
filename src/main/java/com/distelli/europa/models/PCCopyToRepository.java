@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static com.distelli.europa.Constants.DOMAIN_ZERO;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -86,7 +87,7 @@ public class PCCopyToRepository extends PipelineComponent {
     private ConnectionPool _connectionPool;
 
     @Override
-    public PipelineComponentResult execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha) throws Exception {
+    public Optional<PromotedImage> execute(ContainerRepo srcRepo, String srcTag, String manifestDigestSha) throws Exception {
         if ( null == _repoDb || null == _manifestDb ) {
             throw new IllegalStateException("Injector.injectMembers(this) has not been called");
         }
@@ -101,17 +102,17 @@ public class PCCopyToRepository extends PipelineComponent {
              null == destinationContainerRepoDomain )
         {
             log.error("PipelineComponentId="+getId()+" has null destinationContainerRepoId or destinationContainerRepoDomain");
-            return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+            return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
         }
         // From the same repo? Ignore...
         if ( destinationContainerRepoId.equals(srcRepo.getId()) ) {
             log.error("PipelineComponentId="+getId()+" pushes to itself!?");
-            return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+            return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
         }
         // TODO: if manifestDigestSha is null, we should issue a "DELETE"
         if ( null == manifestDigestSha ) {
             log.debug("Tag delete is not implemented");
-            return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+            return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
         }
         String reference = (null == tag) ? srcTag : tag;
         ContainerRepo destRepo = _repoDb.getRepo(destinationContainerRepoDomain, destinationContainerRepoId);
@@ -122,7 +123,7 @@ public class PCCopyToRepository extends PipelineComponent {
             log.debug("PipelineComponentId="+getId()+" repo does not exist domain="+
                       destinationContainerRepoDomain+" id="+
                       destinationContainerRepoId);
-            return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+            return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
         }
         if ( srcRepo.isLocal() && destRepo.isLocal() ) {
             // Optimization, simply update the DB:
@@ -133,7 +134,7 @@ public class PCCopyToRepository extends PipelineComponent {
             if ( null == manifest ) {
                 log.error("PipelineComponentId="+getId()+" missing manifest for domain="+srcRepo.getDomain()+
                           " repoId="+srcRepo.getId()+" tag="+manifestDigestSha);
-                return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+                return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
             }
             RegistryManifest copy = manifest.toBuilder()
                 .domain(destRepo.getDomain())
@@ -160,17 +161,17 @@ public class PCCopyToRepository extends PipelineComponent {
             Registry dstRegistry = createRegistry(
                 destRepo, true, crossRepositoryBlobMount ? srcRepo.getName() : null);
             if ( null == dstRegistry || null == srcRegistry ) {
-                return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+                return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
             }
             GcrManifest manifest = srcRegistry.getManifest(srcRepo.getName(), manifestDigestSha);
             if ( null == manifest ) {
                 log.error("Manifest not found for repo="+srcRepo.getName()+" ref="+manifestDigestSha);
-                return (new PipelineComponentResult(true, srcRepo, srcTag, manifestDigestSha));
+                return (Optional.of(new PromotedImage(srcRepo, srcTag, manifestDigestSha)));
             }
 
             genericCopy(manifest, srcRegistry, srcRepo.getName(), srcTag, crossRepositoryBlobMount, dstRegistry, destRepo.getName(), reference);
         }
-        return (new PipelineComponentResult(true, destRepo, reference, manifestDigestSha));
+        return (Optional.of(new PromotedImage(destRepo, reference, manifestDigestSha)));
     }
 
     interface Registry {

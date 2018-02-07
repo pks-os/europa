@@ -18,6 +18,7 @@ import com.distelli.webserver.AjaxRequest;
 import javax.inject.Inject;
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.stream.IntStream;
 
 public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext> {
     @Inject
@@ -69,20 +70,15 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
     }
 
     protected List<PipelineComponent> getComponentsToRun(Pipeline pipeline, String componentId) {
-        OptionalInt componentIndex = OptionalInt.empty();
-
-        for (int i = 0; i < pipeline.getComponents().size(); i++) {
-            if (pipeline.getComponents().get(i).getId().equalsIgnoreCase(componentId)) {
-                componentIndex = OptionalInt.of(i);
-                break;
-            }
-        }
+        List<PipelineComponent> components = pipeline.getComponents();
+        OptionalInt componentIndex = IntStream.range(0, components.size())
+            .filter((i) -> componentId.equalsIgnoreCase(components.get(i).getId()))
+            .findFirst();
         if (!componentIndex.isPresent()) {
             throw(new AjaxClientException("The specified PipelineComponent is not in the specified Pipeline",
                                           AjaxErrors.Codes.BadPipelineComponent, 400));
         }
-        return pipeline.getComponents().subList(componentIndex.getAsInt(),
-                                                pipeline.getComponents().size());
+        return components.subList(componentIndex.getAsInt(), components.size());
 
     }
 }

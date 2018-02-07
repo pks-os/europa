@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.List;
+import java.util.Optional;
 
 @Log4j
 @Singleton
@@ -19,15 +20,15 @@ public class RunPipeline {
                             ContainerRepo srcRepo,
                             String srcTag,
                             String digest) {
-        PipelineComponent.PipelineComponentResult result;
+        Optional<PipelineComponent.PromotedImage> result;
         for ( PipelineComponent component : components) {
             try {
                 _injector.injectMembers(component);
                 result = component.execute(srcRepo, srcTag, digest);
-                if (result.isSuccessful()) {
-                    srcRepo = result.getRepo();
-                    srcTag = result.getTag();
-                    digest = result.getManifestDigestSha();
+                if (result.isPresent()) {
+                    srcRepo = result.get().getRepo();
+                    srcTag = result.get().getTag();
+                    digest = result.get().getManifestDigestSha();
                 } else {
                     break;
                 }

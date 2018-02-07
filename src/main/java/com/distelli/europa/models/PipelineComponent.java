@@ -6,23 +6,34 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 
+import java.util.Optional;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class PipelineComponent {
     private String id;
 
-    // Used by RunPipeline:
-    public PipelineComponentResult execute(ContainerRepo repo, String tag, String manifestDigestSha) throws Exception {
-        return (new PipelineComponentResult(true, repo, tag, manifestDigestSha));
+    /**
+     * Run the pipeline stage
+     *
+     * @param repo the source repo with the image being promoted
+     * @param tag the tag of the image to be promoted
+     * @param manifestDigestSha the SHA digest of the manifest of the image to
+     *                          be promoted
+     * @return the metadata about the image that was promoted, or an empty
+     *         Optional if the stage failed and the pipeline should stop
+     * @throws Exception
+     */
+    public Optional<PromotedImage> execute(ContainerRepo repo, String tag, String manifestDigestSha) throws Exception {
+        return (Optional.of(new PromotedImage(repo, tag, manifestDigestSha)));
     }
 
     @Value
-    public class PipelineComponentResult {
-        boolean successful;
-        ContainerRepo repo;
-        String tag;
-        String manifestDigestSha;
+    public static final class PromotedImage {
+        private final ContainerRepo repo;
+        private final String tag;
+        private final String manifestDigestSha;
     }
 
     // Used by AddPipelineComponent AJAX handler:
