@@ -8,14 +8,13 @@
 */
 package com.distelli.europa;
 
-import java.io.File;
-
-import lombok.Getter;
-import lombok.Setter;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.log4j.Log4j;
-import com.distelli.objectStore.*;
+
+import java.io.File;
 
 @Log4j
 public class EuropaConfiguration
@@ -45,6 +44,7 @@ public class EuropaConfiguration
         OBJECT_MAPPER.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+
     public EuropaConfiguration()
     {
 
@@ -72,8 +72,11 @@ public class EuropaConfiguration
         config.setDbPass(dbPass);
         config.setDbPrefix(dbPrefix);
         config.setDbMaxPoolSize(dbPoolSize);
+        config.validate();
         return config;
     }
+
+    private static boolean missingConfigSettings = false;
 
     private static final String getEnvVar(String varName)
     {
@@ -85,8 +88,10 @@ public class EuropaConfiguration
         String value = System.getenv(varName);
         if(value != null)
             return value;
-        if(required)
-            throw(new IllegalStateException("Missing Env Variable: "+varName));
+        if(required) {
+            log.error("Configuration error: environment variable " + varName + " must be set");
+            missingConfigSettings = true;
+        }
         return null;
     }
 
@@ -94,10 +99,32 @@ public class EuropaConfiguration
     {
         try {
             EuropaConfiguration config = OBJECT_MAPPER.readValue(configFile, EuropaConfiguration.class);
+            config.validateConfigFile();
+            config.validate();
             return config;
         } catch(Throwable t) {
             throw(new RuntimeException(t));
         }
+    }
+
+    private void validateConfigFile() {
+        if(dbEndpoint == null) {
+            log.error("Configuration error: \"dbEndPoint\" not set in configuration file.");
+            missingConfigSettings = true;
+        }
+        if(dbUser == null) {
+            log.error("Configuration error: \"dbUser\" not set in configuration file.");
+            missingConfigSettings = true;
+        }
+        if(dbPass == null) {
+            log.error("Configuration error: \"dbPass\" not set in configuration file.");
+            missingConfigSettings = true;
+        }
+    }
+
+    private void validate() throws RuntimeException {
+        if(missingConfigSettings)
+            throw(new RuntimeException("Configuration error: missing required settings"));
     }
 
     public boolean isProd()
