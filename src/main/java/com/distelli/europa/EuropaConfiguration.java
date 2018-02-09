@@ -99,7 +99,7 @@ public class EuropaConfiguration
     {
         try {
             EuropaConfiguration config = OBJECT_MAPPER.readValue(configFile, EuropaConfiguration.class);
-            config.validateConfigFile();
+            config.validateConfigFile(configFile);
             config.validate();
             return config;
         } catch(Throwable t) {
@@ -107,17 +107,17 @@ public class EuropaConfiguration
         }
     }
 
-    private void validateConfigFile() {
+    private void validateConfigFile(File configFile) {
         if(dbEndpoint == null) {
-            log.error("Configuration error: \"dbEndPoint\" not set in configuration file.");
+            log.error("Configuration error: \"dbEndPoint\" not set in configuration file " + configFile.getAbsolutePath());
             missingConfigSettings = true;
         }
         if(dbUser == null) {
-            log.error("Configuration error: \"dbUser\" not set in configuration file.");
+            log.error("Configuration error: \"dbUser\" not set in configuration file " + configFile.getAbsolutePath());
             missingConfigSettings = true;
         }
         if(dbPass == null) {
-            log.error("Configuration error: \"dbPass\" not set in configuration file.");
+            log.error("Configuration error: \"dbPass\" not set in configuration file " + configFile.getAbsolutePath());
             missingConfigSettings = true;
         }
     }
