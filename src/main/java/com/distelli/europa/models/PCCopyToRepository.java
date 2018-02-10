@@ -139,19 +139,25 @@ public class PCCopyToRepository extends PipelineComponent {
                           " repoId="+srcRepo.getId()+" tag="+manifestDigestSha);
                 return (Optional.of(promotedImage));
             }
-            RegistryManifest copy = manifest.toBuilder()
+            RegistryManifest copyDigest = manifest.toBuilder()
+                .domain(destRepo.getDomain())
+                .containerRepoId(destRepo.getId())
+                .tag(manifestDigestSha)
+                .build();
+            RegistryManifest copyTag = manifest.toBuilder()
                 .domain(destRepo.getDomain())
                 .containerRepoId(destRepo.getId())
                 .tag(reference)
                 .build();
-            _manifestDb.put(copy);
+            _manifestDb.put(copyDigest);
+            _manifestDb.put(copyTag);
             RepoEvent event = RepoEvent.builder()
-                .domain(copy.getDomain())
-                .repoId(copy.getContainerRepoId())
+                .domain(copyTag.getDomain())
+                .repoId(copyTag.getContainerRepoId())
                 .eventType(RepoEventType.PUSH)
                 .eventTime(System.currentTimeMillis())
-                .imageTags(Collections.singletonList(copy.getTag()))
-                .imageSha(copy.getManifestId())
+                .imageTags(Collections.singletonList(copyTag.getTag()))
+                .imageSha(copyTag.getManifestId())
                 .build();
             _eventDb.save(event);
             _repoDb.setLastEvent(event.getDomain(), event.getRepoId(), event);

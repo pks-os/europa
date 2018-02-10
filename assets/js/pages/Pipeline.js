@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import Btn from './../components/Btn'
 import Loader from './../components/Loader'
 import BtnGroup from './../components/BtnGroup'
+import Msg from '../components/Msg'
 import NPECheck from './../util/NPECheck'
 import NotFound from './../pages/NotFound'
 import ControlRoom from './../components/ControlRoom'
@@ -11,6 +12,7 @@ import CenteredConfirm from './../components/CenteredConfirm'
 import PipelineStageItem from './../components/PipelineStageItem'
 import PipelineConnectRepository from './../components/PipelineConnectRepository'
 import * as PipelineComponents from '../util/PipelineComponents';
+import PipelinePromoteStage from "../components/PipelinePromoteStage";
 
 export default class Pipeline extends Component {
   constructor(props) {
@@ -53,15 +55,15 @@ export default class Pipeline extends Component {
     switch (this.props.pipelineStore.section) {
       case "CONNECT_REPOSITORY":
         return this.renderConnectRepo();
-      break;
 
       case "ADD_STAGE":
         return this.renderConnectStage();
-      break;
 
       case "REMOVE_STAGE":
         return this.renderRemoveStage();
-      break;
+
+      case "PROMOTE_STAGE":
+        return this.renderPromoteStage();
 
       default:
         if (!pipeline.containerRepoId) {
@@ -83,24 +85,31 @@ export default class Pipeline extends Component {
   }
   renderPipeline() {
     if (!this.props.reposMap) return;
-    let repoContainerPipeline = NPECheck(this.props, "pipelineStore/pipeline/containerRepoId", null);
-    if (!repoContainerPipeline) {
+    let repoContainerPipelineId = NPECheck(this.props, "pipelineStore/pipeline/containerRepoId", null);
+    if (!repoContainerPipelineId) {
         return <Msg text="No pipeline data found" />
     }
+    let repoContainerPipeline = this.props.reposMap[repoContainerPipelineId];
     let pipelineComponents = this.props.pipelineStore.pipeline.components.slice();
     let pipelineComponentsToRender = [];
 
+    // We don't actually render ManualPromotionGate components. Instead, they represent a transition between
+    // other components which affects how those components are rendered and behave.
+    let sourceRepoId = repoContainerPipelineId;
     while (pipelineComponents.length > 0) {
       let nextComponent = pipelineComponents.shift();
       let automatic = true;
       let componentType = PipelineComponents.guessPipelineComponentType(nextComponent);
+      let gateComponentId = null;
       if (!componentType.visible) {
         if (componentType === PipelineComponents.types.manualPromotionGate) {
           automatic = false;
         }
+        gateComponentId = nextComponent.id;
         nextComponent = pipelineComponents.shift();
       }
-      pipelineComponentsToRender.push([nextComponent, automatic])
+      pipelineComponentsToRender.push([nextComponent, sourceRepoId, automatic, gateComponentId]);
+      sourceRepoId = this.props.reposMap[nextComponent.destinationContainerRepoId].id;
     }
 
     return (
@@ -110,7 +119,9 @@ export default class Pipeline extends Component {
                            repo={repoContainerPipeline} />
         {pipelineComponentsToRender.map((val) => {
           let component = val[0];
-          let automatic = val[1];
+          let sourceRepoId = val[1];
+          let automatic = val[2];
+          let gateComponentId = val[3];
           let idx = this.props.pipelineStore.pipeline.components.indexOf(component);
 
           return (
@@ -118,8 +129,11 @@ export default class Pipeline extends Component {
                                key={component.id}
                                idx={idx}
                                pipelineComponentObj={component}
+                               sourceRepoId={sourceRepoId}
                                repo={this.props.reposMap[component.destinationContainerRepoId]}
-                               automatic={automatic} />
+                               automatic={automatic}
+                               gateComponentId={gateComponentId}
+                               promoteFunc={this.context.actions.openPromoteStage.bind(this)} />
           );
         })}
         <div className="FlexRow JustifyCenter AlignCenter">
@@ -131,9 +145,6 @@ export default class Pipeline extends Component {
         </div>
       </div>
     );
-  }
-  renderPipelineStage(currentStage, previousStage) {
-
   }
   // Connect Repo
   renderConnectRepo() {
@@ -218,6 +229,49 @@ export default class Pipeline extends Component {
            close={() => this.context.actions.clearPipelinesXHRErrors()} />
       );
     }
+  }
+  // Promote Stage
+  renderPromoteStage() {
+    return (
+      <div style={ {margin: "14px 0 0"} }>
+        <ControlRoom renderHeaderContent={ this.promoteStageHeader.bind(this) }
+                     renderBodyContent={ this.promoteStageForm.bind(this) } />
+      </div>
+    );
+  }
+  promoteStageHeader() {
+    return (
+      <div className="CR_Header">
+        <span className="CR_HeaderTitle">
+          Promote Image
+        </span>
+        <span className="CR_HeaderClose">
+          <i className="icon-dis-close"
+             onClick={ () => this.context.actions.setPipelinePageSection(null) } />
+        </span>
+      </div>
+    )
+  }
+  promoteStageForm() {
+    let sourceRepoId = NPECheck(this.props.pipelineStore, 'stagePromotionData/sourceRepoId', null);
+    let destinationComponent = NPECheck(this.props.pipelineStore, 'stagePromotionData/destinationComponent', null);
+    if (sourceRepoId === null || destinationComponent === null) {
+      return (
+        <Msg text="Invalid source or destination stage" />
+      );
+    }
+    let repo = this.props.reposMap[sourceRepoId];
+    if (repo === null) {
+      return (
+        <Msg text="You are not authorized to view this Repository" />
+      );
+    }
+    return (
+      <PipelinePromoteStage {...this.props}
+                            repo={repo}
+                            destinationComponent={destinationComponent}
+      />
+    );
   }
   render() {
     let pipeline = this.props.pipelineStore.pipeline;

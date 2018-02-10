@@ -14,7 +14,7 @@ export default class PipelineStageItem extends Component {
     super(props);
     this.state = {
       deleteToggled: false,
-      pipelineComponentObj: this.props.pipelineComponentObj
+      pipelineComponentObj: this.props.pipelineComponentObj,
     };
   }
   renderTrigger(repo) {
@@ -37,11 +37,21 @@ export default class PipelineStageItem extends Component {
                  onClick={() => this.context.actions.togglePipelineComponentAutomaticPromotion(this.props.pipelineComponentObj)} />
               <span>Auto Promote on Image Event</span>
             </div>
-              {/*this.renderPromoteButton()*/}
+              {this.renderPromoteButton()}
           </div>
         </div>
       </div>
     );
+  }
+  renderPromoteButton() {
+    return (
+      <div className="stage-promote"
+           onClick={() => this.props.promoteFunc(this.props.sourceRepoId, this.props.pipelineComponentObj)}>
+        <span>Promote</span>
+        <i className="icon icon-dis-promote"/>
+      </div>
+    );
+
   }
   renderEmptyOption() {
     if (!NPECheck(this.props.stage, 'autoDeployTrigger', null)) {
@@ -88,9 +98,12 @@ export default class PipelineStageItem extends Component {
   }
   deleteStage() {
     if (this.props.firstStage) {
-      this.context.actions.removeMainPipelineStage()
+      this.context.actions.removeMainPipelineStage();
     } else {
-      this.context.actions.removePipelineComponent(this.state.pipelineComponentObj.id)
+      if (!this.props.automatic) {
+        this.context.actions.removePipelineComponent(this.props.gateComponentId);
+      }
+      this.context.actions.removePipelineComponent(this.state.pipelineComponentObj.id);
     }
   }
   renderConfirmOrError() {
@@ -224,5 +237,14 @@ PipelineStageItem.contextTypes = {
 };
 
 PipelineStageItem.propTypes = {
+  repo: PropTypes.object.isRequired,
   empty: PropTypes.bool,
+  firstStage: PropTypes.bool,
+  sourceRepoId: PropTypes.string,
+  idx: PropTypes.number,
+  pipelineComponentObj: PropTypes.object,
+  sourceRepoId: PropTypes.string,
+  automatic: PropTypes.bool,
+  gateComponentId: PropTypes.string,
+  promoteFunc: PropTypes.func,
 };

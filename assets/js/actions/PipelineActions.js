@@ -39,6 +39,11 @@ export function singlePipelineState() {
     pipeline: null,
     newComponentData: null,
     section: null,
+    stagePromotionData: {
+      sourceRepoId: null,
+      destinationComponent: null,
+      destinationTag: null,
+    },
 
     // XHR
     getPipelineXHR: false,
@@ -48,6 +53,8 @@ export function singlePipelineState() {
     movePipelineComponentXHR: false,
     removePipelineComponentXHR: false,
     removePipelineMainStageXHR: false,
+    listManifestsXHR: false,
+    runPromoteStageXHR: false,
 
     // XHR Error
     setContainerRepoXHRError: null,
@@ -55,6 +62,8 @@ export function singlePipelineState() {
     movePipelineComponentXHRError: null,
     removePipelineComponentXHRError: null,
     removePipelineMainStageXHRError: null,
+    listManifestsXHRError: null,
+    runPromoteStageXHRError: null,
   }
 }
 
@@ -74,6 +83,8 @@ export function clearPipelineXHRErrors() {
       addPipelineComponentXHRError: null,
       movePipelineComponentXHRError: null,
       removePipelineComponentXHRError: null,
+      listManifestsXHRError: null,
+      runPromoteStageXHRError: null,
     })
   })
 }
@@ -91,10 +102,12 @@ export function resetPipelinesState() {
 }
 
 export function setPipelinePageSection(section) {
-  this.setState({
-    pipelineStore: GR.modifyProperty(this.state.pipelineStore, {
-      section: section
-    })
+  this.setState((prevState, props) => {
+    return {
+      pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+        section: section
+      })
+    }
   })
 }
 
@@ -473,6 +486,124 @@ export function removeMainPipelineStage() {
   });
 }
 
+export function openPromoteStage(sourceRepoId, destinationComponent) {
+  this.setState((prevState, props) => {
+    return {
+      pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+        stagePromotionData: {
+          sourceRepoId: sourceRepoId,
+          destinationComponent: destinationComponent,
+        },
+      })
+    }
+  });
+  setPipelinePageSection.call(this, 'PROMOTE_STAGE');
+}
+
+export function setPromoteStageSource(manifest) {
+  this.setState((prevState, props) => {
+    return {
+      pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+        stagePromotionData: GR.modifyProperty(prevState.pipelineStore.stagePromotionData, {
+          sourceTag: manifest.tags[0],
+          destinationTag: manifest.tags[0],
+        }),
+      }),
+    };
+  });
+}
+
+export function setPromoteStageDestinationTag(tagName) {
+    this.setState((prevState, props) => {
+        return {
+            pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+                stagePromotionData: GR.modifyProperty(prevState.pipelineStore.stagePromotionData, {
+                    destinationTag: tagName,
+                }),
+            }),
+        };
+    });
+}
+
+export function runPromoteStage() {
+  let pipelineId = NPECheck(this.state.pipelineStore, 'pipeline/id', null);
+  let componentId = NPECheck(this.state.pipelineStore, 'stagePromotionData/destinationComponent/id', null);
+  let sourceRepoId = NPECheck(this.state.pipelineStore, 'stagePromotionData/sourceRepoId', null);
+  let sourceTag = NPECheck(this.state.pipelineStore, 'stagePromotionData/sourceTag', null);
+  let destinationTag = NPECheck(this.state.pipelineStore, 'stagePromotionData/destinationTag', null);
+  if (pipelineId === null ||
+      componentId === null ||
+      sourceRepoId === null ||
+      sourceTag === null ||
+      destinationTag === null) {
+    this.setState((prevState, props) => {
+      return {
+        pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+          runPromoteStageXHRError: 'Missing required data to promote',
+        })
+      };
+    })
+  }
+
+  let params = {
+    pipelineId: pipelineId,
+    componentId: componentId,
+    sourceRepoId: sourceRepoId,
+    sourceTag: sourceTag,
+    destinationTag: destinationTag,
+  };
+
+  return new Promise((resolve, reject) => {
+    this.setState((prevState, props) => {
+        return {
+          pipelinesStore: GR.modifyProperty(this.state.pipelinesStore, {
+            runPromoteStageXHR: true,
+          })
+        }
+    }, () => {
+      RAjax.POST.call(this, 'RunPipelineManualPromotion', {}, params)
+        .then(res => {
+          this.setState((prevState, props) => {
+            return {
+              pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+                stagePromotionData: {
+                  sourceRepoId: null,
+                  destinationComponent: null,
+                  destinationTag: null,
+                },
+                section: null,
+                pipeline: res,
+              }),
+            };
+          }, () => resolve(res));
+        })
+        .catch(err => {
+          this.setState((prevState, props) => {
+            return {
+              pipelinesStore: GR.modifyProperty(prevState.pipelinesStore, {
+                runPromoteStageXHR: false,
+                runPromoteStageXHRError: err,
+              }),
+            };
+          });
+        });
+    });
+  });
+}
+
+export function clearPromoteStage() {
+  this.setState((prevState, props) => {
+    return {
+      stagePromotionData: {
+        sourceRepoId: null,
+        destinationComponent: null,
+        destinationTag: null,
+      },
+      section: null,
+    }
+  });
+}
+
 export function togglePipelineComponentAutomaticPromotion(component) {
   let componentList = NPECheck(this.state.pipelineStore, 'pipeline/components', []);
   let componentIndex = componentList.indexOf(component);
@@ -494,4 +625,3 @@ export function togglePipelineComponentAutomaticPromotion(component) {
 function setPipelineComponentToManualPromotion(component) {
   addPipelineComponent.call(this, PipelineComponents.types.manualPromotionGate, component.id);
 }
-

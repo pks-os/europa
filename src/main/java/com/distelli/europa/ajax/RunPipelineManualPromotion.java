@@ -14,6 +14,7 @@ import com.distelli.europa.util.PermissionCheck;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.AjaxHelper;
 import com.distelli.webserver.AjaxRequest;
+import com.distelli.webserver.HTTPMethod;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -31,6 +32,10 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
     private RegistryManifestDb _manifestDb;
     @Inject
     private RunPipeline _runPipeline;
+
+    public RunPipelineManualPromotion() {
+        this.supportedHttpMethods.add(HTTPMethod.POST);
+    }
 
     @Override
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext) {
@@ -64,7 +69,7 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
             ((PCCopyToRepository) componentsToRun.get(0)).setTag(destinationTag);
         }
 
-        _runPipeline.runPipeline(componentsToRun, sourceRepo, sourceTag, manifestId);
+        _runPipeline.runPipeline(componentsToRun, sourceRepo, sourceTag, sourceTag);
 
         return _pipelineDb.getPipeline(pipelineId);
     }
