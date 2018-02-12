@@ -51,13 +51,8 @@ export default class Footer extends Component {
 		);
 	}
 	footer(){
-		let europa;
+		let europa = capitalize(PAGE_PROPS.europa);
 
-		if(typeof PAGE_PROPS.europa !== 'undefined') {
-			europa = capitalize(PAGE_PROPS.europa);
-		} else {
-			europa = 'Community';
-		}
 		return (
 			<div className="Footer">
 				<div className="FooterInside">
