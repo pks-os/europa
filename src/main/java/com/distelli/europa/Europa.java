@@ -19,11 +19,21 @@ import com.distelli.europa.monitor.DispatchRepoMonitorTasks;
 import com.distelli.europa.util.CmdLineArgs;
 import com.distelli.objectStore.impl.ObjectStoreModule;
 import com.distelli.persistence.impl.PersistenceModule;
-import com.distelli.webserver.*;
+import com.distelli.webserver.HTTPMethod;
+import com.distelli.webserver.MatchedRoute;
+import com.distelli.webserver.RequestContext;
+import com.distelli.webserver.RequestContextFactory;
+import com.distelli.webserver.RequestFilter;
+import com.distelli.webserver.RequestHandler;
+import com.distelli.webserver.RequestHandlerFactory;
+import com.distelli.webserver.RouteMatcher;
+import com.distelli.webserver.WebServer;
+import com.distelli.webserver.WebServlet;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Stage;
 import lombok.extern.log4j.Log4j;
+import org.apache.log4j.Logger;
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -32,6 +42,8 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
 @Log4j
@@ -95,6 +107,7 @@ public class Europa
                 throw(new RuntimeException("Invalid value for stage: "+stageArg, t));
             }
         }
+        validateLoggers();
         initialize();
     }
 
@@ -176,6 +189,14 @@ public class Europa
 
         webServer.setErrorHandler(_staticContentErrorHandler);
         webServer.start();
+    }
+
+    private void validateLoggers() throws RuntimeException {
+        Logger logger = Logger.getRootLogger();
+        Enumeration appenders = logger.getAllAppenders();
+        if(Collections.list(appenders).size() == 0) {
+            throw(new RuntimeException("No log4j loggers are configured. Please add \"-Dlog4j.configuration=file:log4j-console-only.properties\" to JVM VM args and create log4j-console-only.properties."));
+        }
     }
 
     public static void main(String[] args)
