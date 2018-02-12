@@ -5,6 +5,7 @@
 import React, { Component, PropTypes } from 'react'
 import {Link} from 'react-router'
 import NPECheck from './../util/NPECheck'
+import capitalize from './../util/Capitalize'
 
 export default class Footer extends Component {
 	constructor(props) {
@@ -52,8 +53,8 @@ export default class Footer extends Component {
 	footer(){
 		let europa;
 
-		if(this.props.requester) {
-			europa = (this.props.isEnterprise) ? 'Enterprise' : 'Premium';
+		if(typeof PAGE_PROPS.europa !== 'undefined') {
+			europa = capitalize(PAGE_PROPS.europa);
 		} else {
 			europa = 'Community';
 		}
