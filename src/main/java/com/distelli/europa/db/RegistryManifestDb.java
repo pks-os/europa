@@ -1,11 +1,20 @@
 package com.distelli.europa.db;
 
-import com.distelli.utils.CompositeKey;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.DockerImage;
+import com.distelli.europa.models.Monitor;
+import com.distelli.europa.models.MultiTaggedManifest;
+import com.distelli.europa.models.Notification;
+import com.distelli.europa.models.NotificationId;
+import com.distelli.europa.models.Pipeline;
+import com.distelli.europa.models.RegistryManifest;
+import com.distelli.europa.models.RepoEvent;
+import com.distelli.europa.models.RepoEventType;
+import com.distelli.europa.models.UnknownDigests;
 import com.distelli.europa.notifiers.Notifier;
+import com.distelli.europa.tasks.PipelineTask;
 import com.distelli.europa.util.Tag;
-import com.distelli.europa.models.*;
 import com.distelli.jackson.transform.TransformModule;
-import com.distelli.persistence.AttrDescription;
 import com.distelli.persistence.AttrType;
 import com.distelli.persistence.Attribute;
 import com.distelli.persistence.ConvertMarker;
@@ -14,25 +23,21 @@ import com.distelli.persistence.IndexDescription;
 import com.distelli.persistence.IndexType;
 import com.distelli.persistence.PageIterator;
 import com.distelli.persistence.TableDescription;
-import com.distelli.utils.CompactUUID;
+import com.distelli.utils.CompositeKey;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import javax.persistence.RollbackException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Set;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.RollbackException;
-import lombok.extern.log4j.Log4j;
-import static javax.xml.bind.DatatypeConverter.printHexBinary;
-import java.util.ArrayList;
-import com.distelli.europa.tasks.PipelineTask;
 
 @Log4j
 @Singleton
@@ -210,6 +215,16 @@ public class RegistryManifestDb extends BaseDb {
         boolean success = false;
         RegistryManifest old = null;
         try {
+            // There should always be an entry for the manifestId-as-tag.
+            if ((! Tag.isDigest(manifest.getTag()))
+                && null == getManifestByRepoIdTag(manifest.getDomain(),
+                                                  manifest.getContainerRepoId(),
+                                                  manifestId)) {
+                RegistryManifest copy = manifest.toBuilder()
+                    .tag(manifestId)
+                    .build();
+                _main.putItem(copy);
+            }
             old = _main.putItem(manifest);
 
             if ( ! Tag.isDigest(manifest.getTag()) ) {

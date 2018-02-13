@@ -5,7 +5,6 @@ import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.db.RegistryBlobDb;
 import com.distelli.europa.db.RegistryCredsDb;
 import com.distelli.europa.db.RegistryManifestDb;
-import com.distelli.europa.db.RepoEventsDb;
 import com.distelli.europa.util.ObjectKeyFactory;
 import com.distelli.gcr.GcrClient;
 import com.distelli.gcr.GcrRegion;
@@ -44,7 +43,6 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,8 +71,6 @@ public class PCCopyToRepository extends PipelineComponent {
     private RegistryManifestDb _manifestDb;
     @Inject
     private ContainerRepoDb _repoDb;
-    @Inject
-    private RepoEventsDb _eventDb;
     @Inject
     private Provider<GcrClient.Builder> _gcrClientBuilderProvider;
     @Inject
@@ -139,28 +135,12 @@ public class PCCopyToRepository extends PipelineComponent {
                           " repoId="+srcRepo.getId()+" tag="+manifestDigestSha);
                 return (Optional.of(promotedImage));
             }
-            RegistryManifest copyDigest = manifest.toBuilder()
-                .domain(destRepo.getDomain())
-                .containerRepoId(destRepo.getId())
-                .tag(manifestDigestSha)
-                .build();
-            RegistryManifest copyTag = manifest.toBuilder()
+            RegistryManifest copy = manifest.toBuilder()
                 .domain(destRepo.getDomain())
                 .containerRepoId(destRepo.getId())
                 .tag(reference)
                 .build();
-            _manifestDb.put(copyDigest);
-            _manifestDb.put(copyTag);
-            RepoEvent event = RepoEvent.builder()
-                .domain(copyTag.getDomain())
-                .repoId(copyTag.getContainerRepoId())
-                .eventType(RepoEventType.PUSH)
-                .eventTime(System.currentTimeMillis())
-                .imageTags(Collections.singletonList(copyTag.getTag()))
-                .imageSha(copyTag.getManifestId())
-                .build();
-            _eventDb.save(event);
-            _repoDb.setLastEvent(event.getDomain(), event.getRepoId(), event);
+            _manifestDb.put(copy);
         } else {
             boolean crossRepositoryBlobMount =
                 ( srcRepo.getProvider() == destRepo.getProvider() &&
@@ -321,21 +301,7 @@ public class PCCopyToRepository extends PipelineComponent {
                 .digests(gcrManifest.getReferencedDigests())
                 .pushTime(System.currentTimeMillis())
                 .build();
-            RegistryManifest shaManifest = manifest.toBuilder()
-                .tag(digest)
-                .build();
-            _manifestDb.put(shaManifest);
             _manifestDb.put(manifest);
-            RepoEvent event = RepoEvent.builder()
-                .domain(manifest.getDomain())
-                .repoId(manifest.getContainerRepoId())
-                .eventType(RepoEventType.PUSH)
-                .eventTime(System.currentTimeMillis())
-                .imageTags(Collections.singletonList(manifest.getTag()))
-                .imageSha(manifest.getManifestId())
-                .build();
-            _eventDb.save(event);
-            _repoDb.setLastEvent(event.getDomain(), event.getRepoId(), event);
             // TODO: Should we trigger other pipelines? .. perhaps we should move pipeline triggers
             // for europa repositories into the monitor stuff. This way we can avoid pipeline
             // execution overlap.
