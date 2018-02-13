@@ -496,17 +496,16 @@ export function openPromoteStage(sourceRepoId, destinationComponent) {
         },
       })
     }
-  });
-  setPipelinePageSection.call(this, 'PROMOTE_STAGE');
+  }, () => setPipelinePageSection.call(this, 'PROMOTE_STAGE'));
 }
 
-export function setPromoteStageSource(manifest) {
+export function setPromoteStageSource(event) {
   this.setState((prevState, props) => {
     return {
       pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
         stagePromotionData: GR.modifyProperty(prevState.pipelineStore.stagePromotionData, {
-          sourceTag: manifest.tags[0],
-          destinationTag: manifest.tags[0],
+          sourceTag: event.imageSha,
+          destinationTag: event.imageTags[0],
         }),
       }),
     };
@@ -542,7 +541,8 @@ export function runPromoteStage() {
           runPromoteStageXHRError: 'Missing required data to promote',
         })
       };
-    })
+    });
+    return;
   }
 
   let params = {
@@ -599,9 +599,8 @@ export function clearPromoteStage() {
         destinationComponent: null,
         destinationTag: null,
       },
-      section: null,
     }
-  });
+  }, () => setPipelinePageSection.call(this, null));
 }
 
 export function togglePipelineComponentAutomaticPromotion(component) {

@@ -11,52 +11,17 @@ export default class PipelinePromoteStage extends Component {
         this.state = {
             imageDropdownOpen: false,
             loading: true,
-            pollEventsInterval: null,
-            manifestsList: [],
-            manifestsMap: {},
+            tagFilter: '',
+            events: {},
         };
     }
 
     componentDidMount() {
         let repoId = NPECheck(this.props, 'repo/id', '');
 
-        if(!NPECheck(this.props, 'repoDetails/hasRetrievedManifests', true)) {
-            this.context.actions.listRepoManifests(repoId, false, null, true);
+        if(!NPECheck(this.props, 'repoDetails/hasRetrievedEvents', false)) {
+            this.context.actions.listRepoEvents(repoId);
         }
-
-        this.setState((prevState, props) => {
-            return {
-                pollEventsInterval: setInterval(() => this.reloadManifests(repoId), 5000),
-            }
-        });
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.state.pollEventsInterval);
-    }
-
-    reloadManifests(repoId) {
-        let prevMarker = NPECheck(this.props, 'repoDetails/manifestsPrevMarker', false);
-
-        if(!prevMarker) {
-            this.context.actions.listRepoManifests(repoId, true, null, true);
-        }
-
-        this.setState((prevState, props) => {
-            let manifestsList = NPECheck(props, 'repoDetails/manifests', [])
-                .sort((a, b) => {
-                    return (b.pushTime - a.pushTime);
-                });
-            let manifestsMap = manifestsList.reduce((result, manifest) => {
-                result[manifest.manifestId] = manifest;
-                return result;
-            }, {});
-            return {
-                loading: false,
-                manifestsList: manifestsList,
-                manifestsMap: manifestsMap,
-            }
-        })
     }
 
     toggleDropdownState() {
@@ -76,35 +41,54 @@ export default class PipelinePromoteStage extends Component {
             );
         }
     }
-    renderManifestItem(manifestId, index) {
-        let manifest = this.state.manifestsMap[manifestId];
-        let repo = this.props.reposMap[manifest.containerRepoId];
-        let friendlyTime = (manifest.pushTime) ? ConvertTimeFriendly(manifest.pushTime) : 'Unknown';
+
+    renderEventItem(eventId, index) {
+        let event = this.getEventById(eventId);
+        let repo = this.props.reposMap[event.repoId];
+        let friendlyTime = (event.eventTime) ? ConvertTimeFriendly(event.eventTime) : 'Unknown';
         return (
-            <div key={manifest.manifestId}
+            <div key={event.id}
                  className="ListItem FlexRow"
-                 onClick={() => this.context.actions.setPromoteStageSource(manifest)}>
-                <label>{repo.name}</label>
+                 onClick={() => this.context.actions.setPromoteStageSource(event)}>
+                 <label>{repo.name}</label>
                 <dl>
                     <dt>Last pushed:</dt>
                     <dd>{friendlyTime}</dd>
                     <dt>Tags:</dt>
-                    {manifest.tags.map((tag, tagIndex) => {
+                    {event.imageTags.map((tag, tagIndex) => {
                         return (
                             <dd key={tagIndex}>{tag}</dd>
                         );
                     })}
                     <dt>Image SHA:</dt>
-                    <dd>{manifestId.split(':')[1]}</dd>
+                    <dd>{event.imageSha}</dd>
                 </dl>
             </div>
-        )
+        );
     }
 
-    listManifestIds() {
-        return (this.state.manifestsList.map(manifest => {
-            return (manifest.manifestId);
-        }));
+    getEventById(eventId) {
+        let eventsList = NPECheck(this.props, 'repoDetails/events', []);
+        let event = eventsList.find(event => {
+            return (event.id === eventId);
+        });
+        return event;
+    }
+
+    listEventIds() {
+        let eventsList = NPECheck(this.props, 'repoDetails/events', []);
+        return (eventsList.map(event => event.id));
+    }
+
+    filterEvents(eventId) {
+        let event = this.getEventById(eventId);
+        let arrayIdx = event.imageTags.findIndex(tag => {
+            let strIdx = tag.indexOf(this.state.tagFilter);
+            return (strIdx !== -1);
+        });
+        let tagFilterStatus = (arrayIdx !== -1);
+        let typeFilterStatus = (event.eventType === 'PUSH');
+        return (tagFilterStatus && typeFilterStatus);
     }
 
     renderDropdown() {
@@ -116,12 +100,13 @@ export default class PipelinePromoteStage extends Component {
         return (
             <Dropdown isOpen={this.state.imageDropdownOpen}
                       toggleOpen={this.toggleDropdownState.bind(this)}
-                      listItems={this.listManifestIds()}
-                      renderItem={(manifestId, index) => this.renderManifestItem(manifestId, index)}
+                      listItems={this.listEventIds()}
+                      renderItem={(eventId, index) => this.renderEventItem(eventId, index)}
                       inputPlaceholder="Docker Image Repository"
                       inputClassName="BlueBorder FullWidth White"
                       inputValue={NPECheck(this.props.pipelineStore, 'stagePromotionData/sourceManifestId', "")}
-                      XHR={this.state.loading} />
+                      filterFn={this.filterEvents.bind(this)}
+                      XHR={NPECheck(this.props, 'repoDetails/eventsXHR', false)} />
         )
     }
 
@@ -132,8 +117,8 @@ export default class PipelinePromoteStage extends Component {
                 <CenteredConfirm confirmButtonText="Promote"
                                  noMessage={true}
                                  confirmButtonStyle={{}}
-                                 onConfirm={this.context.actions.runPromoteStage}
-                                 onCancel={this.context.actions.clearPromoteStage} />
+                                 onConfirm={() => this.context.actions.runPromoteStage()}
+                                 onCancel={() => this.context.actions.clearPromoteStage()} />
             </div>
         )
     }

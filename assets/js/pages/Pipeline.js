@@ -247,7 +247,7 @@ export default class Pipeline extends Component {
         </span>
         <span className="CR_HeaderClose">
           <i className="icon-dis-close"
-             onClick={ () => this.context.actions.setPipelinePageSection(null) } />
+             onClick={ () => this.context.actions.clearPromoteStage() } />
         </span>
       </div>
     )
