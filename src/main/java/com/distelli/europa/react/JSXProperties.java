@@ -1,12 +1,8 @@
 package com.distelli.europa.react;
 
-import java.net.InetAddress;
-import javax.inject.Inject;
-
 import com.distelli.europa.EuropaVersion;
 import com.distelli.europa.models.DnsSettings;
-import com.distelli.webserver.*;
-
+import com.distelli.webserver.RequestContext;
 import lombok.extern.log4j.Log4j;
 
 @Log4j
@@ -29,6 +25,11 @@ public class JSXProperties
         if(_dnsSettings == null)
             return null;
         return _dnsSettings.getDnsName();
+    }
+
+    public String getEuropa()
+    {
+        return "community";
     }
 
     public String getVersion()
