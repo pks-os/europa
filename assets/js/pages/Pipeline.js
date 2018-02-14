@@ -109,7 +109,7 @@ export default class Pipeline extends Component {
         nextComponent = pipelineComponents.shift();
       }
       pipelineComponentsToRender.push([nextComponent, sourceRepoId, automatic, gateComponentId]);
-      sourceRepoId = this.props.reposMap[nextComponent.destinationContainerRepoId].id;
+      sourceRepoId = NPECheck(this.props.reposMap, `${nextComponent.destinationContainerRepoId}/id`, null);
     }
 
     return (

@@ -146,8 +146,8 @@ export default class PipelinePromoteStage extends Component {
     }
 
     renderDropdown() {
-        let err = this.props.pipelineStore.listManifestsXHRError;
-        if (err !== null) {
+        let err = NPECheck(this.props, 'repoDetails/eventsError', null);
+        if (err !== null && err !== '') {
             return <Msg text={err} />
         }
 
@@ -197,7 +197,7 @@ export default class PipelinePromoteStage extends Component {
         if (err !== null) {
             return (
                 <Msg text={err}
-                     close={() => this.context.actions.cleanPipelineXHRErrors()} />
+                     close={() => this.context.actions.clearPipelineXHRErrors()} />
             );
         }
     }
