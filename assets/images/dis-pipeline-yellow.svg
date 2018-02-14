@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 21.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 43 57" style="enable-background:new 0 0 43 57;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FBDD8A;stroke:#F8BB16;stroke-miterlimit:10;}
+	.st1{fill:none;stroke:#F8BB16;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+	.st2{fill:#BDBDBD;}
+	.st3{fill:#BADFAD;stroke:#75C05B;stroke-miterlimit:10;}
+	.st4{fill:none;stroke:#75C05B;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;}
+</style>
+<g>
+	<rect x="6" y="2.1360676" class="st0" width="31" height="52.8242188"/>
+	<g>
+		<line class="st1" x1="10.2020693" y1="6.5" x2="32.7979317" y2="6.5"/>
+		<line class="st1" x1="10.2020693" y1="13.833333" x2="32.7979317" y2="13.833333"/>
+		<line class="st1" x1="10.2020693" y1="21.166666" x2="32.7979317" y2="21.166666"/>
+		<line class="st1" x1="10.2020693" y1="28.5" x2="32.7979317" y2="28.5"/>
+		<line class="st1" x1="10.2020693" y1="35.8333321" x2="32.7979317" y2="35.8333321"/>
+		<line class="st1" x1="10.2020693" y1="43.1666679" x2="32.7979317" y2="43.1666679"/>
+		<line class="st1" x1="10.2020693" y1="50.5" x2="32.7979317" y2="50.5"/>
+	</g>
+	<path class="st2" d="M40.6191406,3.4524739H2.3808594c-1.1045696,0-2-0.8954303-2-1.9999999V0h42.2382812v1.452474
+		C42.6191406,2.5570436,41.7237091,3.4524739,40.6191406,3.4524739z"/>
+	<path class="st2" d="M2.3808594,53.5475273h38.2382812c1.1045685,0,2,0.8954277,2,2V57H0.3808594v-1.4524727
+		C0.3808594,54.442955,1.2762898,53.5475273,2.3808594,53.5475273z"/>
+</g>
+</svg>

@@ -162,7 +162,7 @@ div.pipeline-stage-item div.stage-destination-wrap div.stage-destination div.sta
 
 div.pipeline-stage-item div.stage-destination-wrap div.stage-destination div.stage-dest-interior div.delete-stage i:hover {
     cursor: pointer;
-    color: red;
+    color: $red;
 }
 
 div.pipeline-stage-item div.stage-trigger {
@@ -181,20 +181,42 @@ div.pipeline-stage-item div.stage-trigger-toggle {
 div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check {
     display: flex;
     flex-flow: row nowrap;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
+
+    div.stage-trigger-auto, div.stage-promote {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        align-items: center;
+    }
 }
 
-div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check i {
-    font-size: 1.8rem;
-    color: #77bf60;
+div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-auto i {
+    font-size: 1.0625rem;
+    color: $green;
 }
 
 div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check span {
     display: block;
-    font-weight: bold;
-    font-size: 1rem;
+    font-weight: 600;
+    font-size: 0.6875rem;
     padding: 0 0 0 5px;
+}
+
+div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check div.stage-trigger-auto-unchecked {
+    i, span {
+        color: $grey;
+    }
+}
+
+
+div.pipeline-stage-item div.stage-trigger div.stage-promote span {
+    margin-right: 5px;
+}
+
+div.pipeline-stage-item div.stage-trigger div.stage-promote i {
+    color: $light-blue;
 }
 
 div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check select {

@@ -2,6 +2,7 @@ import Reducers from './../reducers/AddRepoReducers'
 import * as GR from './../reducers/GeneralReducers'
 import * as RAjax from './../util/RAjax'
 import NPECheck from './../util/NPECheck'
+import * as PipelineComponents from '../util/PipelineComponents';
 import {
   notifState,
   isAddNotificationValid
@@ -36,8 +37,13 @@ export function singlePipelineState() {
     isBlocked: false,
     noPipeline: false,
     pipeline: null,
-    repoConnectTemplate: null,
+    newComponentData: null,
     section: null,
+    stagePromotionData: {
+      sourceRepoId: null,
+      destinationComponent: null,
+      destinationTag: null,
+    },
 
     // XHR
     getPipelineXHR: false,
@@ -47,6 +53,8 @@ export function singlePipelineState() {
     movePipelineComponentXHR: false,
     removePipelineComponentXHR: false,
     removePipelineMainStageXHR: false,
+    listManifestsXHR: false,
+    runPromoteStageXHR: false,
 
     // XHR Error
     setContainerRepoXHRError: null,
@@ -54,6 +62,8 @@ export function singlePipelineState() {
     movePipelineComponentXHRError: null,
     removePipelineComponentXHRError: null,
     removePipelineMainStageXHRError: null,
+    listManifestsXHRError: null,
+    runPromoteStageXHRError: null,
   }
 }
 
@@ -73,6 +83,8 @@ export function clearPipelineXHRErrors() {
       addPipelineComponentXHRError: null,
       movePipelineComponentXHRError: null,
       removePipelineComponentXHRError: null,
+      listManifestsXHRError: null,
+      runPromoteStageXHRError: null,
     })
   })
 }
@@ -90,17 +102,23 @@ export function resetPipelinesState() {
 }
 
 export function setPipelinePageSection(section) {
-  this.setState({
-    pipelineStore: GR.modifyProperty(this.state.pipelineStore, {
-      section: section
-    })
+  this.setState((prevState, props) => {
+    return {
+      pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+        section: section
+      })
+    }
   })
 }
 
 export function updateRepoConnect(repo) {
   this.setState({
     pipelineStore: GR.modifyProperty(this.state.pipelineStore, {
-      repoConnectTemplate: repo
+      newComponentData: {
+        destinationContainerRepoDomain: repo.domain,
+        destinationContainerRepoId: repo.id,
+        destinationContainerRepoName: repo.name,
+      }
     })
   })
 }
@@ -140,7 +158,7 @@ export function updateNewPipelineTemplate(field, value) {
 export function filterPipelines(filterString) {
   let filteredPipelines = this.state.pipelinesStore.pipelines.slice(0).filter(pipeline => {
     return pipeline.name.indexOf(filterString) != -1;
-  })
+  });
 
   this.setState({
     pipelinesStore: GR.modifyProperty(this.state.pipelinesStore, {
@@ -243,8 +261,8 @@ export function getPipeline(pipelineId) {
 export function setContainerRepo() {
   const postData = {
     pipelineId: NPECheck(this.state.pipelineStore, 'pipeline/id', null),
-    containerRepoId: NPECheck(this.state.pipelineStore, 'repoConnectTemplate/id', null)
-  }
+    containerRepoId: NPECheck(this.state.pipelineStore, 'newComponentData/destinationContainerRepoId', null)
+  };
 
   return new Promise((resolve, reject) => {
     this.setState({
@@ -260,7 +278,7 @@ export function setContainerRepo() {
               pipeline: res,
               setContainerRepoXHR: false,
               setContainerRepoXHRError: false,
-              repoConnectTemplate: null,
+              newComponentData: null,
               section: null
             })
           }, () => resolve());
@@ -279,7 +297,7 @@ export function setContainerRepo() {
 
 export function createPipeline() {
   let newPipeline = {...this.state.pipelinesStore.newPipelineTemplate
-  }
+  };
 
   // Remove validation if clean
   delete newPipeline["errorFields"];
@@ -311,7 +329,7 @@ export function createPipeline() {
 export function removePipeline() {
   const postData = {
     pipelineId: this.state.pipelineStore.pipeline.id
-  }
+  };
 
   return new Promise((resolve, reject) => {
     this.setState({
@@ -321,7 +339,7 @@ export function removePipeline() {
     }, () => {
       RAjax.POST.call(this, 'RemovePipeline', {}, postData)
         .then(res => {
-          this.context.router.push('/pipelines')
+          this.context.router.push('/pipelines');
           setTimeout(function() {
             resetSinglePipelineState.call(this)
           }.bind(this), 0)
@@ -338,15 +356,17 @@ export function removePipeline() {
   });
 }
 
-export function addPipelineComponent() {
+export function addPipelineComponent(componentType, beforeComponentId = null) {
   const postData = {
-    type: "CopyToRepository",
+    type: componentType['value'],
     pipelineId: this.state.pipelineStore.pipeline.id,
-  }
-  const content = {
-    destinationContainerRepoDomain: NPECheck(this.state.pipelineStore, 'repoConnectTemplate/domain', null),
-    destinationContainerRepoId: NPECheck(this.state.pipelineStore, 'repoConnectTemplate/id', null),
-  }
+    beforeComponentId: beforeComponentId,
+  };
+
+  const content = componentType.customProperties.reduce((result, propertyName) => {
+    result[propertyName] = NPECheck(this.state.pipelineStore, `newComponentData/${propertyName}`, null);
+    return result;
+  }, {});
 
   return new Promise((resolve, reject) => {
     this.setState({
@@ -359,7 +379,7 @@ export function addPipelineComponent() {
           this.setState({
             pipelineStore: GR.modifyProperty(this.state.pipelineStore, {
               pipeline: res,
-              repoConnectTemplate: null,
+              newComponentData: null,
               addPipelineComponentXHR: false,
               addPipelineComponentXHRError: false,
               section: null,
@@ -405,7 +425,7 @@ export function removePipelineComponent(pipelineComponentId) {
   const postData = {
     pipelineComponentId: pipelineComponentId,
     pipelineId: this.state.pipelineStore.pipeline.id
-  }
+  };
 
   return new Promise((resolve, reject) => {
     this.setState({
@@ -437,7 +457,7 @@ export function removePipelineComponent(pipelineComponentId) {
 export function removeMainPipelineStage() {
   const postData = {
     pipelineId: NPECheck(this.state.pipelineStore, 'pipeline/id', null),
-  }
+  };
 
   return new Promise((resolve, reject) => {
     this.setState({
@@ -464,4 +484,145 @@ export function removeMainPipelineStage() {
         });
     });
   });
+}
+
+export function openPromoteStage(sourceRepoId, destinationComponent) {
+  this.setState((prevState, props) => {
+    return {
+      pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+        stagePromotionData: {
+          sourceRepoId: sourceRepoId,
+          destinationComponent: destinationComponent,
+        },
+      })
+    }
+  }, () => setPipelinePageSection.call(this, 'PROMOTE_STAGE'));
+}
+
+export function setPromoteStageSource(event) {
+  this.setState((prevState, props) => {
+    return {
+      pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+        stagePromotionData: GR.modifyProperty(prevState.pipelineStore.stagePromotionData, {
+          sourceEvent: event,
+          sourceTag: event.imageSha,
+        }),
+      }),
+    };
+  });
+}
+
+export function setPromoteStageDestinationTag(tagName) {
+    this.setState((prevState, props) => {
+        return {
+            pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+                stagePromotionData: GR.modifyProperty(prevState.pipelineStore.stagePromotionData, {
+                    destinationTag: tagName,
+                }),
+            }),
+        };
+    });
+}
+
+export function runPromoteStage() {
+  let pipelineId = NPECheck(this.state.pipelineStore, 'pipeline/id', null);
+  let componentId = NPECheck(this.state.pipelineStore, 'stagePromotionData/destinationComponent/id', null);
+  let sourceRepoId = NPECheck(this.state.pipelineStore, 'stagePromotionData/sourceRepoId', null);
+  let sourceTag = NPECheck(this.state.pipelineStore, 'stagePromotionData/sourceTag', null);
+  let destinationTag = NPECheck(this.state.pipelineStore, 'stagePromotionData/destinationTag', null);
+  if (pipelineId === null ||
+      componentId === null ||
+      sourceRepoId === null ||
+      sourceTag === null ||
+      destinationTag === null) {
+    this.setState((prevState, props) => {
+      return {
+        pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+          runPromoteStageXHRError: 'Missing required data to promote',
+        })
+      };
+    });
+    return;
+  }
+
+  let params = {
+    pipelineId: pipelineId,
+    componentId: componentId,
+    sourceRepoId: sourceRepoId,
+    sourceTag: sourceTag,
+    destinationTag: destinationTag,
+  };
+
+  return new Promise((resolve, reject) => {
+    this.setState((prevState, props) => {
+        return {
+          pipelinesStore: GR.modifyProperty(this.state.pipelinesStore, {
+            runPromoteStageXHR: true,
+          })
+        }
+    }, () => {
+      RAjax.POST.call(this, 'RunPipelineManualPromotion', {}, params)
+        .then(res => {
+          this.setState((prevState, props) => {
+            return {
+              pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
+                stagePromotionData: {
+                  sourceRepoId: null,
+                  destinationComponent: null,
+                  destinationTag: null,
+                },
+                section: null,
+                pipeline: res,
+              }),
+            };
+          }, () => resolve(res));
+        })
+        .catch(err => {
+          this.setState((prevState, props) => {
+            return {
+              pipelinesStore: GR.modifyProperty(prevState.pipelinesStore, {
+                runPromoteStageXHR: false,
+                runPromoteStageXHRError: err,
+              }),
+            };
+          });
+        });
+    });
+  });
+}
+
+export function clearPromoteStage() {
+  this.setState((prevState, props) => {
+    return {
+      stagePromotionData: {
+        event: null,
+        sourceTag: null,
+        sourceRepoId: null,
+        destinationComponent: null,
+        destinationTag: null,
+      },
+    }
+  }, () => setPipelinePageSection.call(this, null));
+}
+
+export function togglePipelineComponentAutomaticPromotion(component) {
+  let componentList = NPECheck(this.state.pipelineStore, 'pipeline/components', []);
+  let componentIndex = componentList.indexOf(component);
+  if (componentIndex === -1) {
+    return;
+  }
+  if (componentIndex === 0) {
+    setPipelineComponentToManualPromotion.call(this, component);
+  } else {
+    let previousComponent = componentList[componentIndex - 1];
+    if (PipelineComponents.guessPipelineComponentType(previousComponent) === PipelineComponents.types.manualPromotionGate) {
+      removePipelineComponent.call(this, previousComponent.id);
+    } else {
+      setPipelineComponentToManualPromotion.call(this, component);
+    }
+  }
+}
+
+function setPipelineComponentToManualPromotion(component) {
+  addPipelineComponent.call(this, PipelineComponents.types.manualPromotionGate, component.id);
 }

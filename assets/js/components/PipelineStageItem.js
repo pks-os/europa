@@ -14,24 +14,43 @@ export default class PipelineStageItem extends Component {
     super(props);
     this.state = {
       deleteToggled: false,
-      pipelineComponentObj: this.props.pipelineComponentObj
+      pipelineComponentObj: this.props.pipelineComponentObj,
     };
   }
   renderTrigger(repo) {
     if (!repo) return;
     if (this.props.empty) return;
-    // Don't render for the last stage
-    if (this.props.pipelineStore.pipeline.components.length - 1 == this.props.idx) return;
-    if (this.props.pipelineStore.pipeline.components.length == 0
-        && this.props.firstStage) return;
-
+    if (this.props.firstStage) return;
+    let imageName = (this.props.automatic) ? "dis-pipeline-green.svg" : "dis-pipeline-yellow.svg";
+    let checkboxClasses = (this.props.automatic) ? "icon-dis-box-check cursor-on-hover" : "icon-dis-box-uncheck cursor-on-hover";
+    let wrapperClasses = (this.props.automatic) ? "stage-trigger-auto stage-trigger-auto-checked" : "stage-trigger-auto stage-trigger-auto-unchecked";
     return (
       <div className="stage-trigger">
         <div className="stage-trigger-pipe">
-          <img src="/public/images/dis-pipeline-green.svg" />
+          <img src={`/public/images/${imageName}`} />
+        </div>
+        <div className="stage-trigger-toggle">
+          <div className="stage-trigger-toggle-check">
+            <div className={wrapperClasses}>
+              <i className={checkboxClasses}
+                 onClick={() => this.context.actions.togglePipelineComponentAutomaticPromotion(this.props.pipelineComponentObj)} />
+              <span>Auto Promote on Image Event</span>
+            </div>
+            {this.renderPromoteButton()}
+          </div>
         </div>
       </div>
     );
+  }
+  renderPromoteButton() {
+    return (
+      <div className="stage-promote cursor-on-hover"
+           onClick={() => this.props.promoteFunc(this.props.sourceRepoId, this.props.pipelineComponentObj)}>
+        <span>Promote</span>
+        <i className="icon icon-dis-promote"/>
+      </div>
+    );
+
   }
   renderEmptyOption() {
     if (!NPECheck(this.props.stage, 'autoDeployTrigger', null)) {
@@ -42,6 +61,7 @@ export default class PipelineStageItem extends Component {
     // If repo is null, the user doesn't have access
     return (
       <div className="pipeline-stage-item">
+        {this.renderTrigger(repo)}
         <div className="pipeline-grey-wrap">
           <div className="stage-destination-wrap">
             <div className="left-icon-col" style={ {background: "#2E5597"} }>
@@ -52,7 +72,6 @@ export default class PipelineStageItem extends Component {
             </div>
           </div>
         </div>
-        {this.renderTrigger(repo)}
       </div>
     );
   }
@@ -78,9 +97,12 @@ export default class PipelineStageItem extends Component {
   }
   deleteStage() {
     if (this.props.firstStage) {
-      this.context.actions.removeMainPipelineStage()
+      this.context.actions.removeMainPipelineStage();
     } else {
-      this.context.actions.removePipelineComponent(this.state.pipelineComponentObj.id)
+      if (!this.props.automatic) {
+        this.context.actions.removePipelineComponent(this.props.gateComponentId);
+      }
+      this.context.actions.removePipelineComponent(this.state.pipelineComponentObj.id);
     }
   }
   renderConfirmOrError() {
@@ -214,5 +236,14 @@ PipelineStageItem.contextTypes = {
 };
 
 PipelineStageItem.propTypes = {
+  repo: PropTypes.object.isRequired,
   empty: PropTypes.bool,
+  firstStage: PropTypes.bool,
+  sourceRepoId: PropTypes.string,
+  idx: PropTypes.number,
+  pipelineComponentObj: PropTypes.object,
+  sourceRepoId: PropTypes.string,
+  automatic: PropTypes.bool,
+  gateComponentId: PropTypes.string,
+  promoteFunc: PropTypes.func,
 };

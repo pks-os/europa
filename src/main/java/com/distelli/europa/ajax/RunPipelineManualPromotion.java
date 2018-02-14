@@ -11,9 +11,11 @@ import com.distelli.europa.models.PipelineComponent;
 import com.distelli.europa.models.RegistryManifest;
 import com.distelli.europa.pipeline.RunPipeline;
 import com.distelli.europa.util.PermissionCheck;
+import com.distelli.europa.util.Tag;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.AjaxHelper;
 import com.distelli.webserver.AjaxRequest;
+import com.distelli.webserver.HTTPMethod;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -32,6 +34,10 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
     @Inject
     private RunPipeline _runPipeline;
 
+    public RunPipelineManualPromotion() {
+        this.supportedHttpMethods.add(HTTPMethod.POST);
+    }
+
     @Override
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext) {
         String pipelineId = ajaxRequest.getParam("pipelineId", true);
@@ -41,6 +47,11 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
         String destinationTag = ajaxRequest.getParam("destinationTag", true);
 
         _permissionCheck.check(ajaxRequest.getOperation(), requestContext, pipelineId);
+
+        if (!Tag.isValid(destinationTag)) {
+            throw(new AjaxClientException("The specified destination tag is not valid",
+                                          AjaxErrors.Codes.BadTagName, 400));
+        }
 
         String domain = requestContext.getOwnerDomain();
         Pipeline pipeline = _pipelineDb.getPipeline(pipelineId);
@@ -64,7 +75,7 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
             ((PCCopyToRepository) componentsToRun.get(0)).setTag(destinationTag);
         }
 
-        _runPipeline.runPipeline(componentsToRun, sourceRepo, sourceTag, manifestId);
+        _runPipeline.runPipeline(componentsToRun, sourceRepo, sourceTag, sourceTag);
 
         return _pipelineDb.getPipeline(pipelineId);
     }

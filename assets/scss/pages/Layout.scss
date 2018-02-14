@@ -317,7 +317,7 @@ nav {
         height: 130px;
 
         // firefox :(
-   
+
     }
 }
 
@@ -383,6 +383,10 @@ nav {
     }
 }
 
+.cursor-on-hover {
+    cursor: pointer;
+}
+
 .Clickable {
     color: $light-blue;
     transition: color 0.3s;
@@ -419,7 +423,7 @@ nav {
     flex: 3 !important;
 }
 
-.Flex3 {
+.Flex4 {
     flex: 4 !important;
 }
 

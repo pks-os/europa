@@ -1,0 +1,249 @@
+/**
+ * Overall structure
+ */
+
+@mixin pipeline-promote-label-font {
+    color: $black;
+    font-size: 0.6875rem;
+    font-weight: 600;
+}
+
+div.pipeline-promote-stage {
+    padding: 0 14px 14px;
+    width: 590px;
+}
+
+div.pipeline-promote-stage div.pipeline-promote-from,
+div.pipeline-promote-stage div.pipeline-promote-to {
+    width: 100%;
+}
+
+div.pipeline-promote-stage label.pipeline-promote-from,
+div.pipeline-promote-stage label.pipeline-promote-to {
+    color: $black;
+    font-size: 0.75rem;
+    font-weight: 400;
+
+    span {
+        color: $grey;
+        font-style: italic;
+    }
+}
+
+/**
+ * Dropdown and selected From event
+ */
+
+div.pipeline-promote-stage div.DropdownContainer div.Dropdown.Open {
+        border-top: 0;
+}
+
+div.pipeline-promote-stage div.DropdownContainer input.BlueBorder.Search.promote-event-search {
+    background-color: $input-blue;
+    border-color: $light-blue;
+    border-style: solid;
+    border-width: 3px 1px 0 1px;
+    color: $black;
+
+    &.dropdown-hidden {
+        display: none;
+    }
+}
+
+div.pipeline-promote-stage div.promote-stage-event {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: space-between;
+    width: 100%;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-repo {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+
+    i {
+        color: $light-blue;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    span {
+        color: $light-blue;
+        font-size: 0.75rem;
+        font-weight: 700;
+        padding: 0 0 0 5px;
+    }
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-item {
+    display: flex;
+    flex-basis: 0;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-pushed {
+    flex: 3 0 0;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-tags {
+    flex: 2 0 0;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-sha {
+    flex: 4 1 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-item strong {
+    @include pipeline-promote-label-font;
+
+    white-space: nowrap;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-item span {
+    color: $grey;
+    font-size: 0.6875rem;
+    font-weight: 400;
+    padding: 0 0 0 5px;
+    white-space: nowrap;
+}
+
+div.pipeline-promote-stage div.promote-stage-event div.promote-stage-metadata-sha span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/**
+ * Selected From/To event overrides
+ */
+
+div.pipeline-promote-stage div.promote-stage-from-selected span.placeholder {
+    color: $grey;
+    font-size: 0.6875rem;
+    font-style: italic;
+    padding: 10px;
+}
+
+div.pipeline-promote-stage div.promote-stage-from-selected {
+    align-items: center;
+    background: #fff;
+    display: flex;
+    flex-flow: row nowrap;
+    height: 32px;
+    justify-content: flex-start;
+}
+
+div.pipeline-promote-stage div.promote-stage-from-selected div.promote-stage-event {
+    align-items: center;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    padding: 10px;
+}
+
+div.pipeline-promote-stage div.promote-stage-from-selected div.promote-stage-event div.promote-stage-repo {
+    flex: 3 1 0;
+}
+
+div.pipeline-promote-stage div.promote-stage-from-selected div.promote-stage-event div.promote-stage-metadata {
+    flex: 6 1 0;
+}
+
+div.pipeline-promote-stage div.promote-stage-from-selected div.promote-stage-event div.promote-stage-metadata-item {
+    white-space: nowrap;
+    width: auto;
+}
+
+/**
+ * To event overrides
+ */
+
+div.pipeline-promote-stage div.promote-stage-to-event {
+    align-items: center;
+    display: flex;
+    flex-flow: row nowrap;
+    height: 32px;
+    justify-content: space-between;
+}
+
+div.pipeline-promote-stage div.promote-stage-to-event div.promote-stage-event {
+    align-items: center;
+    background-color: #fff;
+    border-bottom: 1px solid $grey;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    padding: 10px;
+    width: 332px;
+}
+
+div.pipeline-promote-stage div.promote-stage-to-event div.promote-stage-destination-tag {
+    align-items: stretch;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    width: 225px;
+}
+
+div.pipeline-promote-stage div.pipeline-promote-to div.promote-stage-destination-tag div.promote-stage-destination-tag-label {
+    align-items: center;
+    background-color: $input-blue;
+    border-bottom: $input-blue 1px solid;
+    display: flex;
+    flex: 0;
+    flex-flow: row nowrap;
+    order: -1;
+    padding: 0 5px 0;
+    transition: all 0.3s;
+
+    &.Error {
+        background-color: $light-red;
+    }
+
+    strong {
+        @include pipeline-promote-label-font;
+    }
+}
+
+div.pipeline-promote-stage div.pipeline-promote-to div.promote-stage-destination-tag input.BlueBorder {
+    background-color: $input-blue;
+    border-color: $input-blue;
+    flex: 1;
+
+    &.Error {
+        background-color: $light-red;
+    }
+
+    &:hover, &:focus {
+        border-color: $light-blue;
+
+        & + div.promote-stage-destination-tag-label {
+            border-color: $light-blue;
+        }
+
+        &.Error {
+            border-color: $red;
+            & + div.promote-stage-destination-tag-label {
+                border-color: $red;
+            }
+        }
+    }
+}
+
+div.pipeline-promote-stage div.promote-stage-to-event div.promote-stage-event div.promote-stage-repo {
+    flex: 1 1 0;
+}
+
+div.pipeline-promote-stage div.promote-stage-to-event div.promote-stage-event div.promote-stage-metadata {
+    flex: 1 1 0;
+}
+
