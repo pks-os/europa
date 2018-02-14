@@ -512,15 +512,18 @@ export function resetRepoDetailsState() {
   });
 }
 
+
 export function clearRepoDetailsErrors() {
-  this.setState({
-    repoDetails: GA.modifyProperty(this.state.repoDetails, {
-      repoOverviewError: '',
-      eventsError: '',
-      manifestsError: '',
-      deleteRepoError: '',
-      publicError: ''
-    })
+  this.setState((prevState, props) => {
+    return {
+      repoDetails: GA.modifyProperty(prevState.repoDetails, {
+        repoOverviewError: '',
+        eventsError: '',
+        manifestsError: '',
+        deleteRepoError: '',
+        publicError: ''
+      })
+    }
   });
 }
 

@@ -11,6 +11,9 @@ import {
 import {
   newRegistryState
 } from './RegistryActions'
+import {
+  resetRepoDetailsState
+} from './RepoActions'
 
 export function pipelinesState() {
   return {
@@ -556,7 +559,7 @@ export function runPromoteStage() {
   return new Promise((resolve, reject) => {
     this.setState((prevState, props) => {
         return {
-          pipelinesStore: GR.modifyProperty(this.state.pipelinesStore, {
+          pipelineStore: GR.modifyProperty(this.state.pipelineStore, {
             runPromoteStageXHR: true,
           })
         }
@@ -580,9 +583,9 @@ export function runPromoteStage() {
         .catch(err => {
           this.setState((prevState, props) => {
             return {
-              pipelinesStore: GR.modifyProperty(prevState.pipelinesStore, {
+              pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
                 runPromoteStageXHR: false,
-                runPromoteStageXHRError: err,
+                runPromoteStageXHRError: NPECheck(err, 'error/message', ""),
               }),
             };
           });
@@ -592,6 +595,7 @@ export function runPromoteStage() {
 }
 
 export function clearPromoteStage() {
+  resetRepoDetailsState.call(this);
   this.setState((prevState, props) => {
     return {
       stagePromotionData: {

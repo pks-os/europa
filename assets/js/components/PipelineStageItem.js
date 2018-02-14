@@ -236,7 +236,7 @@ PipelineStageItem.contextTypes = {
 };
 
 PipelineStageItem.propTypes = {
-  repo: PropTypes.object.isRequired,
+  repo: PropTypes.object,
   empty: PropTypes.bool,
   firstStage: PropTypes.bool,
   sourceRepoId: PropTypes.string,
