@@ -504,8 +504,8 @@ export function setPromoteStageSource(event) {
     return {
       pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
         stagePromotionData: GR.modifyProperty(prevState.pipelineStore.stagePromotionData, {
+          sourceEvent: event,
           sourceTag: event.imageSha,
-          destinationTag: event.imageTags[0],
         }),
       }),
     };
@@ -595,6 +595,8 @@ export function clearPromoteStage() {
   this.setState((prevState, props) => {
     return {
       stagePromotionData: {
+        event: null,
+        sourceTag: null,
         sourceRepoId: null,
         destinationComponent: null,
         destinationTag: null,

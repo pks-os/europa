@@ -23,6 +23,7 @@ export default class PipelineStageItem extends Component {
     if (this.props.firstStage) return;
     let imageName = (this.props.automatic) ? "dis-pipeline-green.svg" : "dis-pipeline-yellow.svg";
     let checkboxClasses = (this.props.automatic) ? "icon-dis-box-check cursor-on-hover" : "icon-dis-box-uncheck cursor-on-hover";
+    let wrapperClasses = (this.props.automatic) ? "stage-trigger-auto stage-trigger-auto-checked" : "stage-trigger-auto stage-trigger-auto-unchecked";
     return (
       <div className="stage-trigger">
         <div className="stage-trigger-pipe">
@@ -30,7 +31,7 @@ export default class PipelineStageItem extends Component {
         </div>
         <div className="stage-trigger-toggle">
           <div className="stage-trigger-toggle-check">
-            <div className="stage-trigger-auto">
+            <div className={wrapperClasses}>
               <i className={checkboxClasses}
                  onClick={() => this.context.actions.togglePipelineComponentAutomaticPromotion(this.props.pipelineComponentObj)} />
               <span>Auto Promote on Image Event</span>

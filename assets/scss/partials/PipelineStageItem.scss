@@ -204,6 +204,13 @@ div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check span {
     padding: 0 0 0 5px;
 }
 
+div.pipeline-stage-item div.stage-trigger div.stage-trigger-toggle-check div.stage-trigger-auto-unchecked {
+    i, span {
+        color: $grey;
+    }
+}
+
+
 div.pipeline-stage-item div.stage-trigger div.stage-promote span {
     margin-right: 5px;
 }
