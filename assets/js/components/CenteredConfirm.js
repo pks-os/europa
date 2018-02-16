@@ -2,13 +2,14 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-import React, { Component, PropTypes } from 'react'
+import React, {Component, PropTypes} from 'react'
 
-export default  class CenteredConfirm extends Component {
+export default class CenteredConfirm extends Component {
   constructor(props) {
     super(props);
     this.state = {};
   }
+
   renderMsg() {
     if (this.props.message && !this.props.noMessage) {
       return (
@@ -20,6 +21,7 @@ export default  class CenteredConfirm extends Component {
       );
     }
   }
+
   render() {
     return (
       <div className="CenteredDelete" style={this.props.containerStyle || {}}>
@@ -44,7 +46,7 @@ CenteredConfirm.propTypes = {
   message: React.PropTypes.string,
   noMessage: React.PropTypes.bool,
   containerStyle: React.PropTypes.object,
-  confirmButtonText:  React.PropTypes.string,
+  confirmButtonText: React.PropTypes.string,
   confirmButtonStyle: React.PropTypes.object,
   onConfirm: React.PropTypes.func.isRequired,
   onCancel: React.PropTypes.func.isRequired,

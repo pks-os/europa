@@ -3,14 +3,14 @@
 */
 
 export default function statusCode(statusCode) {
-	let returnValue = 'UNKNOWN';
+  let returnValue = 'UNKNOWN';
 
-	if (200 <= statusCode && statusCode <= 399) {
-		returnValue = 'SUCCESS';
-	} else {
-		returnValue = 'ERROR';
-	}
+  if (200 <= statusCode && statusCode <= 399) {
+    returnValue = 'SUCCESS';
+  } else {
+    returnValue = 'ERROR';
+  }
 
-	return returnValue;
+  return returnValue;
 }
 // Can also return 'WARNING' for warning status codes

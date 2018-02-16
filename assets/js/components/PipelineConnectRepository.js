@@ -1,6 +1,6 @@
 import React, {Component, PropTypes} from 'react'
 import NPECheck from './../util/NPECheck'
-import { Link } from 'react-router'
+import {Link} from 'react-router'
 import Btn from './../components/Btn'
 import Loader from './../components/Loader'
 import BtnGroup from './../components/BtnGroup'
@@ -18,12 +18,13 @@ export default class PipelineConnectRepository extends Component {
       repoDropdownOpen: false
     };
   }
+
   renderConfirm() {
     if (this.props.pipelineStore.setContainerRepoXHR
-        || this.props.pipelineStore.addPipelineComponentXHR) {
+      || this.props.pipelineStore.addPipelineComponentXHR) {
       return (
         <div className="PageLoader">
-          <Loader />
+          <Loader/>
         </div>
       );
     }
@@ -34,48 +35,52 @@ export default class PipelineConnectRepository extends Component {
         <CenteredConfirm confirmButtonText="Connect"
                          noMessage={true}
                          confirmButtonStyle={{}}
-                         onConfirm={ this.props.initialConnect
-                                     ? this.context.actions.setContainerRepo
-                                     : () => this.context.actions.addPipelineComponent(PipelineComponents.types.copyToRepository) }
-                         onCancel={ () => this.context.actions.setPipelinePageSection(null) } />
+                         onConfirm={this.props.initialConnect
+                           ? this.context.actions.setContainerRepo
+                           : () => this.context.actions.addPipelineComponent(PipelineComponents.types.copyToRepository)}
+                         onCancel={() => this.context.actions.setPipelinePageSection(null)}/>
       </div>
     );
   }
+
   renderErrorMsg() {
     if (this.props.pipelineStore.setContainerRepoXHRError) {
       return (
         <Msg text={this.props.pipelineStore.setContainerRepoXHRError}
-           close={() => this.context.actions.clearPipelineXHRErrors()} />
+             close={() => this.context.actions.clearPipelineXHRErrors()}/>
       );
     }
 
     if (this.props.pipelineStore.addPipelineComponentXHRError) {
       return (
         <Msg text={this.props.pipelineStore.addPipelineComponentXHRError}
-           close={() => this.context.actions.clearPipelineXHRErrors()} />
+             close={() => this.context.actions.clearPipelineXHRErrors()}/>
       );
     }
   }
+
   renderRepoItem(repo, index) {
     return (
       <div key={index}
            className="ListItem FlexRow"
-           onClick={ () => this.context.actions.updateRepoConnect(repo) }>
-        <img src={RegistryProviderIcons(repo.provider)} />
+           onClick={() => this.context.actions.updateRepoConnect(repo)}>
+        <img src={RegistryProviderIcons(repo.provider)}/>
         {repo.name}
       </div>
     );
   }
+
   filterRepoItems() {
     let mapOfComponentIds = NPECheck(this.props.pipelineStore, 'pipeline/components', []).reduce((map, component) => {
       map[component.destinationContainerRepoId] = true;
       return map;
-    }, {} )
+    }, {})
 
     return this.props.repos.filter(repo => this.props.pipelineStore.pipeline.containerRepoId != repo.id)
-                           .filter(repo => !mapOfComponentIds.hasOwnProperty(repo.id))
-                           .filter(repo => (this.props.initialConnect && !repo.local) ? false : true)
+    .filter(repo => !mapOfComponentIds.hasOwnProperty(repo.id))
+    .filter(repo => (this.props.initialConnect && !repo.local) ? false : true)
   }
+
   render() {
     return (
       <div>
@@ -85,7 +90,7 @@ export default class PipelineConnectRepository extends Component {
           </span>
           <span className="CR_HeaderClose">
             <i className="icon-dis-close"
-               onClick={ () => this.context.actions.setPipelinePageSection(null) } />
+               onClick={() => this.context.actions.setPipelinePageSection(null)}/>
           </span>
         </div>
         <div className="CR_BodyContent">
@@ -101,7 +106,7 @@ export default class PipelineConnectRepository extends Component {
                         inputPlaceholder="Docker Image Repository"
                         inputClassName="BlueBorder FullWidth White"
                         inputValue={NPECheck(this.props.pipelineStore, 'newComponentData/destinationContainerRepoName', "")}
-                        className="Flex1" />
+                        className="Flex1"/>
             </div>
             <div className="Flex1">
               {this.renderConfirm()}
@@ -114,11 +119,11 @@ export default class PipelineConnectRepository extends Component {
 }
 
 PipelineConnectRepository.childContextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };
 
 PipelineConnectRepository.contextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };

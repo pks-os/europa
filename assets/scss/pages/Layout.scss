@@ -524,7 +524,8 @@ label.small {
     font-size: 0.625rem;
 }
 
-@-webkit-keyframes rotating /* Safari and Chrome */ {
+@-webkit-keyframes rotating /* Safari and Chrome */
+{
     from {
         -ms-transform: rotate(0deg);
         -moz-transform: rotate(0deg);

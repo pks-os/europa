@@ -2,7 +2,7 @@
   @author Sam Heutmaker [sam@distelli.com]
 */
 
-import React, { Component, PropTypes } from 'react'
+import React, {Component, PropTypes} from 'react'
 import {Link} from 'react-router'
 
 import Btn from './Btn'
@@ -18,218 +18,230 @@ const serverCertKey = 'serverCertificate';
 const caKey = 'authorityCertificate';
 
 export default class SSLSettings extends Component {
-	constructor(props) {
-		super(props);
+  constructor(props) {
+    super(props);
 
-		this.state = {};
-	}
-	componentDidMount() {
-		this.context.actions.getSSLSettings();
-		if(this.refs['dnsName']) {
-			this.refs['dnsName'].focus()
-		}
-	}
-	saveSSLSettings(){
-		this.context.actions.saveSSLSettings()
-		.then(this.context.actions.getSSLSettings)
-		//.then((sslSettings) => this.context.actions.updateDNSName(sslSettings.dnsName))
-		.catch((err) => {
-			console.error(err);
-		});
-	}
-	getTextareaClassName(key){
-		let hasSelector = NPECheck(this.props, 'ssl/errorFields/keys', []).includes(key);
-		let className;
+    this.state = {};
+  }
 
-		if(hasSelector) {
-			className =  "BlueBorder FullWidth Error";
-		} else {
-		    className =  "BlueBorder FullWidth";
-		}
+  componentDidMount() {
+    this.context.actions.getSSLSettings();
+    if (this.refs['dnsName']) {
+      this.refs['dnsName'].focus()
+    }
+  }
 
-		if(this.props.isLoggedIn) {
+  saveSSLSettings() {
+    this.context.actions.saveSSLSettings()
+    .then(this.context.actions.getSSLSettings)
+    //.then((sslSettings) => this.context.actions.updateDNSName(sslSettings.dnsName))
+    .catch((err) => {
+      console.error(err);
+    });
+  }
 
-			className += " White";
-		}
+  getTextareaClassName(key) {
+    let hasSelector = NPECheck(this.props, 'ssl/errorFields/keys', []).includes(key);
+    let className;
 
-		return className;
-	}
-	renderSSLTextarea(config, i){
-		let value = NPECheck(this.props, `ssl/sslSettings/${config.key}`, '');
-		return (
-			<div className="FlexColumn" key={i}>
-				<label>{config.label}</label>
-				<textarea className={this.getTextareaClassName(config.key)}
-						  value={value}
-						  onChange={(e) => this.context.actions.updateSSLSettings(config.key, e)}>
+    if (hasSelector) {
+      className = "BlueBorder FullWidth Error";
+    } else {
+      className = "BlueBorder FullWidth";
+    }
+
+    if (this.props.isLoggedIn) {
+
+      className += " White";
+    }
+
+    return className;
+  }
+
+  renderSSLTextarea(config, i) {
+    let value = NPECheck(this.props, `ssl/sslSettings/${config.key}`, '');
+    return (
+      <div className="FlexColumn" key={i}>
+        <label>{config.label}</label>
+        <textarea className={this.getTextareaClassName(config.key)}
+                  value={value}
+                  onChange={(e) => this.context.actions.updateSSLSettings(config.key, e)}>
 				</textarea>
-			</div>
-		);
-	}
+      </div>
+    );
+  }
 
-	renderSSLInputs(){
-		let dnsValue = NPECheck(this.props, `ssl/sslSettings/${dnsNameKey}`, '');
-		let className = "BlueBorder FullWidth";
+  renderSSLInputs() {
+    let dnsValue = NPECheck(this.props, `ssl/sslSettings/${dnsNameKey}`, '');
+    let className = "BlueBorder FullWidth";
 
-		if(this.props.isLoggedIn) {
-			className += " White";
-		}
+    if (this.props.isLoggedIn) {
+      className += " White";
+    }
 
-		return (
-			<div className="FlexColumn">
-				<div className="FlexColumn">
-					<label>DNS Name</label>
-					<input ref="dnsName" className={className} value={dnsValue} onChange={(e) => this.context.actions.updateSSLSettings(dnsNameKey, e)} />
-				</div>
-				{this.renderForceHttps()}
-				<div className="FlexRow">
-					<Checkbox onClick={() => this.context.actions.toggleEnableSSL()} label="SSL Enabled" isChecked={NPECheck(this.props, 'ssl/sslEnabled', false)}/>
-					{this.renderUnsavedChanges()}
-				</div>
-				{this.renderTextAreas()}
-				{this.renderButton()}
-				{this.renderSuccesssMsg()}
-			</div>
-		);
-	}
+    return (
+      <div className="FlexColumn">
+        <div className="FlexColumn">
+          <label>DNS Name</label>
+          <input ref="dnsName" className={className} value={dnsValue}
+                 onChange={(e) => this.context.actions.updateSSLSettings(dnsNameKey, e)}/>
+        </div>
+        {this.renderForceHttps()}
+        <div className="FlexRow">
+          <Checkbox onClick={() => this.context.actions.toggleEnableSSL()} label="SSL Enabled"
+                    isChecked={NPECheck(this.props, 'ssl/sslEnabled', false)}/>
+          {this.renderUnsavedChanges()}
+        </div>
+        {this.renderTextAreas()}
+        {this.renderButton()}
+        {this.renderSuccesssMsg()}
+      </div>
+    );
+  }
 
-	renderForceHttps(){
-		let isEnabled = (window.location.protocol == 'https:');
-		if(isEnabled) {
-			return (
-				<div className="FlexRow">
-					<Checkbox onClick={() => this.context.actions.toggleForceHttps()} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)}/>
-				</div>
-			);
-		}
-		else {
-			return (
-				<div className="FlexRow">
-					<Checkbox onClick={() => {}} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)} disabled={true}/>
-					<span className="CheckboxDisabled">Must access page using HTTPS to modify setting</span>
-				</div>
-			);
-		}
-	}
+  renderForceHttps() {
+    let isEnabled = (window.location.protocol == 'https:');
+    if (isEnabled) {
+      return (
+        <div className="FlexRow">
+          <Checkbox onClick={() => this.context.actions.toggleForceHttps()} label="Force HTTPS"
+                    isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)}/>
+        </div>
+      );
+    }
+    else {
+      return (
+        <div className="FlexRow">
+          <Checkbox onClick={() => {
+          }} label="Force HTTPS" isChecked={NPECheck(this.props, 'ssl/sslSettings/forceHttps', false)} disabled={true}/>
+          <span className="CheckboxDisabled">Must access page using HTTPS to modify setting</span>
+        </div>
+      );
+    }
+  }
 
-	renderTextAreas(){
-		if(NPECheck(this.props, 'ssl/sslEnabled', false)) {
+  renderTextAreas() {
+    if (NPECheck(this.props, 'ssl/sslEnabled', false)) {
 
-			let textareaConfigs = [
-				{
-					label: 'Server Private Key',
-					key: serverPrivateKey
-				},
-				{
-					label: 'Server Certificate',
-					key: serverCertKey
-				},
-				{
-					label: 'CA Certificate',
-					key: caKey
-				}
-			];
-			return textareaConfigs.map((config, i) => this.renderSSLTextarea(config, i))
-		}
-	}
+      let textareaConfigs = [
+        {
+          label: 'Server Private Key',
+          key: serverPrivateKey
+        },
+        {
+          label: 'Server Certificate',
+          key: serverCertKey
+        },
+        {
+          label: 'CA Certificate',
+          key: caKey
+        }
+      ];
+      return textareaConfigs.map((config, i) => this.renderSSLTextarea(config, i))
+    }
+  }
 
-	renderButton(){
-		if(NPECheck(this.props, 'ssl/saveXHR', false)) {
-			return (
-				<Loader />
-			);
-		}
+  renderButton() {
+    if (NPECheck(this.props, 'ssl/saveXHR', false)) {
+      return (
+        <Loader/>
+      );
+    }
 
-		let errorMsg = NPECheck(this.props, 'ssl/saveError', false);
+    let errorMsg = NPECheck(this.props, 'ssl/saveError', false);
 
-		let errorMsg2 = NPECheck(this.props, 'ssl/errorFields/names', []).join(', ')
+    let errorMsg2 = NPECheck(this.props, 'ssl/errorFields/names', []).join(', ')
 
-		if(errorMsg || errorMsg2) {
-			errorMsg2 = (errorMsg2) ? `Missing Required Fields: ${errorMsg2}` : null;
+    if (errorMsg || errorMsg2) {
+      errorMsg2 = (errorMsg2) ? `Missing Required Fields: ${errorMsg2}` : null;
 
-			return (
-				<Msg text={(errorMsg || errorMsg2)}
-    				 close={() => this.context.actions.clearSSLErrors()}
-    				 style={{padding: '1rem 0'}}/>
-			);
-		}
+      return (
+        <Msg text={(errorMsg || errorMsg2)}
+             close={() => this.context.actions.clearSSLErrors()}
+             style={{padding: '1rem 0'}}/>
+      );
+    }
 
-		return (
-			<div className="FlexRow AlignCenter JustifyCenter">
-				<Btn onClick={() => this.saveSSLSettings()}
-					 text="Save SSL Settings"
-					 canClick={true} />
-			</div>
-		);
-	}
-	renderUnsavedChanges(){
-		let hasChanges = NPECheck(this.props, 'ssl/hasChanges', false);
-		let changedEnabled = NPECheck(this.props, 'ssl/sslEnabled', null) != NPECheck(this.props, 'ssl/ogSslEnabled', null)
+    return (
+      <div className="FlexRow AlignCenter JustifyCenter">
+        <Btn onClick={() => this.saveSSLSettings()}
+             text="Save SSL Settings"
+             canClick={true}/>
+      </div>
+    );
+  }
 
-		if(hasChanges || changedEnabled) {
-			return (
-				<span className="UnsavedChanges">You have unsaved changes.</span>
-			);
-		}
-	}
-	renderSuccesssMsg(){
-		let success = NPECheck(this.props, 'ssl/saveSuccess', false);
+  renderUnsavedChanges() {
+    let hasChanges = NPECheck(this.props, 'ssl/hasChanges', false);
+    let changedEnabled = NPECheck(this.props, 'ssl/sslEnabled', null) != NPECheck(this.props, 'ssl/ogSslEnabled', null)
 
-		if(success) {
-			return (
-				<Msg text="Successfully saved SSL settings."
-					 isSuccess={true}
-    				 style={{padding: '1rem 0'}}/>
-			);
-		}
-	}
-	renderEnableStatus() {
-		let sslEnabled = NPECheck(this.props, 'ssl/sslEnabled', false);
+    if (hasChanges || changedEnabled) {
+      return (
+        <span className="UnsavedChanges">You have unsaved changes.</span>
+      );
+    }
+  }
 
-		if (sslEnabled) {
-			return (
-		    	<div className="SSLStatus"
-		             style={ {color: "#75C05B"} }>
-		          <span>SSL is enabled</span>
-		        </div>
-		      );
+  renderSuccesssMsg() {
+    let success = NPECheck(this.props, 'ssl/saveSuccess', false);
 
-		    } else {
-		      return (
-		        <div className="SSLStatus"
-		             style={ {color: "#F7739C"} }>
-		          <span>SSL is disabled</span>
-		        </div>
-		      );
-		    }
-		}
-	render(){
-		if(NPECheck(this.props, 'ssl/isBlocked', false)) {
-			return (
-				<AccessDenied />
-			);
-		}
+    if (success) {
+      return (
+        <Msg text="Successfully saved SSL settings."
+             isSuccess={true}
+             style={{padding: '1rem 0'}}/>
+      );
+    }
+  }
 
-		return (
-			<div className="ContentContainer" style={(this.props.ctx) ? {marginTop: '2rem'} : {}}>
-		        <div className="SSLHeader">
-		             SSL Configuration
-		        </div>
-		        {this.renderEnableStatus()}
-		        <div className="SSLSettings">
-		        	{this.renderSSLInputs()}
-		    	</div>
-		    </div>
-		);
-	}
+  renderEnableStatus() {
+    let sslEnabled = NPECheck(this.props, 'ssl/sslEnabled', false);
+
+    if (sslEnabled) {
+      return (
+        <div className="SSLStatus"
+             style={{color: "#75C05B"}}>
+          <span>SSL is enabled</span>
+        </div>
+      );
+
+    } else {
+      return (
+        <div className="SSLStatus"
+             style={{color: "#F7739C"}}>
+          <span>SSL is disabled</span>
+        </div>
+      );
+    }
+  }
+
+  render() {
+    if (NPECheck(this.props, 'ssl/isBlocked', false)) {
+      return (
+        <AccessDenied/>
+      );
+    }
+
+    return (
+      <div className="ContentContainer" style={(this.props.ctx) ? {marginTop: '2rem'} : {}}>
+        <div className="SSLHeader">
+          SSL Configuration
+        </div>
+        {this.renderEnableStatus()}
+        <div className="SSLSettings">
+          {this.renderSSLInputs()}
+        </div>
+      </div>
+    );
+  }
 }
 
 SSLSettings.contextTypes = {
-	router: PropTypes.object,
-	actions: PropTypes.object
+  router: PropTypes.object,
+  actions: PropTypes.object
 };
 
 SSLSettings.childContextTypes = {
-	actions: PropTypes.object,
-	router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };

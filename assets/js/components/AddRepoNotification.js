@@ -11,184 +11,194 @@ import NPECheck from './../util/NPECheck'
 import Dropdown from './../components/Dropdown'
 
 let notifTargetKey = 'target';
-let notifSecretKey= 'secret';
+let notifSecretKey = 'secret';
 
 export default class AddRepoNotification extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-	addNotification(){
-		this.context.actions.addRepoNotification()
-			.then(() => {
-				let repoId = NPECheck(this.props, 'repoDetails/activeRepo/id', null);
-				this.context.actions.listRepoNotifications(repoId, true);
-			});
-	}
-	inputClassName(selector){
-		let hasSelector = this.props.notif.errorFields.includes(selector)
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-		let className;
-		if(hasSelector) {
-			className = "BlueBorder FullWidth Error";
-		} else {
-		    className = "BlueBorder FullWidth";
-		}
+  addNotification() {
+    this.context.actions.addRepoNotification()
+    .then(() => {
+      let repoId = NPECheck(this.props, 'repoDetails/activeRepo/id', null);
+      this.context.actions.listRepoNotifications(repoId, true);
+    });
+  }
 
-		if(this.props.isExistingRepo) {
-			className += ' White'
-		}
+  inputClassName(selector) {
+    let hasSelector = this.props.notif.errorFields.includes(selector)
 
-		return className
-	}
-	renderAddNotification(){
-		let webhookData = this.props.notif.testNotification;
-		let statusCode = NPECheck(webhookData, 'response/httpStatusCode', null);
-		let status = NPECheck(this.props, 'notif/testNotificationStatus', null);
-		let classNameTarget = this.inputClassName(notifTargetKey);
-		let classNameSecret = this.inputClassName(notifSecretKey);
+    let className;
+    if (hasSelector) {
+      className = "BlueBorder FullWidth Error";
+    } else {
+      className = "BlueBorder FullWidth";
+    }
 
-		if(status == 'SUCCESS') classNameTarget += ' SuccessBg';
-		if(status == 'ERROR') classNameTarget += ' ErrorBg';
-		if(status == 'WARNING') classNameTarget += ' WarningBg';
+    if (this.props.isExistingRepo) {
+      className += ' White'
+    }
 
-		return (
-			<div className="AddNotification">
-				<div className="FlexColumn">
+    return className
+  }
 
-					<div className="Flex1 FlexColumn Row">
-						<label className="small">Webhook URL</label>
-						<div className="FlexRow">
-							<input className={classNameTarget}
-								   onChange={(e) => this.context.actions.updateNewNotificationField(notifTargetKey, e, false)}
-								   value={NPECheck(this.props, `notif/newNotification/${notifTargetKey}`, '')}
-								   placeholder="http://your_webhook_url/"/>
-							<div>
-								{this.renderTestNotificationStatus(status, statusCode)}
-							</div>
-							{this.renderTestNotificationButton()}
-						</div>
-					</div>
+  renderAddNotification() {
+    let webhookData = this.props.notif.testNotification;
+    let statusCode = NPECheck(webhookData, 'response/httpStatusCode', null);
+    let status = NPECheck(this.props, 'notif/testNotificationStatus', null);
+    let classNameTarget = this.inputClassName(notifTargetKey);
+    let classNameSecret = this.inputClassName(notifSecretKey);
 
-					<div className="Flex1 FlexColumn Row">
-						<label className="small">Webhook Secret</label>
-						<input className={classNameSecret}
-							   onChange={(e) => this.context.actions.updateNewNotificationField(notifSecretKey, e, false)}
-							   value={NPECheck(this.props, `notif/newNotification/${notifSecretKey}`, '')}
-						       placeholder="Enter Webhook Secret"/>
-					</div>
-					
-				</div>
-				{this.renderAddNotificationButton()}
-			</div>
-		);
-	}
-	renderTestNotificationButton(){
-		return (
-			<Btn className="Btn"
-				 onClick={() => this.context.actions.testNewNotification()}
-				 text="Test Webhook"
-				 canClick={true}/>
-		);
-	}
-	renderAddNotificationButton(){
-		if(this.props.isExistingRepo) {
-			if(this.props.notif.addNotifXHR) {
-				return (
-					<Loader />
-				);
-			}
+    if (status == 'SUCCESS') classNameTarget += ' SuccessBg';
+    if (status == 'ERROR') classNameTarget += ' ErrorBg';
+    if (status == 'WARNING') classNameTarget += ' WarningBg';
 
-			return (
-				<div className="FlexColumn">
-					{this.renderError()}
-					<Btn onClick={() => this.addNotification() }
-						 className="Btn"
-						 style={{margin: '0 auto', width: '300px', marginTop: '1rem'}}
-						 text="Add Notification"
-					     canClick={true} />
-				</div>
-			);
-		}
-	}
-	renderTestNotificationStatus(status, statusCode){
-		let icon = 'icon icon-dis-blank';
-		let statusText = "See Test Results Here";
-		let className = "InActive";
+    return (
+      <div className="AddNotification">
+        <div className="FlexColumn">
 
-		if (status == 'SUCCESS') {
-			icon = 'icon icon-dis-check'
-			statusText = 'Success';
-			className="Success";
-		}
+          <div className="Flex1 FlexColumn Row">
+            <label className="small">Webhook URL</label>
+            <div className="FlexRow">
+              <input className={classNameTarget}
+                     onChange={(e) => this.context.actions.updateNewNotificationField(notifTargetKey, e, false)}
+                     value={NPECheck(this.props, `notif/newNotification/${notifTargetKey}`, '')}
+                     placeholder="http://your_webhook_url/"/>
+              <div>
+                {this.renderTestNotificationStatus(status, statusCode)}
+              </div>
+              {this.renderTestNotificationButton()}
+            </div>
+          </div>
 
-		if(status == 'WARNING') {
-			icon = 'icon icon-dis-warning';
-			statusText = "Warning";
-			className="Warning";
-		}
+          <div className="Flex1 FlexColumn Row">
+            <label className="small">Webhook Secret</label>
+            <input className={classNameSecret}
+                   onChange={(e) => this.context.actions.updateNewNotificationField(notifSecretKey, e, false)}
+                   value={NPECheck(this.props, `notif/newNotification/${notifSecretKey}`, '')}
+                   placeholder="Enter Webhook Secret"/>
+          </div>
 
-		if(status == 'ERROR') {
-			icon = "icon icon-dis-alert";
-			statusText = "Error";
-			className = "Error";
-		}
+        </div>
+        {this.renderAddNotificationButton()}
+      </div>
+    );
+  }
 
-		className = "Status " + className;
+  renderTestNotificationButton() {
+    return (
+      <Btn className="Btn"
+           onClick={() => this.context.actions.testNewNotification()}
+           text="Test Webhook"
+           canClick={true}/>
+    );
+  }
 
-		return (
-			<div className="NotificationTestActions">
-				<div className={className}>
-					<span className="StatusText">{statusText}</span>&nbsp;
-					<span className="StatusCode">{ (statusCode) ? `(${statusCode})` : null}</span>&nbsp;
-					<span className="ViewTestResults" 
-						  onClick={() => this.context.actions.toggleShowNotificationTestResults()}>
-						{ (statusCode != null) ? ' - View Details' : null}
-					</span>
-				</div>
-			</div>
-		);
-	}
-	renderWebhookData(webhookData){
-		if(this.props.notif.showNotificationTestResults) {
-			return (
-				<WebhookData webhookData={webhookData} 
-							 modal={true}
-							 style={{width: '800px'}}
-							 close={ () => this.context.actions.toggleShowNotificationTestResults() }/>
-			)
-		};
-	}
-	renderError(){
-		let errorMsg = NPECheck(this.props, 'notif/notifError', '');
+  renderAddNotificationButton() {
+    if (this.props.isExistingRepo) {
+      if (this.props.notif.addNotifXHR) {
+        return (
+          <Loader/>
+        );
+      }
 
-		if(errorMsg) {
-			return (
-				<Msg
-					text={errorMsg}
-					close={() => this.context.actions.clearNotifError()}
-				/>
-			);
-		} 
-	}
-	render() {	
-		let webhookData = NPECheck(this.props, 'notif/testNotification', {});
-		return (
-			<div>
-				{this.renderWebhookData(webhookData)}
-				{this.renderAddNotification()}
-				{(this.props.isExistingRepo) ? null : this.renderError()}
-			</div>
-		);
-	}
+      return (
+        <div className="FlexColumn">
+          {this.renderError()}
+          <Btn onClick={() => this.addNotification()}
+               className="Btn"
+               style={{margin: '0 auto', width: '300px', marginTop: '1rem'}}
+               text="Add Notification"
+               canClick={true}/>
+        </div>
+      );
+    }
+  }
+
+  renderTestNotificationStatus(status, statusCode) {
+    let icon = 'icon icon-dis-blank';
+    let statusText = "See Test Results Here";
+    let className = "InActive";
+
+    if (status == 'SUCCESS') {
+      icon = 'icon icon-dis-check'
+      statusText = 'Success';
+      className = "Success";
+    }
+
+    if (status == 'WARNING') {
+      icon = 'icon icon-dis-warning';
+      statusText = "Warning";
+      className = "Warning";
+    }
+
+    if (status == 'ERROR') {
+      icon = "icon icon-dis-alert";
+      statusText = "Error";
+      className = "Error";
+    }
+
+    className = "Status " + className;
+
+    return (
+      <div className="NotificationTestActions">
+        <div className={className}>
+          <span className="StatusText">{statusText}</span>&nbsp;
+          <span className="StatusCode">{(statusCode) ? `(${statusCode})` : null}</span>&nbsp;
+          <span className="ViewTestResults"
+                onClick={() => this.context.actions.toggleShowNotificationTestResults()}>
+            {(statusCode != null) ? ' - View Details' : null}
+            </span>
+        </div>
+      </div>
+    );
+  }
+
+  renderWebhookData(webhookData) {
+    if (this.props.notif.showNotificationTestResults) {
+      return (
+        <WebhookData webhookData={webhookData}
+                     modal={true}
+                     style={{width: '800px'}}
+                     close={() => this.context.actions.toggleShowNotificationTestResults()}/>
+      )
+    }
+    ;
+  }
+
+  renderError() {
+    let errorMsg = NPECheck(this.props, 'notif/notifError', '');
+
+    if (errorMsg) {
+      return (
+        <Msg
+          text={errorMsg}
+          close={() => this.context.actions.clearNotifError()}
+        />
+      );
+    }
+  }
+
+  render() {
+    let webhookData = NPECheck(this.props, 'notif/testNotification', {});
+    return (
+      <div>
+        {this.renderWebhookData(webhookData)}
+        {this.renderAddNotification()}
+        {(this.props.isExistingRepo) ? null : this.renderError()}
+      </div>
+    );
+  }
 }
 
-AddRepoNotification.propTypes =  {};
+AddRepoNotification.propTypes = {};
 
 AddRepoNotification.childContextTypes = {
-	actions: PropTypes.object
+  actions: PropTypes.object
 };
 
 AddRepoNotification.contextTypes = {
-	actions: PropTypes.object
+  actions: PropTypes.object
 };

@@ -80,28 +80,28 @@ export function testNewNotification() {
   }
 
   RAjax.POST.call(this, 'TestWebhookDelivery', {
-      notification: this.state.notif.newNotification,
-    }, params)
-    .then((res) => {
-      let responseCode = NPECheck(res, 'response/httpStatusCode', null);
-      let testNotificationStatus = StatusCode(responseCode);
-      this.setState({
-        notif: GA.modifyProperty(this.state.notif, {
-          testNotification: res,
-          testNotificationStatus
-        })
+    notification: this.state.notif.newNotification,
+  }, params)
+  .then((res) => {
+    let responseCode = NPECheck(res, 'response/httpStatusCode', null);
+    let testNotificationStatus = StatusCode(responseCode);
+    this.setState({
+      notif: GA.modifyProperty(this.state.notif, {
+        testNotification: res,
+        testNotificationStatus
       })
     })
-    .catch((err) => {
-      console.error(err);
-      let errorMsg = `There was an error testing your notification. ${NPECheck(err, 'error/message', '')}`
-      this.setState({
-        notif: GA.modifyProperty(this.state.notif, {
-          notifError: errorMsg,
-          notifsXHR: false
-        })
-      });
+  })
+  .catch((err) => {
+    console.error(err);
+    let errorMsg = `There was an error testing your notification. ${NPECheck(err, 'error/message', '')}`
+    this.setState({
+      notif: GA.modifyProperty(this.state.notif, {
+        notifError: errorMsg,
+        notifsXHR: false
+      })
     });
+  });
 }
 
 // Modify Permissions
@@ -118,36 +118,36 @@ export function testExistingNotification(notification) {
     })
   }, () => {
     RAjax.POST.call(this, 'TestWebhookDelivery', {
-        notification
-      }, {
-        repoId
-      })
-      .then((res) => {
-        let responseCode = NPECheck(res, 'response/httpStatusCode', null);
-        let status = StatusCode(responseCode);
-        this.setState({
-          notif: Reducers(this.state.notif, {
-            type: 'SET_EXISTING_NOTIFICATION_TEST_INFO',
-            data: {
-              id,
-              status,
-              responseCode,
-              testNotification: res
-            }
-          })
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        let errorMsg = `${NPECheck(err, 'error/message', 'There was an error testing your notification.')}`
-        this.setState({
-          notif: GA.modifyProperty(this.state.notif, {
-            deleteNotificationError: errorMsg,
-            notifsXHR: false,
-            testExistingNotification: {}
-          })
-        });
+      notification
+    }, {
+      repoId
+    })
+    .then((res) => {
+      let responseCode = NPECheck(res, 'response/httpStatusCode', null);
+      let status = StatusCode(responseCode);
+      this.setState({
+        notif: Reducers(this.state.notif, {
+          type: 'SET_EXISTING_NOTIFICATION_TEST_INFO',
+          data: {
+            id,
+            status,
+            responseCode,
+            testNotification: res
+          }
+        })
       });
+    })
+    .catch((err) => {
+      console.error(err);
+      let errorMsg = `${NPECheck(err, 'error/message', 'There was an error testing your notification.')}`
+      this.setState({
+        notif: GA.modifyProperty(this.state.notif, {
+          deleteNotificationError: errorMsg,
+          notifsXHR: false,
+          testExistingNotification: {}
+        })
+      });
+    });
   });
 }
 
@@ -189,39 +189,39 @@ export function listRepoNotifications(repoId, skipXHR) {
       })
     }, () => {
       RAjax.GET.call(this, 'ListRepoNotifications', {
-          repoId
-        })
-        .then((res) => {
+        repoId
+      })
+      .then((res) => {
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            notifs: res,
+            notifsXHR: false
+          })
+        }, () => resolve());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
+            reposXHR: false,
+            repoDetails: GA.modifyProperty(this.state.repoDetails, {
+              isBlocked: true
+            }),
             notif: GA.modifyProperty(this.state.notif, {
-              notifs: res,
+              notifError: errorMsg,
               notifsXHR: false
             })
-          }, () => resolve());
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              reposXHR: false,
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                isBlocked: true
-              }),
-              notif: GA.modifyProperty(this.state.notif, {
-                notifError: errorMsg,
-                notifsXHR: false
-              })
-            }, () => reject());
-          } else {
-            this.setState({
-              notif: GA.modifyProperty(this.state.notif, {
-                notifError: errorMsg,
-                notifsXHR: false
-              })
-            }, () => reject());
-          }
-        });
+          }, () => reject());
+        } else {
+          this.setState({
+            notif: GA.modifyProperty(this.state.notif, {
+              notifError: errorMsg,
+              notifsXHR: false
+            })
+          }, () => reject());
+        }
+      });
     });
   });
 }
@@ -238,26 +238,26 @@ export function redeliverNotification(recordId) {
       })
     }, () => {
       RAjax.POST.call(this, 'RedeliverWebhook', {}, {
-          notificationId: recordId,
-          repoId,
-          eventId
-        })
-        .then((res) => {
-          this.setState({
-            notif: GA.modifyProperty(this.state.notif, {
-              redeliverXHRID: false
-            })
-          }, () => resolve(res));
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-          this.setState({
-            notif: GA.modifyProperty(this.state.notif, {
-              redeliverError: errorMsg
-            })
-          }, () => reject(res));
-        });
+        notificationId: recordId,
+        repoId,
+        eventId
+      })
+      .then((res) => {
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            redeliverXHRID: false
+          })
+        }, () => resolve(res));
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            redeliverError: errorMsg
+          })
+        }, () => reject(res));
+      });
     });
   });
 }
@@ -308,32 +308,32 @@ export function addRepoNotification(skipXHR) {
       })
     }, () => {
       RAjax.POST.call(this, 'SaveRepoNotification', postData, params)
-        .then((res) => {
-          this.setState({
-            notif: GA.modifyProperty(this.state.notif, {
-              addNotifXHR: false,
-              addNotifSuccess: true,
-              newNotification: newNotificationState.call(this),
-              testNotification: {},
-              testNotificationStatus: null,
-              showNotificationTestResults: false,
-              notifError: ''
-            })
-          }, () => resolve());
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `There was an error adding your notification. ${NPECheck(err, 'error/message', '')}`
-          this.setState({
-            notif: GA.modifyProperty(this.state.notif, {
-              addNotifXHR: false,
-              addNotifSuccess: false,
-              notifError: errorMsg
-            })
-          }, () => {
-            reject();
-          });
+      .then((res) => {
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            addNotifXHR: false,
+            addNotifSuccess: true,
+            newNotification: newNotificationState.call(this),
+            testNotification: {},
+            testNotificationStatus: null,
+            showNotificationTestResults: false,
+            notifError: ''
+          })
+        }, () => resolve());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `There was an error adding your notification. ${NPECheck(err, 'error/message', '')}`
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            addNotifXHR: false,
+            addNotifSuccess: false,
+            notifError: errorMsg
+          })
+        }, () => {
+          reject();
         });
+      });
     })
   });
 }
@@ -384,27 +384,27 @@ export function deleteNotification(skipXHR) {
       let repoId = NPECheck(this.state, 'repoDetails/activeRepo/id', '');
 
       RAjax.POST.call(this, 'DeleteRepoNotification', {}, {
-          notificationId: this.state.notif.deleteNotifId,
-          repoId: repoId
-        })
-        .then((res) => {
-          this.setState({
-            notif: GA.modifyProperty(this.state.notif, {
-              deleteNotifId: '',
-              deleteNotificationXHR: false
-            })
-          }, () => resolve());
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `There was an error deleting your notification. ${NPECheck(err, 'error/message', '')}`
-          this.setState({
-            notif: GA.modifyProperty(this.state.notif, {
-              deleteNotificationXHR: false,
-              deleteNotificationError: errorMsg
-            })
-          }, () => reject());
-        });
+        notificationId: this.state.notif.deleteNotifId,
+        repoId: repoId
+      })
+      .then((res) => {
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            deleteNotifId: '',
+            deleteNotificationXHR: false
+          })
+        }, () => resolve());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `There was an error deleting your notification. ${NPECheck(err, 'error/message', '')}`
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            deleteNotificationXHR: false,
+            deleteNotificationError: errorMsg
+          })
+        }, () => reject());
+      });
     });
   });
 }
@@ -420,36 +420,36 @@ export function getEventNotificationRecords(recordIdsArray) {
       let repoId = NPECheck(this.state, 'repoDetails/activeRepo/id', '');
       let records = recordIdsArray.map((recordId) => getNotificationRecord.call(this, recordId, repoId));
       Promise.all(records)
-        .then((res) => {
+      .then((res) => {
+        this.setState({
+          notif: GA.modifyProperty(this.state.notif, {
+            currentNotifRecords: res,
+            notifRecordXHR: false
+          })
+        }, () => resolve());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
             notif: GA.modifyProperty(this.state.notif, {
-              currentNotifRecords: res,
+              retrieveNotifRecordsError: errorMsg,
+              notifRecordXHR: false
+            }),
+            repoDetails: GA.modifyProperty(this.state.repoDetails, {
+              isBlocked: true
+            })
+          }, () => reject());
+        } else {
+          this.setState({
+            notif: GA.modifyProperty(this.state.notif, {
+              retrieveNotifRecordsError: errorMsg,
               notifRecordXHR: false
             })
-          }, () => resolve());
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              notif: GA.modifyProperty(this.state.notif, {
-                retrieveNotifRecordsError: errorMsg,
-                notifRecordXHR: false
-              }),
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                isBlocked: true
-              })
-            }, () => reject());
-          } else {
-            this.setState({
-              notif: GA.modifyProperty(this.state.notif, {
-                retrieveNotifRecordsError: errorMsg,
-                notifRecordXHR: false
-              })
-            }, () => reject());
-          }
-        });
+          }, () => reject());
+        }
+      });
     });
   });
 }

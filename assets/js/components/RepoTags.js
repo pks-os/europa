@@ -12,128 +12,135 @@ import CleanSha from './../util/CleanSha'
 import Loader from './../components/Loader'
 
 export default class RepoTags extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			pollEventsInterval: null
-		};
-	}
-	componentDidMount() {
-		let repoId = NPECheck(this.props, 'repoDetails/activeRepo/id', '');
+  constructor(props) {
+    super(props);
+    this.state = {
+      pollEventsInterval: null
+    };
+  }
 
-		if(!NPECheck(this.props, 'repoDetails/hasRetrievedManifests', true)) {
-			 this.context.actions.listRepoManifests(repoId);
-		}
+  componentDidMount() {
+    let repoId = NPECheck(this.props, 'repoDetails/activeRepo/id', '');
 
-		this.setState({
-			pollEventsInterval: setInterval(() => {
-				let prevMarker = NPECheck(this.props, 'repoDetails/manifestsPrevMarker', false);
+    if (!NPECheck(this.props, 'repoDetails/hasRetrievedManifests', true)) {
+      this.context.actions.listRepoManifests(repoId);
+    }
 
-				if(!prevMarker) {
-					this.context.actions.listRepoManifests(repoId, true);
-				}
+    this.setState({
+      pollEventsInterval: setInterval(() => {
+        let prevMarker = NPECheck(this.props, 'repoDetails/manifestsPrevMarker', false);
 
-			}, 5000)
-		});
-	}
-	componentWillUnmount() {
-		clearInterval(this.state.pollEventsInterval);
-	}
-	renderRepoEventTags(){
-		let activeRepo = NPECheck(this.props, 'repoDetails/activeRepo', {});
+        if (!prevMarker) {
+          this.context.actions.listRepoManifests(repoId, true);
+        }
 
-		return this.props.manifests.sort((firstTag, secondTag) => (firstTag.pushTime >= secondTag.pushTime) ? -1 : 1 )
-								.map((tag, index) => this.renderRepoEventTagItem(tag, index, activeRepo))
-	}
-	renderRepoEventTagItem(tag, index, activeRepo){
-		let time = tag.pushTime;
-		let friendlyTime = ConvertTimeFriendly(time);
-		let cleanedSha = CleanSha(tag.manifestId)
-		let icon = 'icon icon-dis-box-uncheck';
+      }, 5000)
+    });
+  }
 
-		if(NPECheck(this.props, 'repoDetails/selectedManifests', [])
-			.map((manifest) => manifest.manifestId)
-			.includes(tag.manifestId)) {
-			icon = 'icon icon-dis-box-check';
-		}
+  componentWillUnmount() {
+    clearInterval(this.state.pollEventsInterval);
+  }
 
-		return (
-			<div key={index} className="RepoTagItem">
-				<i className={icon}
-				   data-tip="View Pull Commands For This Tag"
-				   data-for="ToolTipTop"
-				   onClick={() => this.context.actions.toggleSelectedManifest(tag)}/>
-				<span className="Tags">
-					{tag.tags.map((tag, index) => {
-						return (
-							<span className="Tag" key={index}>{tag}</span>
-						);
-					})}
-				</span>
-				<span className="ImageSha" data-tip={tag.manifestId} data-for="ToolTipTop">
-					<span className="Label">SHA:&nbsp;</span>
-					<span className="Value">{cleanedSha}</span>
-				</span>
-				
-				<span className="Size">
-					<span className="Label">Virtual Size:&nbsp;</span>
-					<span className="Value">{(tag.virtualSize) ? `${Math.ceil(tag.virtualSize/1000000)}M` : 'Unknown'}</span>
-				</span>
-				<span className="Pushed">
-					<span className="Label">Pushed:&nbsp;</span>
-					<span className="Value">{friendlyTime}</span>
-				</span>
-			</div>
-		);
-	}
-	renderNoContent(overrideContent){
-		let content = [
-			<h3 key={1}>
-				No Tags Found
-			</h3>,
-			<p key={2}> If you just added this repository, it may take a second to populate historical data for this repository.</p>
-		];
+  renderRepoEventTags() {
+    let activeRepo = NPECheck(this.props, 'repoDetails/activeRepo', {});
 
-		if(overrideContent) content = overrideContent;
+    return this.props.manifests.sort((firstTag, secondTag) => (firstTag.pushTime >= secondTag.pushTime) ? -1 : 1)
+    .map((tag, index) => this.renderRepoEventTagItem(tag, index, activeRepo))
+  }
 
-		return (
-			<div className="TimelineContainer">
-				<div className="Timeline">
-					<div className="NoContent">
-						{content}
-					</div>
-				</div>
-			</div>
-		);
-	}
-	render() {
-		let content = this.renderRepoEventTags();
+  renderRepoEventTagItem(tag, index, activeRepo) {
+    let time = tag.pushTime;
+    let friendlyTime = ConvertTimeFriendly(time);
+    let cleanedSha = CleanSha(tag.manifestId)
+    let icon = 'icon icon-dis-box-uncheck';
 
-		if(!NPECheck(this.props, 'manifests/length', true)) {
-			content = this.renderNoContent();
-		}
+    if (NPECheck(this.props, 'repoDetails/selectedManifests', [])
+      .map((manifest) => manifest.manifestId)
+      .includes(tag.manifestId)) {
+      icon = 'icon icon-dis-box-check';
+    }
 
-		if(NPECheck(this.props, 'repoDetails/manifestsXHR', false)) {
-			content = this.renderNoContent(<Loader />);
-		}
+    return (
+      <div key={index} className="RepoTagItem">
+        <i className={icon}
+           data-tip="View Pull Commands For This Tag"
+           data-for="ToolTipTop"
+           onClick={() => this.context.actions.toggleSelectedManifest(tag)}/>
+        <span className="Tags">
+          {tag.tags.map((tag, index) => {
+            return (
+              <span className="Tag" key={index}>{tag}</span>
+            );
+          })}
+        </span>
+        <span className="ImageSha" data-tip={tag.manifestId} data-for="ToolTipTop">
+          <span className="Label">SHA:&nbsp;</span>
+          <span className="Value">{cleanedSha}</span>
+        </span>
 
-		return (
-			<div className="TagsContainer">
-				{content}
-			</div>
-		);
-	}
+        <span className="Size">
+          <span className="Label">Virtual Size:&nbsp;</span>
+          <span className="Value">{(tag.virtualSize) ? `${Math.ceil(tag.virtualSize / 1000000)}M` : 'Unknown'}</span>
+        </span>
+        <span className="Pushed">
+          <span className="Label">Pushed:&nbsp;</span>
+          <span className="Value">{friendlyTime}</span>
+        </span>
+      </div>
+    );
+  }
+
+  renderNoContent(overrideContent) {
+    let content = [
+      <h3 key={1}>
+        No Tags Found
+      </h3>,
+      <p key={2}> If you just added this repository, it may take a second to populate historical data for this
+        repository.</p>
+    ];
+
+    if (overrideContent) content = overrideContent;
+
+    return (
+      <div className="TimelineContainer">
+        <div className="Timeline">
+          <div className="NoContent">
+            {content}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  render() {
+    let content = this.renderRepoEventTags();
+
+    if (!NPECheck(this.props, 'manifests/length', true)) {
+      content = this.renderNoContent();
+    }
+
+    if (NPECheck(this.props, 'repoDetails/manifestsXHR', false)) {
+      content = this.renderNoContent(<Loader/>);
+    }
+
+    return (
+      <div className="TagsContainer">
+        {content}
+      </div>
+    );
+  }
 }
 
 RepoTags.propTypes = {
-	manifests: PropTypes.array,
+  manifests: PropTypes.array,
 };
 
 RepoTags.childContextTypes = {
-    actions: PropTypes.object
+  actions: PropTypes.object
 };
 
 RepoTags.contextTypes = {
-    actions: PropTypes.object
+  actions: PropTypes.object
 };
 

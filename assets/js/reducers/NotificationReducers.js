@@ -41,9 +41,9 @@ function updateNewNotification(state, data) {
 }
 
 function toggleExistingNotificationTestXHR(state, data) {
-  let testExistingNotification = { ...state.testExistingNotification };
+  let testExistingNotification = {...state.testExistingNotification};
   let id = data.id;
-  let notifTest = { ...testExistingNotification[id] } || {};
+  let notifTest = {...testExistingNotification[id]} || {};
   notifTest.XHR = !notifTest.XHR;
   testExistingNotification[id] = notifTest;
 
@@ -55,9 +55,9 @@ function toggleExistingNotificationTestXHR(state, data) {
 }
 
 function setExistingNotificationInfo(state, data) {
-  let testExistingNotification = { ...state.testExistingNotification };
+  let testExistingNotification = {...state.testExistingNotification};
   let id = data.id;
-  let notifTest = { ...testExistingNotification[id] } || {};
+  let notifTest = {...testExistingNotification[id]} || {};
 
   notifTest.testNotification = data.testNotification;
   notifTest.status = data.status
@@ -71,9 +71,9 @@ function setExistingNotificationInfo(state, data) {
 }
 
 function toggleShowExistingNotificationTestResults(state, data) {
-  let testExistingNotification = { ...state.testExistingNotification };
+  let testExistingNotification = {...state.testExistingNotification};
   let id = data.id;
-  let notifTest = { ...testExistingNotification[id] } || {};
+  let notifTest = {...testExistingNotification[id]} || {};
 
   notifTest.displayWebhookData = !notifTest.displayWebhookData;
   testExistingNotification[id] = notifTest;

@@ -2,7 +2,7 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-export default function RegistryProviderIcons(provider, useWhiteIcons=false) {
+export default function RegistryProviderIcons(provider, useWhiteIcons = false) {
   let icon;
 
   let icons = {
@@ -30,7 +30,7 @@ export default function RegistryProviderIcons(provider, useWhiteIcons=false) {
   }
 
   if (!icon) {
-  	// Error
+    // Error
   }
 
   return icon;

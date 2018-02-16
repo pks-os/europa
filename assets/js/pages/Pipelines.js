@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react'
-import { Link } from 'react-router'
+import {Link} from 'react-router'
 import NPECheck from './../util/NPECheck'
 import Btn from './../components/Btn'
 import Loader from './../components/Loader'
@@ -15,17 +15,20 @@ export default class Pipelines extends Component {
     super(props);
     this.state = {};
   }
+
   componentDidMount() {
     this.context.actions.listPipelines();
-    if(this.refs['createPipeline']) {
+    if (this.refs['createPipeline']) {
       this.refs['createPipeline'].focus();
     }
   }
+
   keyPress(e) {
-    if(e.keyCode == 13) {
+    if (e.keyCode == 13) {
       this.context.actions.createPipeline();
     }
   }
+
   renderNoPipelines() {
     return (
       <div className="ContentContainer">
@@ -34,13 +37,14 @@ export default class Pipelines extends Component {
             You have not created a Pipeline
           </h3>
           <Btn className="LargeBlueButton"
-               onClick={ this.context.actions.toggleInitNewPipeline }
+               onClick={this.context.actions.toggleInitNewPipeline}
                text="Add Pipeline"
-               canClick={true} />
+               canClick={true}/>
         </div>
       </div>
     );
   }
+
   renderNoPipelinesFound() {
     return (
       <div className="ContentContainer">
@@ -52,16 +56,20 @@ export default class Pipelines extends Component {
       </div>
     );
   }
+
   renderNewPipeline() {
     if (this.props.pipelinesStore.initNewPipeline) {
       return (
-        <div style={ {margin: "14px 0 0"} }>
-          <ControlRoom componentDidMount={ function() { (this.refs['createPipeline']) ?   this.refs['createPipeline'].focus() : null }}
-                       renderBodyContent={ this.newPipelineForm.bind(this) } />
+        <div style={{margin: "14px 0 0"}}>
+          <ControlRoom componentDidMount={function () {
+            (this.refs['createPipeline']) ? this.refs['createPipeline'].focus() : null
+          }}
+                       renderBodyContent={this.newPipelineForm.bind(this)}/>
         </div>
       );
     }
   }
+
   inputClassName(selector) {
     let hasSelector = NPECheck(this.props.pipelinesStore, 'newPipelineTemplate/errorFields', []).includes(selector)
     let className = "BlueBorder FullWidth";
@@ -71,6 +79,7 @@ export default class Pipelines extends Component {
 
     return className;
   }
+
   newPipelineForm() {
     return (
       <div onKeyDown={(e) => this.keyPress(e)}>
@@ -80,7 +89,7 @@ export default class Pipelines extends Component {
           </span>
           <span className="CR_HeaderClose">
             <i className="icon-dis-close"
-               onClick={ this.context.actions.toggleInitNewPipeline } />
+               onClick={this.context.actions.toggleInitNewPipeline}/>
           </span>
         </div>
         <div className="CR_BodyContent">
@@ -89,11 +98,11 @@ export default class Pipelines extends Component {
               Pipeline Name
             </label>
             <input className={this.inputClassName("name")}
-                   style={ {background: "#fff"} }
+                   style={{background: "#fff"}}
                    ref="createPipeline"
                    value={NPECheck(this.props.pipelinesStore, 'newPipelineTemplate/name', "")}
                    placeholder="Enter Pipeline name..."
-                   onChange={(e) => this.context.actions.updateNewPipelineTemplate("name", e.target.value)} />
+                   onChange={(e) => this.context.actions.updateNewPipelineTemplate("name", e.target.value)}/>
           </div>
           <div className="Flex1">
             {this.renderNewPipelineConfirm()}
@@ -102,11 +111,12 @@ export default class Pipelines extends Component {
       </div>
     );
   }
+
   renderNewPipelineConfirm() {
     if (this.props.pipelinesStore.newPipelineXHR) {
       return (
         <div className="PageLoader">
-          <Loader />
+          <Loader/>
         </div>
       );
     }
@@ -117,22 +127,24 @@ export default class Pipelines extends Component {
         <CenteredConfirm confirmButtonText="Create"
                          noMessage={true}
                          confirmButtonStyle={{}}
-                         onConfirm={ this.context.actions.createPipeline }
-                         onCancel={this.context.actions.toggleInitNewPipeline } />
+                         onConfirm={this.context.actions.createPipeline}
+                         onCancel={this.context.actions.toggleInitNewPipeline}/>
       </div>
     );
   }
+
   renderNewPipelineXHRError() {
     let error = NPECheck(this.props, 'pipelinesStore/newPipelineXHRError', false);
 
     if (error) {
       return (
         <Msg text={error}
-             close={() => this.context.actions.clearPipelinesXHRErrors()} 
+             close={() => this.context.actions.clearPipelinesXHRErrors()}
              style={{marginTop: '1rem'}}/>
       );
     }
   }
+
   renderPipelineList() {
     if (this.props.pipelinesStore.initNewPipeline) return;
 
@@ -156,9 +168,9 @@ export default class Pipelines extends Component {
                  key={pipeline.id + idx}
                  onClick={() => this.context.router.push(`/pipelines/${pipeline.name}`)}>
               <span>
-                <i className="icon-dis-pipeline" />
+                <i className="icon-dis-pipeline"/>
               </span>
-              <span style={ { color: "#1DAFE9"} }>
+              <span style={{color: "#1DAFE9"}}>
                 {pipeline.name}
               </span>
               <span>
@@ -170,28 +182,30 @@ export default class Pipelines extends Component {
       </div>
     );
   }
+
   renderSearchPipelines() {
     if (this.props.pipelinesStore.initNewPipeline) return;
 
     return (
       <input className="BlueBorder Search"
              placeholder="Search by name..."
-             onChange={ (e) => this.context.actions.filterPipelines(e.target.value) } />
+             onChange={(e) => this.context.actions.filterPipelines(e.target.value)}/>
     );
   }
+
   render() {
     if (this.props.pipelinesStore.pipelinesXHR) {
       return (
         <div className="PageLoader">
-          <Loader />
+          <Loader/>
         </div>
       );
     }
 
-    if(NPECheck(this.props, 'pipelinesStore/isBlocked', false)) {
+    if (NPECheck(this.props, 'pipelinesStore/isBlocked', false)) {
 
       return (
-        <AccessDenied />
+        <AccessDenied/>
       );
     }
 
@@ -210,11 +224,11 @@ export default class Pipelines extends Component {
       <div className="ContentContainer">
         <div className="PageHeader">
           <h2>
-             {`${pipelinesLength} Pipeline${(pipelinesLength != 1) ? 's' : ''}`}
+            {`${pipelinesLength} Pipeline${(pipelinesLength != 1) ? 's' : ''}`}
           </h2>
           <div className="FlexRow">
             <div className="Flex1">
-              <BtnGroup buttons={buttons} />
+              <BtnGroup buttons={buttons}/>
             </div>
           </div>
         </div>
@@ -229,11 +243,11 @@ export default class Pipelines extends Component {
 }
 
 Pipelines.childContextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };
 
 Pipelines.contextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };

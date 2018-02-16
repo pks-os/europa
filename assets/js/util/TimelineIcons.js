@@ -2,7 +2,7 @@
   @author Sam Heutmaker [samheutmaker@gmail.com]
 */
 
-export default function TimelineIcons(eventType){
+export default function TimelineIcons(eventType) {
 
   let icons = {
     'PUSH': '/public/images/timeline-icons/event-push.svg',
@@ -11,8 +11,8 @@ export default function TimelineIcons(eventType){
 
   let icon = icons[eventType];
 
-  if(!icon) {
-  	console.error(`No Icon for event type ${eventType}`);
+  if (!icon) {
+    console.error(`No Icon for event type ${eventType}`);
   }
 
   return icon;

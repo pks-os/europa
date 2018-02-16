@@ -13,131 +13,136 @@ import Msg from './../components/Msg'
 import CleanSha from './../util/CleanSha'
 
 export default class RepoEventItem extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-	viewNotificationInfo(event){
-		this.context.actions.toggleEventDetails(event.id).then((getNotifRecords) => {
-			if(getNotifRecords) this.context.actions.getEventNotificationRecords(event.notifications);
-		});
-	}
-	renderEventData(event){
-		if(this.props.repoDetails.activeEventId == event.id) {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-			let errorMsg = NPECheck(this.props, 'notif/retrieveNotifRecordsError', false);
+  viewNotificationInfo(event) {
+    this.context.actions.toggleEventDetails(event.id).then((getNotifRecords) => {
+      if (getNotifRecords) this.context.actions.getEventNotificationRecords(event.notifications);
+    });
+  }
 
-			if(errorMsg) {
-				return (
-					<Msg text={errorMsg} 
-						 close={() => this.context.actions.clearNotifRecordsError()}
-						 style={{marginBottom: '14px'}}/>
-				);
-			}
+  renderEventData(event) {
+    if (this.props.repoDetails.activeEventId == event.id) {
 
-			if(NPECheck(this.props, 'notif/notifRecordXHR', false)) {
-				return (
-					<Loader />
-				);
-			}
+      let errorMsg = NPECheck(this.props, 'notif/retrieveNotifRecordsError', false);
 
-			return (
-				<WebhookViewer {...this.props} 
-							   allWebhookData={this.props.notif.currentNotifRecords} />
-			);
-		} 
-	}
-	renderWebhookText(event){
-		let action = this.viewNotificationInfo.bind(this, event);
-		let notifLength = event.notifications.length;
-		let verb = (this.props.repoDetails.activeEventId == event.id) ? 'Hide' : 'View';
-		let inside = (notifLength == 1) ? `${verb} Webhook (${notifLength})` : `${verb} Webhooks (${notifLength})`;
-		let className = "Item";
+      if (errorMsg) {
+        return (
+          <Msg text={errorMsg}
+               close={() => this.context.actions.clearNotifRecordsError()}
+               style={{marginBottom: '14px'}}/>
+        );
+      }
 
-		if(notifLength == 0) {
-			action = () => {};
-			inside = 'No Webhooks'
-			className = "Item NoClick"
-		}
+      if (NPECheck(this.props, 'notif/notifRecordXHR', false)) {
+        return (
+          <Loader/>
+        );
+      }
 
-		return (
-			<span className={className} onClick={ () =>  action()}>{inside}</span>
-		);
-	}
-	render() {
-		let event = this.props.event;
-		let time = event.eventTime;
-		let friendlyTime = ConvertTimeFriendly(time);
-		let timeUTC = ConvertTimeUTC(new Date(time), true);
-		let SHA = event.imageSha;
-		let activeRepo = NPECheck(this.props, 'repoDetails/activeRepo', {});
-		let name = activeRepo.name
+      return (
+        <WebhookViewer {...this.props}
+                       allWebhookData={this.props.notif.currentNotifRecords}/>
+      );
+    }
+  }
 
-		try {
-			if(name.indexOf('/') > -1) {
-				name = name.substr(name.indexOf('/') + 1);
-			}
-		} catch(e){
-			name = activeRepo.name;
-		}
+  renderWebhookText(event) {
+    let action = this.viewNotificationInfo.bind(this, event);
+    let notifLength = event.notifications.length;
+    let verb = (this.props.repoDetails.activeEventId == event.id) ? 'Hide' : 'View';
+    let inside = (notifLength == 1) ? `${verb} Webhook (${notifLength})` : `${verb} Webhooks (${notifLength})`;
+    let className = "Item";
 
-		return (
-			<div className="RepoEventContainer">
-				<div className="RepoEventItem">
-					<div className="EventLine">
-						<img className="EventIcon" src={TimelineIcons(event.eventType)}/>
-					</div>
-					<div className="EventDetails">
-						<div className="EventType">
-							<div className="Image">
-								Image
-							</div>
-							<div className="Type">
-								{event.eventType}
-							</div>
-						</div>
-						<div className="Time" data-tip={new Date(time)} data-for="ToolTipTop">
-						    <span className="Friendly">{friendlyTime}</span>
-							<span className="UTC">{timeUTC}</span>
-						</div>
-						<div className="ImageInfo">
-							<span className="Image">
-								<i className="icon icon-dis-push" />
-								<span className="Label">Image:&nbsp;</span>
-								<span className="Value">{name}</span>
-							</span>
-							<span className="Sha" data-tip={SHA} data-for="ToolTipTop">
-								<i className="icon icon-dis-blank" />
-								<span className="Value">{CleanSha(SHA)}</span>
-							</span>
-							<span className="Tags">
-								<i className="icon icon-dis-blank" />
-								{event.imageTags.map((tag, index) => {
-									return (
-										<span className="Tag" key={index}>{tag}</span>
-									);
-								})}
-							</span>
-						</div>
-						<div className="Notifications">
-							{this.renderWebhookText(event)}
-						</div>
-					</div>
-				</div>
-				{this.renderEventData(event)}
-			</div>
-		);
-	}	
+    if (notifLength == 0) {
+      action = () => {
+      };
+      inside = 'No Webhooks'
+      className = "Item NoClick"
+    }
+
+    return (
+      <span className={className} onClick={() => action()}>{inside}</span>
+    );
+  }
+
+  render() {
+    let event = this.props.event;
+    let time = event.eventTime;
+    let friendlyTime = ConvertTimeFriendly(time);
+    let timeUTC = ConvertTimeUTC(new Date(time), true);
+    let SHA = event.imageSha;
+    let activeRepo = NPECheck(this.props, 'repoDetails/activeRepo', {});
+    let name = activeRepo.name
+
+    try {
+      if (name.indexOf('/') > -1) {
+        name = name.substr(name.indexOf('/') + 1);
+      }
+    } catch (e) {
+      name = activeRepo.name;
+    }
+
+    return (
+      <div className="RepoEventContainer">
+        <div className="RepoEventItem">
+          <div className="EventLine">
+            <img className="EventIcon" src={TimelineIcons(event.eventType)}/>
+          </div>
+          <div className="EventDetails">
+            <div className="EventType">
+              <div className="Image">
+                Image
+              </div>
+              <div className="Type">
+                {event.eventType}
+              </div>
+            </div>
+            <div className="Time" data-tip={new Date(time)} data-for="ToolTipTop">
+              <span className="Friendly">{friendlyTime}</span>
+              <span className="UTC">{timeUTC}</span>
+            </div>
+            <div className="ImageInfo">
+              <span className="Image">
+                <i className="icon icon-dis-push"/>
+                <span className="Label">Image:&nbsp;</span>
+                <span className="Value">{name}</span>
+              </span>
+              <span className="Sha" data-tip={SHA} data-for="ToolTipTop">
+                <i className="icon icon-dis-blank"/>
+                <span className="Value">{CleanSha(SHA)}</span>
+              </span>
+              <span className="Tags">
+                <i className="icon icon-dis-blank"/>
+                {event.imageTags.map((tag, index) => {
+                  return (
+                    <span className="Tag" key={index}>{tag}</span>
+                  );
+                })}
+              </span>
+            </div>
+            <div className="Notifications">
+              {this.renderWebhookText(event)}
+            </div>
+          </div>
+        </div>
+        {this.renderEventData(event)}
+      </div>
+    );
+  }
 }
 
 RepoEventItem.propTypes = {
-	event: PropTypes.object.isRequired
+  event: PropTypes.object.isRequired
 };
 
 RepoEventItem.childContextTypes = {
-    actions: PropTypes.object
+  actions: PropTypes.object
 };
 
 RepoEventItem.contextTypes = {
-    actions: PropTypes.object
+  actions: PropTypes.object
 };
