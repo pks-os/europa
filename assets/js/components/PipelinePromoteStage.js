@@ -1,6 +1,7 @@
 import React, {Component, PropTypes} from 'react'
 import CenteredConfirm from '../components/CenteredConfirm'
 import Dropdown from '../components/Dropdown'
+import Loader from '../components/Loader'
 import Msg from '../components/Msg'
 import ConvertTimeFriendly from '../util/ConvertTimeFriendly'
 import NPECheck from "../util/NPECheck";
@@ -206,17 +207,23 @@ export default class PipelinePromoteStage extends Component {
   renderButton() {
     let sourceTag = NPECheck(this.props.pipelineStore, 'stagePromotionData/sourceTag', null);
     let destinationTag = NPECheck(this.props.pipelineStore, 'stagePromotionData/destinationTag', null);
-    if (sourceTag !== null &&
-      destinationTag !== null &&
-      !this.state.tagValidationError) {
-      return (
-        <CenteredConfirm confirmButtonText="Promote"
-                         noMessage={true}
-                         confirmButtonStyle={{}}
-                         onConfirm={() => this.context.actions.runPromoteStage()}
-                         onCancel={() => this.context.actions.clearPromoteStage()}/>
-      );
+    let waiting = this.props.pipelineStore.runPromoteStageXHR;
+
+    if (sourceTag === null || destinationTag === null || this.state.tagValidationError) {
+      return;
     }
+
+    if (waiting) {
+      return (<Loader />);
+    }
+
+    return (
+      <CenteredConfirm confirmButtonText="Promote"
+                       noMessage={true}
+                       confirmButtonStyle={{}}
+                       onConfirm={() => this.context.actions.runPromoteStage()}
+                       onCancel={() => this.context.actions.clearPromoteStage()}/>
+    );
   }
 
   renderConfirm() {

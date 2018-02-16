@@ -16,7 +16,7 @@ public class RunPipeline {
     @Inject
     private Injector _injector;
 
-    public void runPipeline(List<PipelineComponent> components,
+    public void runPipeline(List<? extends PipelineComponent> components,
                             ContainerRepo srcRepo,
                             String srcTag,
                             String digest) {

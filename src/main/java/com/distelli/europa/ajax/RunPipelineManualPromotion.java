@@ -4,12 +4,13 @@ import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.db.PipelineDb;
 import com.distelli.europa.db.RegistryManifestDb;
+import com.distelli.europa.db.TasksDb;
 import com.distelli.europa.models.ContainerRepo;
-import com.distelli.europa.models.PCCopyToRepository;
+import com.distelli.europa.models.Monitor;
 import com.distelli.europa.models.Pipeline;
-import com.distelli.europa.models.PipelineComponent;
 import com.distelli.europa.models.RegistryManifest;
 import com.distelli.europa.pipeline.RunPipeline;
+import com.distelli.europa.tasks.PipelineTask;
 import com.distelli.europa.util.PermissionCheck;
 import com.distelli.europa.util.Tag;
 import com.distelli.webserver.AjaxClientException;
@@ -18,9 +19,10 @@ import com.distelli.webserver.AjaxRequest;
 import com.distelli.webserver.HTTPMethod;
 
 import javax.inject.Inject;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.stream.IntStream;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext> {
     @Inject
@@ -31,6 +33,10 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
     private PipelineDb _pipelineDb;
     @Inject
     private RegistryManifestDb _manifestDb;
+    @Inject
+    private TasksDb _tasksDb;
+    @Inject
+    private Monitor _monitor;
     @Inject
     private RunPipeline _runPipeline;
 
@@ -68,28 +74,31 @@ public class RunPipelineManualPromotion extends AjaxHelper<EuropaRequestContext>
                                           AjaxErrors.Codes.RepoNotFound, 404));
         }
 
-        List<PipelineComponent> componentsToRun = getComponentsToRun(pipeline, componentId);
-
-        // Configure the destinationTag where appropriate
-        if ((destinationTag != null) && (componentsToRun.get(0) instanceof PCCopyToRepository)) {
-            ((PCCopyToRepository) componentsToRun.get(0)).setTag(destinationTag);
-        }
-
-        _runPipeline.runPipeline(componentsToRun, sourceRepo, sourceTag, sourceTag);
-
-        return _pipelineDb.getPipeline(pipelineId);
-    }
-
-    protected List<PipelineComponent> getComponentsToRun(Pipeline pipeline, String componentId) {
-        List<PipelineComponent> components = pipeline.getComponents();
-        OptionalInt componentIndex = IntStream.range(0, components.size())
-            .filter((i) -> componentId.equalsIgnoreCase(components.get(i).getId()))
-            .findFirst();
-        if (!componentIndex.isPresent()) {
+        if (!pipeline.getComponentIndex(componentId).isPresent()) {
             throw(new AjaxClientException("The specified PipelineComponent is not in the specified Pipeline",
                                           AjaxErrors.Codes.BadPipelineComponent, 400));
         }
-        return components.subList(componentIndex.getAsInt(), components.size());
 
+        Future<?> taskFuture = _tasksDb.addTask(_monitor,
+                                                PipelineTask.builder()
+                                                    .domain(domain)
+                                                    .tag(manifest.getTag())
+                                                    .containerRepoId(sourceRepoId)
+                                                    .manifestId(manifestId)
+                                                    .pipelineId(pipelineId)
+                                                    .startComponentId(componentId)
+                                                    .destinationTag(destinationTag)
+                                                    .build());
+
+        // We want to try to give it a chance to complete, but not wait too long.
+        try {
+            taskFuture.get(5, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException e) {
+            throw(new AjaxClientException(e.getMessage(),
+                                          AjaxErrors.Codes.PipelineRunFailed, 500));
+        } catch (TimeoutException e) {
+        }
+
+        return _pipelineDb.getPipeline(pipelineId);
     }
 }

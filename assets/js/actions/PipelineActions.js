@@ -535,10 +535,10 @@ export function runPromoteStage() {
   let sourceTag = NPECheck(this.state.pipelineStore, 'stagePromotionData/sourceTag', null);
   let destinationTag = NPECheck(this.state.pipelineStore, 'stagePromotionData/destinationTag', null);
   if (pipelineId === null ||
-    componentId === null ||
-    sourceRepoId === null ||
-    sourceTag === null ||
-    destinationTag === null) {
+      componentId === null ||
+      sourceRepoId === null ||
+      sourceTag === null ||
+      destinationTag === null) {
     this.setState((prevState, props) => {
       return {
         pipelineStore: GR.modifyProperty(prevState.pipelineStore, {
@@ -577,6 +577,7 @@ export function runPromoteStage() {
               },
               section: null,
               pipeline: res,
+              runPromoteStageXHR: false,
             }),
           };
         }, () => resolve(res));
