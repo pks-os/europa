@@ -38,46 +38,46 @@ export function listRegistries() {
     registriesXHR: (this.state.registries.length) ? false : true
   }, () => {
     RAjax.GET.call(this, 'ListRegistryCreds', {})
-      .then((res) => {
+    .then((res) => {
 
-        let registriesMap = res.reduce((cur, repo) => {
-          cur[repo.id] = repo
-          return cur;
-        }, {});
+      let registriesMap = res.reduce((cur, repo) => {
+        cur[repo.id] = repo
+        return cur;
+      }, {});
 
+      this.setState({
+        registries: res,
+        registriesMap: registriesMap,
+        registriesXHR: false,
+        registry: GA.modifyProperty(this.state.registry, {
+          isBlocked: false,
+          registriesError: ''
+        })
+      });
+
+    })
+    .catch((err) => {
+      let errorMsg = NPECheck(err, 'error/message', 'There was an error listing your registries.');
+      if (errorMsg == 'You do not have access to this operation') {
         this.setState({
-          registries: res,
-          registriesMap: registriesMap,
+          registries: [],
+          registriesMap: {},
+          registriesXHR: false,
+          registry: GA.modifyProperty(this.state.registry, {
+            isBlocked: true,
+            registriesError: 'You are not allowed to list registry credentials.'
+          })
+        });
+      } else {
+        this.setState({
           registriesXHR: false,
           registry: GA.modifyProperty(this.state.registry, {
             isBlocked: false,
-            registriesError: ''
+            registriesError: errorMsg
           })
         });
-
-      })
-      .catch((err) => {
-        let errorMsg = NPECheck(err, 'error/message', 'There was an error listing your registries.');
-        if (errorMsg == 'You do not have access to this operation') {
-          this.setState({
-            registries: [],
-            registriesMap: {},
-            registriesXHR: false,
-            registry: GA.modifyProperty(this.state.registry, {
-              isBlocked: true,
-              registriesError: 'You are not allowed to list registry credentials.'
-            })
-          });
-        } else {
-          this.setState({
-            registriesXHR: false,
-            registry: GA.modifyProperty(this.state.registry, {
-              isBlocked: false,
-              registriesError: errorMsg
-            })
-          });
-        }
-      });
+      }
+    });
   });
 };
 
@@ -97,24 +97,24 @@ export function deleteRegistry() {
     })
   }, () => {
     RAjax.POST.call(this, 'DeleteRegistryCreds', {}, this.state.registry.registrySelectedForDelete)
-      .then((res) => {
-        this.setState({
-          registry: GA.modifyProperty(this.state.registry, {
-            deleteRegistryXHR: false
-          })
-        }, () => {
-          listRegistries.call(this);
-        });
-      })
-      .catch((err) => {
-        let errorMsg = NPECheck(err, 'error/message', 'There was an error deleting your registry credentials.');
-        this.setState({
-          registry: GA.modifyProperty(this.state.registry, {
-            deleteRegistryXHR: false,
-            deleteRegistryErrorMsg: errorMsg
-          })
-        });
+    .then((res) => {
+      this.setState({
+        registry: GA.modifyProperty(this.state.registry, {
+          deleteRegistryXHR: false
+        })
+      }, () => {
+        listRegistries.call(this);
       });
+    })
+    .catch((err) => {
+      let errorMsg = NPECheck(err, 'error/message', 'There was an error deleting your registry credentials.');
+      this.setState({
+        registry: GA.modifyProperty(this.state.registry, {
+          deleteRegistryXHR: false,
+          deleteRegistryErrorMsg: errorMsg
+        })
+      });
+    });
   })
 }
 
@@ -179,25 +179,25 @@ export function clearAddRegistryError() {
 export function updateNewRegistryField(prop, e, eIsValue = false) {
   let value = (eIsValue) ? e : e.target.value;
   Promise.resolve()
-    .then((resolve, reject) => {
-      return (prop == 'provider') ? resetNewRegistryState.call(this) : null
-    })
-    .then(() => {
-      return (prop == 'provider') ? resetCurrentRepoSearch.call(this) : null
-    })
-    .then(() => {
-      this.setState({
-        addRegistry: Reducers(this.state.addRegistry, {
-          type: 'UPDATE_NEW_REGISTRY',
-          data: {
-            prop,
-            value
-          }
-        })
-      }, () => {
-        if (prop == 'provider') getRegionsForProvider.call(this);
-      });
-    })
+  .then((resolve, reject) => {
+    return (prop == 'provider') ? resetNewRegistryState.call(this) : null
+  })
+  .then(() => {
+    return (prop == 'provider') ? resetCurrentRepoSearch.call(this) : null
+  })
+  .then(() => {
+    this.setState({
+      addRegistry: Reducers(this.state.addRegistry, {
+        type: 'UPDATE_NEW_REGISTRY',
+        data: {
+          prop,
+          value
+        }
+      })
+    }, () => {
+      if (prop == 'provider') getRegionsForProvider.call(this);
+    });
+  })
 };
 
 export function addRegistryRequest() {
@@ -220,27 +220,27 @@ export function addRegistryRequest() {
       }
 
       RAjax.POST.call(this, url, this.state.addRegistry.newRegistry)
-        .then((res) => {
-          this.setState({
-            addRegistry: GA.modifyProperty(this.state.addRegistry, {
-              success: true,
-              XHR: false
-            })
-          }, () => {
-            listRegistries.call(this);
-            resolve(res.id)
-          });
-        })
-        .catch((err) => {
-          let errorMsg = `There was an error adding your registry: ${NPECheck(err, 'error/message', 'Unknown')}`
-          this.setState({
-            addRegistry: GA.modifyProperty(this.state.addRegistry, {
-              errorMsg,
-              success: false,
-              XHR: false
-            })
-          }, () => reject());
+      .then((res) => {
+        this.setState({
+          addRegistry: GA.modifyProperty(this.state.addRegistry, {
+            success: true,
+            XHR: false
+          })
+        }, () => {
+          listRegistries.call(this);
+          resolve(res.id)
         });
+      })
+      .catch((err) => {
+        let errorMsg = `There was an error adding your registry: ${NPECheck(err, 'error/message', 'Unknown')}`
+        this.setState({
+          addRegistry: GA.modifyProperty(this.state.addRegistry, {
+            errorMsg,
+            success: false,
+            XHR: false
+          })
+        }, () => reject());
+      });
     });
 
   });
@@ -248,20 +248,20 @@ export function addRegistryRequest() {
 
 export function updateServiceAccountCredential(json) {
   changeCredentialType.call(this, 'SERVICE_CREDENTIAL')
-    .then(() => updateNewRegistryField.call(this, 'secret', json, true));
+  .then(() => updateNewRegistryField.call(this, 'secret', json, true));
 }
 
 export function cancelServiceAccountCredentialUpload() {
   changeCredentialType.call(this, 'KEY_CREDENTIAL')
-    .then(() => {
-      this.setState({
-        addRegistry: GA.modifyProperty(this.state.addRegistry, {
-          newRegistry: GA.modifyProperty(NPECheck(this, 'state/addRegistry/newRegistry'), {
-            secret: ''
-          })
+  .then(() => {
+    this.setState({
+      addRegistry: GA.modifyProperty(this.state.addRegistry, {
+        newRegistry: GA.modifyProperty(NPECheck(this, 'state/addRegistry/newRegistry'), {
+          secret: ''
         })
-      });
+      })
     });
+  });
 }
 
 export function changeCredentialType(credentialType) {
@@ -307,23 +307,23 @@ export function getRegionsForProvider() {
 
     if (provider) {
       RAjax.GET.call(this, 'GetRegionsForProvider', {
-          provider
-        })
-        .then((res) => {
-          this.setState({
-            addRegistry: GA.modifyProperty(this.state.addRegistry, {
-              providerRegions: res
-            })
-          }, () => resolve());
-        })
-        .catch((err) => {
-          let errorMsg = `There was an error retreiving the available regions for the selected provider: ${NPECheck(err, 'error/message', 'Unknown')}`
-          this.setState({
-            addRegistry: GA.modifyProperty(this.state.addRegistry, {
-              errorMsg,
-            })
-          }, () => reject());
-        });
+        provider
+      })
+      .then((res) => {
+        this.setState({
+          addRegistry: GA.modifyProperty(this.state.addRegistry, {
+            providerRegions: res
+          })
+        }, () => resolve());
+      })
+      .catch((err) => {
+        let errorMsg = `There was an error retreiving the available regions for the selected provider: ${NPECheck(err, 'error/message', 'Unknown')}`
+        this.setState({
+          addRegistry: GA.modifyProperty(this.state.addRegistry, {
+            errorMsg,
+          })
+        }, () => reject());
+      });
     }
   });
 }

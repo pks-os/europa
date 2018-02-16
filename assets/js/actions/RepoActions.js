@@ -41,47 +41,47 @@ export function listRepos(repoId) {
       }
 
       RAjax.GET.call(this, op, params)
-        .then((res) => {
+      .then((res) => {
 
-          if (!Array.isArray(res)) {
-            res = [res];
-          }
+        if (!Array.isArray(res)) {
+          res = [res];
+        }
 
-          let reposMap = res.reduce((cur, repo) => {
-            cur[repo.id] = repo
-            return cur;
-          }, {});
+        let reposMap = res.reduce((cur, repo) => {
+          cur[repo.id] = repo
+          return cur;
+        }, {});
 
-          let reposNameMap = res.reduce((cur, repo) => {
-            cur[getRepoRedirect(repo)] = repo
-            return cur;
-          }, {});
+        let reposNameMap = res.reduce((cur, repo) => {
+          cur[getRepoRedirect(repo)] = repo
+          return cur;
+        }, {});
 
+        this.setState({
+          repos: res,
+          reposMap: reposMap,
+          reposNameMap: reposNameMap,
+          reposXHR: false
+        }, () => resolve());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${err.error.message}`;
+
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
-            repos: res,
-            reposMap: reposMap,
-            reposNameMap: reposNameMap,
+            reposXHR: false,
+            repoDetails: GA.modifyProperty(this.state.repoDetails, {
+              isBlocked: true
+            })
+          }, () => reject());
+        } else {
+          this.setState({
             reposXHR: false
-          }, () => resolve());
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${err.error.message}`;
+          }, () => reject());
+        }
 
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              reposXHR: false,
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                isBlocked: true
-              })
-            }, () => reject());
-          } else {
-            this.setState({
-              reposXHR: false
-            }, () => reject());
-          }
-
-        });
+      });
     });
   });
 }
@@ -179,25 +179,25 @@ export function createLocalRepo() {
     }, () => {
 
       RAjax.POST.call(this, 'CreateLocalRepo', {}, {
-          repoName
-        })
-        .then((res) => {
-          this.setState({
-            addRepo: GA.modifyProperty(this.state.addRepo, {
-              createLocalXHR: false
-            })
-          }, () => resolve(res));
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `There was an error creating your repository: ${err.error.message}`
-          this.setState({
-            addRepo: GA.modifyProperty(this.state.addRepo, {
-              createLocalXHR: false,
-              createLocalError: errorMsg
-            })
-          }, () => reject());
-        });
+        repoName
+      })
+      .then((res) => {
+        this.setState({
+          addRepo: GA.modifyProperty(this.state.addRepo, {
+            createLocalXHR: false
+          })
+        }, () => resolve(res));
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `There was an error creating your repository: ${err.error.message}`
+        this.setState({
+          addRepo: GA.modifyProperty(this.state.addRepo, {
+            createLocalXHR: false,
+            createLocalError: errorMsg
+          })
+        }, () => reject());
+      });
     });
   });
 }
@@ -240,7 +240,7 @@ export function listReposForRegistry() {
   listReposInRegistryDebounced.call(this);
 }
 
-let listReposInRegistryDebounced = Debounce(function() {
+let listReposInRegistryDebounced = Debounce(function () {
   let credId = NPECheck(this.state.addRepo, 'newRepo/repo/credId', null);
   let registry = (this.state.addRepo.newRepoCredsType == 'EXISTING') ? this.state.registriesMap[credId] : this.state.addRegistry.newRegistry
 
@@ -254,26 +254,26 @@ let listReposInRegistryDebounced = Debounce(function() {
       })
     }, () => {
       RAjax.POST.call(this, 'ListReposInRegistry', {}, credId ? {
-          credId
-        } : registry)
-        .then((res) => {
-          this.setState({
-            addRepo: GA.modifyProperty(this.state.addRepo, {
-              reposInRegistry: res,
-              errorMsg: '',
-              reposInRegistryXHR: false,
-            })
-          });
-        })
-        .catch((err) => {
-          this.setState({
-            addRepo: GA.modifyProperty(this.state.addRepo, {
-              reposInRegistry: [],
-              errorMsg: 'Unable to list repositories for selected registry. Please check your credentials.',
-              reposInRegistryXHR: false,
-            })
-          });
+        credId
+      } : registry)
+      .then((res) => {
+        this.setState({
+          addRepo: GA.modifyProperty(this.state.addRepo, {
+            reposInRegistry: res,
+            errorMsg: '',
+            reposInRegistryXHR: false,
+          })
         });
+      })
+      .catch((err) => {
+        this.setState({
+          addRepo: GA.modifyProperty(this.state.addRepo, {
+            reposInRegistry: [],
+            errorMsg: 'Unable to list repositories for selected registry. Please check your credentials.',
+            reposInRegistryXHR: false,
+          })
+        });
+      });
     });
   } else {
     this.setState({
@@ -359,10 +359,10 @@ export function addRepoRequest(afterAddCb) {
   let notif = NPECheck(this.state, 'notif/newNotification', {});
 
   let shouldIncludeNotif = Object.keys(notif)
-    .reduce((cur, next) => {
-      cur = (!!notif[next]) ? cur + 1 : cur
-      return cur;
-    }, 0) > 1;
+  .reduce((cur, next) => {
+    cur = (!!notif[next]) ? cur + 1 : cur
+    return cur;
+  }, 0) > 1;
 
   if (shouldIncludeNotif) {
     if (!isAddNotificationValid.call(this)) return;
@@ -377,30 +377,30 @@ export function addRepoRequest(afterAddCb) {
   }, () => {
 
     RAjax.POST.call(this, 'SaveContainerRepo', postData)
-      .then((res) => {
-        this.setState({
-          addRepo: GA.modifyProperty(this.state.addRepo, {
-            XHR: false,
-            success: true,
-          }),
-          notif: notifState.call(this)
-        }, () => {
-          listRepos.call(this)
+    .then((res) => {
+      this.setState({
+        addRepo: GA.modifyProperty(this.state.addRepo, {
+          XHR: false,
+          success: true,
+        }),
+        notif: notifState.call(this)
+      }, () => {
+        listRepos.call(this)
 
-          if (afterAddCb) afterAddCb(res.id);
+        if (afterAddCb) afterAddCb(res.id);
+      })
+    })
+    .catch((err) => {
+      console.error(err);
+      let errorMsg = `There was an error adding your repository: ${err.error.message}`
+      this.setState({
+        addRepo: GA.modifyProperty(this.state.addRepo, {
+          XHR: false,
+          success: false,
+          errorMsg,
         })
       })
-      .catch((err) => {
-        console.error(err);
-        let errorMsg = `There was an error adding your repository: ${err.error.message}`
-        this.setState({
-          addRepo: GA.modifyProperty(this.state.addRepo, {
-            XHR: false,
-            success: false,
-            errorMsg,
-          })
-        })
-      });
+    });
   });
 }
 
@@ -565,40 +565,40 @@ export function getRepoOverview(repoId) {
       repoDetails: GA.modifyProperty(this.state.repoDetails, {})
     }, () => {
       RAjax.GET.call(this, 'GetRepoOverview', {
-          repoId
-        })
-        .then((res) => {
+        repoId
+      })
+      .then((res) => {
 
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            repoOverviewContent: res.content || '',
+            repoOverviewContentOriginal: res.content || '',
+            isOverviewModified: false
+          })
+        }, () => resolve());
+
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              repoOverviewContent: res.content || '',
-              repoOverviewContentOriginal: res.content || '',
-              isOverviewModified: false
+              isBlocked: true,
+              saveRepoOverviewXHR: false,
             })
-          }, () => resolve());
+          }, () => reject());
+        } else {
+          this.setState({
+            repoDetails: GA.modifyProperty(this.state.repoDetails, {
+              saveRepoOverviewXHR: false,
+              repoOverviewError: errorMsg
+            })
+          }, () => reject());
+        }
 
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                isBlocked: true,
-                saveRepoOverviewXHR: false,
-              })
-            }, () => reject());
-          } else {
-            this.setState({
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                saveRepoOverviewXHR: false,
-                repoOverviewError: errorMsg
-              })
-            }, () => reject());
-          }
-
-        });
+      });
     })
   });
 }
@@ -634,31 +634,31 @@ export function saveRepoOverview() {
       let content = this.state.repoDetails.repoOverviewContent;
       let repoId = this.state.repoDetails.activeRepo.id;
       RAjax.POST.call(this, 'SaveRepoOverview', {
-          content
-        }, {
-          repoId
-        })
-        .then((res) => {
+        content
+      }, {
+        repoId
+      })
+      .then((res) => {
 
-          this.setState({
-            repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              saveRepoOverviewXHR: false,
-              editOverview: false
-            })
-          }, () => resolve());
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            saveRepoOverviewXHR: false,
+            editOverview: false
+          })
+        }, () => resolve());
 
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-          this.setState({
-            repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              saveRepoOverviewXHR: false,
-              repoOverviewError: errorMsg
-            })
-          }, () => reject());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            saveRepoOverviewXHR: false,
+            repoOverviewError: errorMsg
+          })
+        }, () => reject());
 
-        });
+      });
     });
   });
 }
@@ -708,27 +708,27 @@ export function setRepoPublic(isPublic) {
       };
 
       RAjax.POST.call(this, 'SetRepoPublic', {}, params)
-        .then((res) => {
-          this.setState({
-            repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              publicXHR: false,
-              publicConfirm: false,
-              publicStatusChange: null
-            })
-          }, () => resolve());
+      .then((res) => {
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            publicXHR: false,
+            publicConfirm: false,
+            publicStatusChange: null
+          })
+        }, () => resolve());
 
-        })
-        .catch((err) => {
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-          this.setState({
-            repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              publicXHR: false,
-              publicError: errorMsg,
-              publicConfirm: false,
-              publicStatusChange: null
-            })
-          }, () => reject());
-        });
+      })
+      .catch((err) => {
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            publicXHR: false,
+            publicError: errorMsg,
+            publicConfirm: false,
+            publicStatusChange: null
+          })
+        }, () => reject());
+      });
 
     });
   });
@@ -742,27 +742,27 @@ export function deleteActiveRepo(afterDeleteCb) {
     })
   }, () => {
     RAjax.POST.call(this, 'DeleteContainerRepo', {}, {
-        id: this.state.repoDetails.activeRepo.id
-      })
-      .then((res) => {
-        this.setState({
-          repoDetails: GA.modifyProperty(this.state.repoDetails, {
-            deleteXHR: false
-          })
-        }, () => {
-          if (afterDeleteCb) afterDeleteCb();
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        let errorMsg = `${NPECheck(err, 'error/message', '')}`
-        this.setState({
-          repoDetails: GA.modifyProperty(this.state.repoDetails, {
-            deleteXHR: false,
-            deleteRepoError: errorMsg
-          })
-        });
+      id: this.state.repoDetails.activeRepo.id
+    })
+    .then((res) => {
+      this.setState({
+        repoDetails: GA.modifyProperty(this.state.repoDetails, {
+          deleteXHR: false
+        })
+      }, () => {
+        if (afterDeleteCb) afterDeleteCb();
       });
+    })
+    .catch((err) => {
+      console.error(err);
+      let errorMsg = `${NPECheck(err, 'error/message', '')}`
+      this.setState({
+        repoDetails: GA.modifyProperty(this.state.repoDetails, {
+          deleteXHR: false,
+          deleteRepoError: errorMsg
+        })
+      });
+    });
   });
 }
 
@@ -804,36 +804,36 @@ export function listRepoEvents(repoId, skipXHR, marker, isBackward = null) {
       }
 
       RAjax.GET.call(this, 'ListRepoEvents', params)
-        .then((res) => {
+      .then((res) => {
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            events: res.events,
+            eventsPrevMarker: res.prevMarker,
+            eventsNextMarker: res.nextMarker,
+            eventsXHR: false,
+            hasRetrievedEvents: true
+          })
+        }, () => resolve());
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `${NPECheck(err, 'error/message', '')}`
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              events: res.events,
-              eventsPrevMarker: res.prevMarker,
-              eventsNextMarker: res.nextMarker,
-              eventsXHR: false,
-              hasRetrievedEvents: true
+              isBlocked: true,
+              eventsXHR: false
             })
-          }, () => resolve());
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `${NPECheck(err, 'error/message', '')}`
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                isBlocked: true,
-                eventsXHR: false
-              })
-            }, () => reject());
-          } else {
-            this.setState({
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                eventsXHR: false,
-                eventsError: errorMsg
-              })
-            }, () => reject());
-          }
-        })
+          }, () => reject());
+        } else {
+          this.setState({
+            repoDetails: GA.modifyProperty(this.state.repoDetails, {
+              eventsXHR: false,
+              eventsError: errorMsg
+            })
+          }, () => reject());
+        }
+      })
     })
   });
 }
@@ -884,38 +884,38 @@ export function listRepoManifests(repoId, skipXHR, marker, isBackward = null) {
       }
 
       RAjax.GET.call(this, 'ListRepoManifests', params)
-        .then((res) => {
+      .then((res) => {
+        this.setState({
+          repoDetails: GA.modifyProperty(this.state.repoDetails, {
+            manifests: res.list,
+            manifestsPrevMarker: res.prev,
+            manifestsNextMarker: res.next,
+            manifestsXHR: false,
+            manifestsError: '',
+            hasRetrievedManifests: true
+          })
+        }, () => resolve())
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = NPECheck(err, 'error/message', '');
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              manifests: res.list,
-              manifestsPrevMarker: res.prev,
-              manifestsNextMarker: res.next,
+              isBlocked: true,
               manifestsXHR: false,
-              manifestsError: '',
-              hasRetrievedManifests: true
             })
-          }, () => resolve())
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = NPECheck(err, 'error/message', '');
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                isBlocked: true,
-                manifestsXHR: false,
-              })
-            }, () => reject());
-          } else {
-            this.setState({
-              repoDetails: GA.modifyProperty(this.state.repoDetails, {
-                manifestsXHR: false,
-                manifestsError: errorMsg
-              })
-            }, () => reject())
-          }
+          }, () => reject());
+        } else {
+          this.setState({
+            repoDetails: GA.modifyProperty(this.state.repoDetails, {
+              manifestsXHR: false,
+              manifestsError: errorMsg
+            })
+          }, () => reject())
+        }
 
-        });
+      });
     });
   });
 }

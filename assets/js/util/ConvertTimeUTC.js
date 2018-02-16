@@ -10,34 +10,34 @@
 
 function convertTime(dateObj, withoutTime) {
 
-    if(!dateObj || !(dateObj instanceof Date)) return null;
+  if (!dateObj || !(dateObj instanceof Date)) return null;
 
-    var d = dateObj;
+  var d = dateObj;
 
-    var month = d.getMonth();
-    var day =  d.getDate();
-    var year = d.getFullYear();
-    var hours = d.getHours();
-    var minutes = d.getMinutes();
-    minutes = (minutes.toString().length == 1) ? '0' + minutes : minutes;
-    var amPm = ' AM';
+  var month = d.getMonth();
+  var day = d.getDate();
+  var year = d.getFullYear();
+  var hours = d.getHours();
+  var minutes = d.getMinutes();
+  minutes = (minutes.toString().length == 1) ? '0' + minutes : minutes;
+  var amPm = ' AM';
 
-    if(hours > 12) {
-      hours = hours - 12;
-      amPm = ' PM';
-    }
+  if (hours > 12) {
+    hours = hours - 12;
+    amPm = ' PM';
+  }
 
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    var finalDate = hours + ':' + minutes + amPm + ' ' + months[month] + ' ' + day + ', ' + year;
+  var finalDate = hours + ':' + minutes + amPm + ' ' + months[month] + ' ' + day + ', ' + year;
 
-    if(withoutTime) {
-        finalDate = months[month] + ' ' + day + ', ' + year;        
-    }
+  if (withoutTime) {
+    finalDate = months[month] + ' ' + day + ', ' + year;
+  }
 
-    if(finalDate.toLowerCase().indexOf('nan') > -1) return 'Unknown';
+  if (finalDate.toLowerCase().indexOf('nan') > -1) return 'Unknown';
 
-    return finalDate;
+  return finalDate;
 }
 
 export default convertTime;

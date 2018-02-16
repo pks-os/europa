@@ -76,9 +76,9 @@
                 }
 
                 .Actions {
-					display: flex;
-                	flex-direction: row;
-                	justify-content: flex-end;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-end;
 
                     i {
                         color: $light-blue;
@@ -91,7 +91,7 @@
                         }
                     }
 
-                    i.icon-dis-questionmark{
+                    i.icon-dis-questionmark {
                         &:hover {
                             color: $green;
                         }

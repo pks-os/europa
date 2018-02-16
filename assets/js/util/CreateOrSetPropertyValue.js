@@ -10,18 +10,18 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export default function(object, nestedProps, value) {
+export default function (object, nestedProps, value) {
   let nested = nestedProps.split("/");
   let val = object;
   let finalProp = null;
 
-  while ( nested.length > 0 ) {
+  while (nested.length > 0) {
     let prop = nested.shift();
     if (!val.hasOwnProperty(prop)) val[prop] = {};
     if (nested.length > 0) {
       val = val[prop];
     }
-   finalProp = prop;
+    finalProp = prop;
   }
 
   val[finalProp] = value;

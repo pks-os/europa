@@ -5,63 +5,66 @@
 import React, {Component, PropTypes} from 'react'
 
 export default class Checkbox extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {};
-	}
-	renderLabel(){
-		if(this.props.label) {
-			let className = this.props.labelClassName || '';
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
 
-			if(!this.props.isChecked) {
-				className += ' Inactive';
-			}
+  renderLabel() {
+    if (this.props.label) {
+      let className = this.props.labelClassName || '';
 
-			if(this.props.disabled) {
-				className += ' Disabled';
-			}
+      if (!this.props.isChecked) {
+        className += ' Inactive';
+      }
 
-			return (
-				<label className={className}
-				       style={{margin: '0'}}>
-			 		{this.props.label}
-			 	</label>
-			);
-		}
-	}
-	renderIcon(){
-		let className = (this.props.isChecked) ? 'icon icon-dis-box-check'
-											   : 'icon icon-dis-box-uncheck Inactive';
+      if (this.props.disabled) {
+        className += ' Disabled';
+      }
 
-		if(this.props.disabled) {
-			className += ' Disabled';
-		}
+      return (
+        <label className={className}
+               style={{margin: '0'}}>
+          {this.props.label}
+        </label>
+      );
+    }
+  }
 
-		if(this.props.iconClassName) {
-			className += ` ${this.props.iconClassName}`;
-		}
+  renderIcon() {
+    let className = (this.props.isChecked) ? 'icon icon-dis-box-check'
+      : 'icon icon-dis-box-uncheck Inactive';
 
-		return (
-			<i className={className} />
-		);
-	}
-	render(){
-		return (
-			<div className="RadioButton FlexRow" onClick={() => this.props.onClick()}>
-				{this.renderIcon()}
-				{this.renderLabel()}
-			</div>
-		);
-	}
+    if (this.props.disabled) {
+      className += ' Disabled';
+    }
+
+    if (this.props.iconClassName) {
+      className += ` ${this.props.iconClassName}`;
+    }
+
+    return (
+      <i className={className}/>
+    );
+  }
+
+  render() {
+    return (
+      <div className="RadioButton FlexRow" onClick={() => this.props.onClick()}>
+        {this.renderIcon()}
+        {this.renderLabel()}
+      </div>
+    );
+  }
 }
 
 Checkbox.propTypes = {
-	label: PropTypes.string,
-	onClick: PropTypes.func.isRequired,
-	isChecked: PropTypes.bool.isRequired,
-	disabled: PropTypes.bool,
-	iconClassName: PropTypes.string,
-	labelClassName: PropTypes.string
+  label: PropTypes.string,
+  onClick: PropTypes.func.isRequired,
+  isChecked: PropTypes.bool.isRequired,
+  disabled: PropTypes.bool,
+  iconClassName: PropTypes.string,
+  labelClassName: PropTypes.string
 };
 
 

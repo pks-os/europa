@@ -7,8 +7,6 @@
     font-size: 0.6875rem;
     font-weight: 300;
 
-
-
     .FooterInside {
         max-width: 1080px;
         position: relative;
@@ -25,13 +23,11 @@
         justify-content: flex-end;
         align-items: center;
 
-
         span {
             font-weight: 600;
         }
     }
 }
-
 
 .LogoFooter {
     position: relative;
@@ -41,7 +37,6 @@
     flex-direction: column;
     padding: 2rem 0 2rem;
     background-color: $curtain-color;
-
 
     .Spacer {
         height: 30px;

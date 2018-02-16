@@ -1,6 +1,6 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-import { Router, Route, IndexRoute, browserHistory } from 'react-router'
+import {Router, Route, IndexRoute, browserHistory} from 'react-router'
 import Layout from './pages/Layout'
 import LandingPage from './pages/LandingPage'
 import Repositories from './pages/Repositories'
@@ -20,19 +20,20 @@ export default class App extends Component {
       ...PAGE_PROPS
     };
   }
+
   render() {
     let europa = (
       <Router history={browserHistory}>
         <Route component={Layout}>
-          <Route component={LandingPage} path="/" />
-          <Route component={Repositories} path="/repositories" />
-          <Route component={RepoDetailsPage} path="/repositories/:repoName" />
-          <Route component={AddRepo} path="/new-repository" />
-          <Route component={NewPipeline} path="/new-pipeline" />
-          <Route component={Pipelines} path="/pipelines" />
-          <Route component={Pipeline} path="/pipelines/:pipelineId" />
-          <Route component={Settings} path="/settings" />
-          <Route component={NotFound} path="*" />
+          <Route component={LandingPage} path="/"/>
+          <Route component={Repositories} path="/repositories"/>
+          <Route component={RepoDetailsPage} path="/repositories/:repoName"/>
+          <Route component={AddRepo} path="/new-repository"/>
+          <Route component={NewPipeline} path="/new-pipeline"/>
+          <Route component={Pipelines} path="/pipelines"/>
+          <Route component={Pipeline} path="/pipelines/:pipelineId"/>
+          <Route component={Settings} path="/settings"/>
+          <Route component={NotFound} path="*"/>
         </Route>
       </Router>
     );
@@ -40,8 +41,8 @@ export default class App extends Component {
     let storageApp = (
       <Router history={browserHistory}>
         <Route component={Layout}>
-          <Route component={StorageSettings} path="/" />
-          <Route component={NotFound} path="*" />
+          <Route component={StorageSettings} path="/"/>
+          <Route component={NotFound} path="*"/>
         </Route>
       </Router>
     );

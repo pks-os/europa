@@ -76,30 +76,30 @@ export function listAuthTokens() {
     })
   }, () => {
     RAjax.GET.call(this, 'ListAuthTokens', {})
-      .then((res) => {
-        this.setState({
-          settings: Reducers(this.state.settings, {
-            type: 'UPDATE_TOKENS_STATE',
-            data: {
-              tokensXHR: false,
-              allTokens: res
-            }
-          })
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-        let errorMsg = `There was an error listing your API Tokens: ${err.error.message}`;
-        this.setState({
-          settings: Reducers(this.state.settings, {
-            type: 'UPDATE_TOKENS_STATE',
-            data: {
-              tokensXHR: false,
-              tokenPageError: errorMsg
-            }
-          })
-        });
-      })
+    .then((res) => {
+      this.setState({
+        settings: Reducers(this.state.settings, {
+          type: 'UPDATE_TOKENS_STATE',
+          data: {
+            tokensXHR: false,
+            allTokens: res
+          }
+        })
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      let errorMsg = `There was an error listing your API Tokens: ${err.error.message}`;
+      this.setState({
+        settings: Reducers(this.state.settings, {
+          type: 'UPDATE_TOKENS_STATE',
+          data: {
+            tokensXHR: false,
+            tokenPageError: errorMsg
+          }
+        })
+      });
+    })
   });
 }
 
@@ -115,29 +115,29 @@ export function createAuthToken() {
       })
     }, () => {
       RAjax.POST.call(this, 'CreateAuthToken')
-        .then((res) => {
-          this.setState({
-            settings: Reducers(this.state.settings, {
-              type: 'UPDATE_TOKENS_STATE',
-              data: {
-                createTokenXHR: false
-              }
-            })
-          }, () => resolve(res));
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `There was an error creating your API token: ${err.error.message}`;
-          this.setState({
-            settings: Reducers(this.state.settings, {
-              type: 'UPDATE_TOKENS_STATE',
-              data: {
-                tokenItemError: errorMsg,
-                createTokenXHR: false
-              }
-            })
-          }, () => reject(err));
-        });
+      .then((res) => {
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              createTokenXHR: false
+            }
+          })
+        }, () => resolve(res));
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `There was an error creating your API token: ${err.error.message}`;
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              tokenItemError: errorMsg,
+              createTokenXHR: false
+            }
+          })
+        }, () => reject(err));
+      });
     });
   });
 }
@@ -156,32 +156,32 @@ export function deleteAuthToken() {
       let token = NPECheck(this.state, 'settings/tokens/selectedTokenForDelete', '');
 
       RAjax.POST.call(this, 'DeleteAuthToken', {}, {
-          token
-        })
-        .then((res) => {
-          this.setState({
-            settings: Reducers(this.state.settings, {
-              type: 'UPDATE_TOKENS_STATE',
-              data: {
-                deleteTokenXHR: false,
-                selectedTokenForDelete: null
-              }
-            })
-          }, () => resolve(res));
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `There was an error deleting your API token: ${err.error.message}`;
-          this.setState({
-            settings: Reducers(this.state.settings, {
-              type: 'UPDATE_TOKENS_STATE',
-              data: {
-                deleteTokenXHR: false,
-                tokenItemError: errorMsg
-              }
-            })
-          }, () => reject(err));
-        });
+        token
+      })
+      .then((res) => {
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              deleteTokenXHR: false,
+              selectedTokenForDelete: null
+            }
+          })
+        }, () => resolve(res));
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `There was an error deleting your API token: ${err.error.message}`;
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              deleteTokenXHR: false,
+              tokenItemError: errorMsg
+            }
+          })
+        }, () => reject(err));
+      });
     });
   });
 }
@@ -200,33 +200,33 @@ export function setAuthTokenStatus(tokenString, status) {
       })
     }, () => {
       RAjax.POST.call(this, 'SetAuthTokenStatus', {
-          token: tokenString,
-          status
-        })
-        .then((res) => {
-          this.setState({
-            settings: Reducers(this.state.settings, {
-              type: 'UPDATE_TOKENS_STATE',
-              data: {
-                statusXHR: false,
-                selectedTokenForStatusUpdate: null
-              }
-            })
-          }, () => resolve(res));
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = `There was an error updating your API token status: ${err.error.message}`;
-          this.setState({
-            settings: Reducers(this.state.settings, {
-              type: 'UPDATE_TOKENS_STATE',
-              data: {
-                statusXHR: false,
-                tokenItemError: errorMsg
-              }
-            })
-          }, () => reject(err));
-        });
+        token: tokenString,
+        status
+      })
+      .then((res) => {
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              statusXHR: false,
+              selectedTokenForStatusUpdate: null
+            }
+          })
+        }, () => resolve(res));
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = `There was an error updating your API token status: ${err.error.message}`;
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              statusXHR: false,
+              tokenItemError: errorMsg
+            }
+          })
+        }, () => reject(err));
+      });
     });
   });
 }
@@ -343,50 +343,50 @@ export function getStorageSettings() {
     }, () => {
 
       RAjax.GET.call(this, 'GetStorageSettings', {})
-        .then((res) => {
+      .then((res) => {
+        this.setState({
+          settings: GA.modifyProperty(this.state.settings, {
+            ...this.state.settings,
+            storage: {
+              ...this.state.settings.storage,
+              getXHR: false,
+              storageCreds: res,
+              isBlocked: false
+            }
+          })
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+        let errorMsg = NPECheck(err, 'error/message', 'Please try again or contact support');
+        let error = `There was an error retrieving your storage settings: ${errorMsg}`
+
+        if (errorMsg == 'You do not have access to this operation') {
           this.setState({
             settings: GA.modifyProperty(this.state.settings, {
               ...this.state.settings,
               storage: {
                 ...this.state.settings.storage,
                 getXHR: false,
-                storageCreds: res,
+                getError: error,
+                isBlocked: true
+              }
+            })
+          }, () => reject(err));
+        } else {
+          this.setState({
+            settings: GA.modifyProperty(this.state.settings, {
+              ...this.state.settings,
+              storage: {
+                ...this.state.settings.storage,
+                getXHR: false,
+                getError: error,
                 isBlocked: false
               }
             })
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          let errorMsg = NPECheck(err, 'error/message', 'Please try again or contact support');
-          let error = `There was an error retrieving your storage settings: ${errorMsg}`
-
-          if (errorMsg == 'You do not have access to this operation') {
-            this.setState({
-              settings: GA.modifyProperty(this.state.settings, {
-                ...this.state.settings,
-                storage: {
-                  ...this.state.settings.storage,
-                  getXHR: false,
-                  getError: error,
-                  isBlocked: true
-                }
-              })
-            }, () => reject(err));
-          } else {
-            this.setState({
-              settings: GA.modifyProperty(this.state.settings, {
-                ...this.state.settings,
-                storage: {
-                  ...this.state.settings.storage,
-                  getXHR: false,
-                  getError: error,
-                  isBlocked: false
-                }
-              })
-            }, () => reject(err));
-          }
-        })
+          }, () => reject(err));
+        }
+      })
     });
   });
 }
@@ -428,22 +428,22 @@ export function toggleSelectRegionForStorageCredentialsDropDown() {
 export function listRegionsForStorageCredentials() {
   return new Promise((resolve, reject) => {
     RAjax.GET.call(this, 'GetRegionsForProvider', {
-        provider: 'ECR'
-      })
-      .then((res) => {
-        this.setState({
-          settings: {
-            ...this.state.settings,
-            storage: GA.modifyProperty(this.state.settings.storage, {
-              regions: res
-            })
-          }
-        }, () => resolve())
-      })
-      .catch((err) => {
-        console.error(err);
-        reject();
-      })
+      provider: 'ECR'
+    })
+    .then((res) => {
+      this.setState({
+        settings: {
+          ...this.state.settings,
+          storage: GA.modifyProperty(this.state.settings.storage, {
+            regions: res
+          })
+        }
+      }, () => resolve())
+    })
+    .catch((err) => {
+      console.error(err);
+      reject();
+    })
   });
 }
 
@@ -471,33 +471,33 @@ export function saveStorageSettings() {
       }
 
       RAjax.POST.call(this, op, storageSettings, {}, path)
-        .then((res) => {
-          this.setState({
-            settings: {
-              ...this.state.settings,
-              storage: GA.modifyProperty(this.state.settings.storage, {
-                saveStorageXHR: false,
-                saveStorageSuccess: true
-              })
-            }
-          }, () => {
-            resolve();
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          let error = NPECheck(err, 'error/message', 'There was an error saving your credentials.');
-          this.setState({
-            settings: {
-              ...this.state.settings,
-              storage: GA.modifyProperty(this.state.settings.storage, {
-                saveStorageXHR: false,
-                error: error,
-                saveStorageSuccess: false
-              })
-            }
-          }, () => reject());
+      .then((res) => {
+        this.setState({
+          settings: {
+            ...this.state.settings,
+            storage: GA.modifyProperty(this.state.settings.storage, {
+              saveStorageXHR: false,
+              saveStorageSuccess: true
+            })
+          }
+        }, () => {
+          resolve();
         });
+      })
+      .catch((err) => {
+        console.error(err);
+        let error = NPECheck(err, 'error/message', 'There was an error saving your credentials.');
+        this.setState({
+          settings: {
+            ...this.state.settings,
+            storage: GA.modifyProperty(this.state.settings.storage, {
+              saveStorageXHR: false,
+              error: error,
+              saveStorageSuccess: false
+            })
+          }
+        }, () => reject());
+      });
     });
 
   });

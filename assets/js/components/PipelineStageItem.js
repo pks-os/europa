@@ -1,5 +1,5 @@
-import React, { Component, PropTypes } from 'react'
-import { Link } from 'react-router'
+import React, {Component, PropTypes} from 'react'
+import {Link} from 'react-router'
 import ConvertTimeFriendly from './../util/ConvertTimeFriendly'
 import CenteredConfirm from './../components/CenteredConfirm'
 import Loader from './../components/Loader'
@@ -17,6 +17,7 @@ export default class PipelineStageItem extends Component {
       pipelineComponentObj: this.props.pipelineComponentObj,
     };
   }
+
   renderTrigger(repo) {
     if (!repo) return;
     if (this.props.empty) return;
@@ -27,13 +28,13 @@ export default class PipelineStageItem extends Component {
     return (
       <div className="stage-trigger">
         <div className="stage-trigger-pipe">
-          <img src={`/public/images/${imageName}`} />
+          <img src={`/public/images/${imageName}`}/>
         </div>
         <div className="stage-trigger-toggle">
           <div className="stage-trigger-toggle-check">
             <div className={wrapperClasses}>
               <i className={checkboxClasses}
-                 onClick={() => this.context.actions.togglePipelineComponentAutomaticPromotion(this.props.pipelineComponentObj)} />
+                 onClick={() => this.context.actions.togglePipelineComponentAutomaticPromotion(this.props.pipelineComponentObj)}/>
               <span>Auto Promote on Image Event</span>
             </div>
             {this.renderPromoteButton()}
@@ -42,6 +43,7 @@ export default class PipelineStageItem extends Component {
       </div>
     );
   }
+
   renderPromoteButton() {
     return (
       <div className="stage-promote cursor-on-hover"
@@ -52,11 +54,13 @@ export default class PipelineStageItem extends Component {
     );
 
   }
+
   renderEmptyOption() {
     if (!NPECheck(this.props.stage, 'autoDeployTrigger', null)) {
       return <option value="">Select...</option>
     }
   }
+
   renderStage(repo) {
     // If repo is null, the user doesn't have access
     return (
@@ -64,37 +68,40 @@ export default class PipelineStageItem extends Component {
         {this.renderTrigger(repo)}
         <div className="pipeline-grey-wrap">
           <div className="stage-destination-wrap">
-            <div className="left-icon-col" style={ {background: "#2E5597"} }>
-              <img src={RegistryProviderIcons(NPECheck(repo || {}, 'provider', "DELETED"), true)} />
+            <div className="left-icon-col" style={{background: "#2E5597"}}>
+              <img src={RegistryProviderIcons(NPECheck(repo || {}, 'provider', "DELETED"), true)}/>
             </div>
             <div className="stage-destinations">
-              { repo ? this.renderInterior(repo) : this.renderUnauthorizedInterior() }
+              {repo ? this.renderInterior(repo) : this.renderUnauthorizedInterior()}
             </div>
           </div>
         </div>
       </div>
     );
   }
+
   renderDeleteStage() {
     if (!this.props.firstStage) {
       return (
         <div className="delete-stage">
           <i className="icon-dis-close"
-             onClick={() => this.setState({deleteToggled: !this.state.deleteToggled})} />
+             onClick={() => this.setState({deleteToggled: !this.state.deleteToggled})}/>
         </div>
       );
     }
   }
+
   renderDeleteMainStage() {
     if (this.props.firstStage && NPECheck(this.props, 'pipelineStore/pipeline/components', []).length == 0) {
       return (
         <div className="delete-stage">
           <i className="icon-dis-close"
-             onClick={() => this.setState({deleteToggled: !this.state.deleteToggled})} />
+             onClick={() => this.setState({deleteToggled: !this.state.deleteToggled})}/>
         </div>
       );
     }
   }
+
   deleteStage() {
     if (this.props.firstStage) {
       this.context.actions.removeMainPipelineStage();
@@ -105,6 +112,7 @@ export default class PipelineStageItem extends Component {
       this.context.actions.removePipelineComponent(this.state.pipelineComponentObj.id);
     }
   }
+
   renderConfirmOrError() {
     let msg = "Are you sure you want to remove this stage?";
 
@@ -118,6 +126,7 @@ export default class PipelineStageItem extends Component {
 
     return msg;
   }
+
   isDeletingStage() {
     if (this.props.pipelineStore.removePipelineMainStageXHR) {
       return true;
@@ -128,12 +137,13 @@ export default class PipelineStageItem extends Component {
     }
     return false;
   }
+
   renderUnauthorizedInterior() {
     return (
       <div className="stage-destination">
         <div className="stage-dest-interior">
           <div className="stage-dest-details">
-            <div style={ {position: "relative"} }>
+            <div style={{position: "relative"}}>
               <span style={{color: "grey", fontSize: ".85rem", fontWeight: "400"}}>
                 You are not authorized to view this Repository
               </span>
@@ -143,12 +153,13 @@ export default class PipelineStageItem extends Component {
       </div>
     );
   }
+
   renderInterior(repo) {
     if (this.isDeletingStage()) {
       return (
         <div className="stage-destination">
-          <div style={ {margin: "15px 0 0"} }>
-            <Loader />
+          <div style={{margin: "15px 0 0"}}>
+            <Loader/>
           </div>
         </div>
       );
@@ -157,12 +168,12 @@ export default class PipelineStageItem extends Component {
     if (this.state.deleteToggled) {
       return (
         <div className="stage-destination">
-          <CenteredConfirm onConfirm={ () => this.deleteStage.call(this) }
-                           onCancel={ () => this.setState({deleteToggled: !this.state.deleteToggled}) }
+          <CenteredConfirm onConfirm={() => this.deleteStage.call(this)}
+                           onCancel={() => this.setState({deleteToggled: !this.state.deleteToggled})}
                            confirmButtonStyle={{background: "#df423a"}}
                            confirmButtonText="Remove"
-                           messageStyle={ {fontSize: ".75rem", margin: "7px 0 4px"} }
-                           message={this.renderConfirmOrError()} />
+                           messageStyle={{fontSize: ".75rem", margin: "7px 0 4px"}}
+                           message={this.renderConfirmOrError()}/>
         </div>
       );
     }
@@ -177,7 +188,7 @@ export default class PipelineStageItem extends Component {
       <div className="stage-destination">
         <div className="stage-dest-interior">
           <div className="stage-dest-details">
-            <div style={ {position: "relative", top: "2px"} }>
+            <div style={{position: "relative", top: "2px"}}>
               <span style={{color: "#1DAFE9", fontSize: ".75rem", fontWeight: "900"}}>
                 <Link to={`/repositories/${getRepoRedirect(repo)}`}>
                   {repo.name}
@@ -192,9 +203,9 @@ export default class PipelineStageItem extends Component {
               <div className="meta-details">
                 <strong>Image SHA:</strong>
                 <span>
-                  { lastEvent.imageSha != "N/A"
+                  {lastEvent.imageSha != "N/A"
                     ? `${lastEvent.imageSha.substring(7, lastEvent.imageSha.length)}`
-                    : lastEvent.imageSha }
+                    : lastEvent.imageSha}
                 </span>
               </div>
               <div className="meta-details">
@@ -216,6 +227,7 @@ export default class PipelineStageItem extends Component {
       </div>
     );
   }
+
   render() {
     if (this.props.empty) {
       return this.renderEmptyStage();
@@ -226,13 +238,13 @@ export default class PipelineStageItem extends Component {
 }
 
 PipelineStageItem.childContextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };
 
 PipelineStageItem.contextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };
 
 PipelineStageItem.propTypes = {

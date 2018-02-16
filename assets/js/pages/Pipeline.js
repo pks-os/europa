@@ -1,5 +1,5 @@
 import React, {Component, PropTypes} from 'react'
-import { Link } from 'react-router'
+import {Link} from 'react-router'
 import Btn from './../components/Btn'
 import Loader from './../components/Loader'
 import BtnGroup from './../components/BtnGroup'
@@ -22,6 +22,7 @@ export default class Pipeline extends Component {
       timeoutInterval: null,
     };
   }
+
   componentDidMount() {
     let id = `${(this.props.isEnterprise) ? this.props.ctx.domain : 'd0'}:${this.props.params.pipelineId}`
 
@@ -30,7 +31,7 @@ export default class Pipeline extends Component {
     .then(pipeline => {
       this.setState({
         loading: false,
-      } , () => this.pollForUpdates() );
+      }, () => this.pollForUpdates());
     })
     .catch((err) => {
       console.error(err);
@@ -39,18 +40,21 @@ export default class Pipeline extends Component {
       });
     })
   }
+
   componentWillUnmount() {
     this.context.actions.resetSinglePipelineState();
     clearInterval(this.state.timeoutInterval);
   }
+
   pollForUpdates() {
     this.setState({
-      timeoutInterval: setTimeout(function() {
+      timeoutInterval: setTimeout(function () {
         this.context.actions.listRepos()
-          .then(pipeline => this.pollForUpdates());
+        .then(pipeline => this.pollForUpdates());
       }.bind(this), 25000)
     })
   }
+
   renderPage(pipeline) {
     switch (this.props.pipelineStore.section) {
       case "CONNECT_REPOSITORY":
@@ -70,11 +74,11 @@ export default class Pipeline extends Component {
           return (
             <div>
               <div className="FlexRow JustifyCenter AlignCenter">
-                <Btn onClick={() => this.context.actions.setPipelinePageSection("CONNECT_REPOSITORY") }
+                <Btn onClick={() => this.context.actions.setPipelinePageSection("CONNECT_REPOSITORY")}
                      className="LargeBlueButton"
                      text="Connect Repository"
                      style={{marginTop: '28px'}}
-                     canClick={true} />
+                     canClick={true}/>
               </div>
             </div>
           );
@@ -83,11 +87,12 @@ export default class Pipeline extends Component {
         }
     }
   }
+
   renderPipeline() {
     if (!this.props.reposMap) return;
     let repoContainerPipelineId = NPECheck(this.props, "pipelineStore/pipeline/containerRepoId", null);
     if (!repoContainerPipelineId) {
-        return <Msg text="No pipeline data found" />
+      return <Msg text="No pipeline data found"/>
     }
     let repoContainerPipeline = this.props.reposMap[repoContainerPipelineId];
     let pipelineComponents = this.props.pipelineStore.pipeline.components.slice();
@@ -116,7 +121,7 @@ export default class Pipeline extends Component {
       <div>
         <PipelineStageItem {...this.props}
                            firstStage={true}
-                           repo={repoContainerPipeline} />
+                           repo={repoContainerPipeline}/>
         {pipelineComponentsToRender.map((val) => {
           let component = val[0];
           let sourceRepoId = val[1];
@@ -133,54 +138,60 @@ export default class Pipeline extends Component {
                                repo={this.props.reposMap[component.destinationContainerRepoId]}
                                automatic={automatic}
                                gateComponentId={gateComponentId}
-                               promoteFunc={this.context.actions.openPromoteStage.bind(this)} />
+                               promoteFunc={this.context.actions.openPromoteStage.bind(this)}/>
           );
         })}
         <div className="FlexRow JustifyCenter AlignCenter">
-          <Btn onClick={() => this.context.actions.setPipelinePageSection("ADD_STAGE") }
+          <Btn onClick={() => this.context.actions.setPipelinePageSection("ADD_STAGE")}
                className="LargeBlueButton"
                text="Add Stage"
                style={{marginTop: '28px'}}
-               canClick={true} />
+               canClick={true}/>
         </div>
       </div>
     );
   }
+
   // Connect Repo
   renderConnectRepo() {
     return (
-      <div style={ {margin: "14px 0 0"} }>
-        <ControlRoom renderBodyContent={ this.connectRepoForm.bind(this) } />
+      <div style={{margin: "14px 0 0"}}>
+        <ControlRoom renderBodyContent={this.connectRepoForm.bind(this)}/>
       </div>
     );
   }
+
   connectRepoForm() {
     return (
       <PipelineConnectRepository initialConnect={true}
                                  {...this.props} />
     );
   }
+
   // Connect Stage
   renderConnectStage() {
     return (
-      <div style={ {margin: "14px 0 0"} }>
-        <ControlRoom renderBodyContent={ this.connectStageForm.bind(this) } />
+      <div style={{margin: "14px 0 0"}}>
+        <ControlRoom renderBodyContent={this.connectStageForm.bind(this)}/>
       </div>
     );
   }
+
   connectStageForm() {
     return (
       <PipelineConnectRepository {...this.props} />
     );
   }
+
   // Remove Stage
   renderRemoveStage() {
     return (
-      <div style={ {margin: "14px 0 0"} }>
-        <ControlRoom renderBodyContent={ this.removeStageForm.bind(this) } />
+      <div style={{margin: "14px 0 0"}}>
+        <ControlRoom renderBodyContent={this.removeStageForm.bind(this)}/>
       </div>
     );
   }
+
   removeStageForm() {
     return (
       <div>
@@ -190,7 +201,7 @@ export default class Pipeline extends Component {
           </span>
           <span className="CR_HeaderClose">
             <i className="icon-dis-close"
-               onClick={ () => this.context.actions.setPipelinePageSection(null) } />
+               onClick={() => this.context.actions.setPipelinePageSection(null)}/>
           </span>
         </div>
         <div className="CR_BodyContent">
@@ -201,11 +212,12 @@ export default class Pipeline extends Component {
       </div>
     );
   }
+
   renderConfirmDeletePipeline() {
     if (this.props.pipelinesStore.removePipelineXHR) {
       return (
         <div className="PageLoader">
-          <Loader />
+          <Loader/>
         </div>
       );
     }
@@ -216,29 +228,32 @@ export default class Pipeline extends Component {
         <CenteredConfirm confirmButtonText="Remove"
                          message="Are you sure you want to remove this Pipeline?"
                          confirmButtonStyle={{}}
-                         onConfirm={ this.context.actions.removePipeline }
-                         onCancel={ () => this.context.actions.setPipelinePageSection(null) } />
+                         onConfirm={this.context.actions.removePipeline}
+                         onCancel={() => this.context.actions.setPipelinePageSection(null)}/>
       </div>
     );
   }
+
   renderRemovePipelineErrorMsg() {
     let error = NPECheck(this.props, 'pipelinesStore/removePipelineXHRError', false);
     if (error) {
       return (
         <Msg text={error}
-           close={() => this.context.actions.clearPipelinesXHRErrors()} />
+             close={() => this.context.actions.clearPipelinesXHRErrors()}/>
       );
     }
   }
+
   // Promote Stage
   renderPromoteStage() {
     return (
-      <div style={ {margin: "14px 0 0"} }>
-        <ControlRoom renderHeaderContent={ this.promoteStageHeader.bind(this) }
-                     renderBodyContent={ this.promoteStageForm.bind(this) } />
+      <div style={{margin: "14px 0 0"}}>
+        <ControlRoom renderHeaderContent={this.promoteStageHeader.bind(this)}
+                     renderBodyContent={this.promoteStageForm.bind(this)}/>
       </div>
     );
   }
+
   promoteStageHeader() {
     return (
       <div className="CR_Header">
@@ -247,23 +262,24 @@ export default class Pipeline extends Component {
         </span>
         <span className="CR_HeaderClose">
           <i className="icon-dis-close"
-             onClick={ () => this.context.actions.clearPromoteStage() } />
+             onClick={() => this.context.actions.clearPromoteStage()}/>
         </span>
       </div>
     )
   }
+
   promoteStageForm() {
     let sourceRepoId = NPECheck(this.props.pipelineStore, 'stagePromotionData/sourceRepoId', null);
     let destinationComponent = NPECheck(this.props.pipelineStore, 'stagePromotionData/destinationComponent', null);
     if (sourceRepoId === null || destinationComponent === null) {
       return (
-        <Msg text="Invalid source or destination stage" />
+        <Msg text="Invalid source or destination stage"/>
       );
     }
     let repo = this.props.reposMap[sourceRepoId];
     if (repo === null) {
       return (
-        <Msg text="You are not authorized to view this Repository" />
+        <Msg text="You are not authorized to view this Repository"/>
       );
     }
     return (
@@ -273,16 +289,17 @@ export default class Pipeline extends Component {
       />
     );
   }
+
   render() {
     let pipeline = this.props.pipelineStore.pipeline;
 
-    if(NPECheck(this.props, 'pipelineStore/isBlocked', false)) {
+    if (NPECheck(this.props, 'pipelineStore/isBlocked', false)) {
       return (
-        <AccessDenied />
+        <AccessDenied/>
       );
     }
 
-    if(NPECheck(this.props, 'pipelineStore/noPipeline', false)) {
+    if (NPECheck(this.props, 'pipelineStore/noPipeline', false)) {
       return (
         <NotFound {...this.props} message="Pipeline Not Found."/>
       );
@@ -292,7 +309,7 @@ export default class Pipeline extends Component {
     if (this.state.loading) {
       return (
         <div className="PageLoader">
-          <Loader />
+          <Loader/>
         </div>
       );
     }
@@ -310,11 +327,11 @@ export default class Pipeline extends Component {
       <div className="ContentContainer">
         <div className="PageHeader">
           <h2>
-             {pipeline.name}
+            {pipeline.name}
           </h2>
           <div className="FlexRow">
             <div className="Flex1">
-              <BtnGroup buttons={buttons} />
+              <BtnGroup buttons={buttons}/>
             </div>
           </div>
         </div>
@@ -329,11 +346,11 @@ export default class Pipeline extends Component {
 }
 
 Pipeline.childContextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };
 
 Pipeline.contextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };

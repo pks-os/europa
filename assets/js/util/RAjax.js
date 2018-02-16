@@ -27,21 +27,21 @@ export function POST(operation = '', content = {}, params = {}, url = baseURL) {
   });
 
   return fetch(request)
-    .then((response) => {
-      let json;
+  .then((response) => {
+    let json;
 
-      try {
-        json = response.json();
-      } catch(e) {
-        return Promise.reject.bind(Promise, e);
-      }
+    try {
+      json = response.json();
+    } catch (e) {
+      return Promise.reject.bind(Promise, e);
+    }
 
-      if (response.status >= 200 && response.status < 300) {
-        return json;
-      } else {
-        return json.then(Promise.reject.bind(Promise));
-      }
-    });
+    if (response.status >= 200 && response.status < 300) {
+      return json;
+    } else {
+      return json.then(Promise.reject.bind(Promise));
+    }
+  });
 }
 
 export function GET(operation = '', params = {}, url = baseURL) {
@@ -57,9 +57,9 @@ export function GET(operation = '', params = {}, url = baseURL) {
   };
 
   let finalUrl = Object.keys(params)
-    .reduce((cur, key) => {
-      return `${cur}${key}=${params[key]}&`
-    }, url + '?');
+  .reduce((cur, key) => {
+    return `${cur}${key}=${params[key]}&`
+  }, url + '?');
 
   let request = new Request(finalUrl, {
     method: 'GET',
@@ -71,19 +71,19 @@ export function GET(operation = '', params = {}, url = baseURL) {
   });
 
   return fetch(request)
-    .then((response) => {
-      let json;
+  .then((response) => {
+    let json;
 
-      try {
-        json = response.json();
-      } catch(e) {
-        return Promise.reject.bind(Promise, e);
-      }
-      
-      if (response.status >= 200 && response.status < 300) {
-        return json;
-      } else {
-        return json.then(Promise.reject.bind(Promise));
-      }
-    });
+    try {
+      json = response.json();
+    } catch (e) {
+      return Promise.reject.bind(Promise, e);
+    }
+
+    if (response.status >= 200 && response.status < 300) {
+      return json;
+    } else {
+      return json.then(Promise.reject.bind(Promise));
+    }
+  });
 }

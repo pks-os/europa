@@ -6,9 +6,11 @@ export default class NewPipeline extends Component {
     super(props);
     this.state = {};
   }
-  toHome(){
+
+  toHome() {
     this.context.router.push('/repositories');
   }
+
   render() {
     return (
       <div className="ContentContainer">
@@ -19,10 +21,10 @@ export default class NewPipeline extends Component {
         </div>
         <div>
           <Btn onClick={() => this.toHome()}
-             className="LargeBlueButton"
-             text="Take Me Home"
-             style={{marginTop: '21px'}}
-             canClick={true}/>
+               className="LargeBlueButton"
+               text="Take Me Home"
+               style={{marginTop: '21px'}}
+               canClick={true}/>
         </div>
       </div>
     );
@@ -30,11 +32,11 @@ export default class NewPipeline extends Component {
 }
 
 NewPipeline.childContextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };
 
 NewPipeline.contextTypes = {
-    actions: PropTypes.object,
-    router: PropTypes.object
+  actions: PropTypes.object,
+  router: PropTypes.object
 };

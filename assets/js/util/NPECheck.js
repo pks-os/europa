@@ -14,11 +14,11 @@
 //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export default function(object, nestedProps, substitute="Not specified") {
+export default function (object, nestedProps, substitute = "Not specified") {
   let nested = nestedProps.split("/");
   let val = object;
 
-  while ( nested.length > 0 ) {
+  while (nested.length > 0) {
     let prop = nested.shift();
     if (!val[prop] && val[prop] != 0) {
       return substitute;

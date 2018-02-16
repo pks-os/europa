@@ -9,217 +9,226 @@ import NPECheck from './../util/NPECheck'
 import Msg from '../components/Msg'
 
 export default class WebhookData extends Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			viewingType: 'Request',
-			activeData: props.webhookData.request
-		};
-	}
-	changeType(newType){
-		this.setState({
-			viewingType: newType,
-			activeData: (newType == 'Request') ? this.props.webhookData.request : this.props.webhookData.response
-		});
-	}	
-	redeliverWebhook(){
-		let recordId = this.props.webhookData.notificationId;
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewingType: 'Request',
+      activeData: props.webhookData.request
+    };
+  }
 
-		this.context.actions.redeliverNotification(recordId)
-			.then((res) => {
-				let newRecordId = res;
-				return this.context.actions.getNotificationRecord(newRecordId)
-			})
-			.then(this.context.actions.appendNotificationRecord);
-	}
-	renderControls(){
-		return (
-			<div className="Controls">
-				<div className="Flex1 Title">
-					Webhook Data
-				</div>
-					{this.renderChooseType()}
-				<div className="Flex1 Redeliver">
-					{this.renderRedeliverButton()}
-				</div>
-				<div className="Close">
-					<i className="icon icon-dis-close" 
-					   onClick={ () => this.props.close() }
-					/>
-				</div>
-			</div>
-		);
-	}
-	renderRedeliverButton(){
-		let id = this.props.webhookData.notificationId;
+  changeType(newType) {
+    this.setState({
+      viewingType: newType,
+      activeData: (newType == 'Request') ? this.props.webhookData.request : this.props.webhookData.response
+    });
+  }
 
-		if(id) {
-			if(NPECheck(this.props, 'notif/redeliverXHRID', false) == id) {
-				let errorMsg = NPECheck(this.props, 'notif/redeliverError', false);
+  redeliverWebhook() {
+    let recordId = this.props.webhookData.notificationId;
 
-				if(errorMsg) {
-					return (
-						<Msg text={errorMsg} close={() => this.context.actions.clearRedeliverError()}/>
-					);
-				}
+    this.context.actions.redeliverNotification(recordId)
+    .then((res) => {
+      let newRecordId = res;
+      return this.context.actions.getNotificationRecord(newRecordId)
+    })
+    .then(this.context.actions.appendNotificationRecord);
+  }
 
-				return (
-					<i className="icon icon-dis-waiting rotating"/>
-				);
-			}
+  renderControls() {
+    return (
+      <div className="Controls">
+        <div className="Flex1 Title">
+          Webhook Data
+        </div>
+        {this.renderChooseType()}
+        <div className="Flex1 Redeliver">
+          {this.renderRedeliverButton()}
+        </div>
+        <div className="Close">
+          <i className="icon icon-dis-close"
+             onClick={() => this.props.close()}
+          />
+        </div>
+      </div>
+    );
+  }
 
-			return (
-				<Btn onClick={ () => this.redeliverWebhook() }
-					 style={{height: '22px', width: '105px', fontSize: '0.75rem'}}
-					 text="Redeliver" />
-			);
-		}
-	}
-	renderChooseType(){
-		let isRequest = this.state.viewingType == 'Request';
-		let activeClassName = 'icon icon-dis-radio-check';
-		let inActiveClassName = 'icon icon-dis-radio-uncheck';
-		let requestClassName, responseClassName;
+  renderRedeliverButton() {
+    let id = this.props.webhookData.notificationId;
 
-		if(isRequest) {
-			requestClassName = activeClassName;
-			responseClassName = inActiveClassName
-		} else {
-			requestClassName = inActiveClassName;
-			responseClassName =  activeClassName;
-		}
+    if (id) {
+      if (NPECheck(this.props, 'notif/redeliverXHRID', false) == id) {
+        let errorMsg = NPECheck(this.props, 'notif/redeliverError', false);
 
-		return (
-			<div className="Flex1 ChooseType">
-				<div className="">
-					<RadioButton onClick={() => this.changeType('Request')} 
-								 isChecked={this.state.viewingType == 'Request'}
-								 label="Request" />
-				</div>
-				<div className="">
-					<RadioButton onClick={() => this.changeType('Response')} 
-								 isChecked={this.state.viewingType == 'Response'}
-								 label="Response"/>
-				</div>
-			</div>
-		);
-	}
-	renderData(){
-		return (
-			<div className="Data">
-				{this.renderDataHeaders()}
-				{this.renderDataBody()}
-			</div>
-		);
-	}
-	renderDataHeaders(){
-		let headers = this.state.activeData.headers;
+        if (errorMsg) {
+          return (
+            <Msg text={errorMsg} close={() => this.context.actions.clearRedeliverError()}/>
+          );
+        }
 
-		let displayHeaders = (
-			<div className="FlexRow">
-				<div className="Key">
-					{`No ${this.state.viewingType} Headers Available`}
-				</div>
-			</div>
-		);
+        return (
+          <i className="icon icon-dis-waiting rotating"/>
+        );
+      }
 
-		if(headers && typeof headers == 'object') {
-			displayHeaders = Object.keys(headers).map((key, index) => {
-								return (
-									<div className="FlexRow" key={index}>
-										<span className="Key">{key}:&nbsp;</span>
-										<span className="Value">{headers[key]}</span>
-									</div>
-								);
-							});
-		}
+      return (
+        <Btn onClick={() => this.redeliverWebhook()}
+             style={{height: '22px', width: '105px', fontSize: '0.75rem'}}
+             text="Redeliver"/>
+      );
+    }
+  }
 
-		return (
-			<div className="DataHeaders">
-			     <div className="Title">
-					{this.state.viewingType}&nbsp;Headers
-				</div>
-				<div className="Headers">
-					{displayHeaders}
-				</div>
-			</div>
-		);
-	}
-	renderDataBody(){
-		let body = this.state.activeData.body;
-		let content = (
-			<span style={{fontFamily: 'Courier New', fontSize: '0.875rem'}}>
-				{(body) ? body : `No ${this.state.viewingType} Body Available`}
-			</span>
-		);
+  renderChooseType() {
+    let isRequest = this.state.viewingType == 'Request';
+    let activeClassName = 'icon icon-dis-radio-check';
+    let inActiveClassName = 'icon icon-dis-radio-uncheck';
+    let requestClassName, responseClassName;
 
-		try {
-			content = (
-				<pre>
-					{JSON.stringify(JSON.parse(body), null, 2)}
-				</pre>
-			);
+    if (isRequest) {
+      requestClassName = activeClassName;
+      responseClassName = inActiveClassName
+    } else {
+      requestClassName = inActiveClassName;
+      responseClassName = activeClassName;
+    }
 
-		} catch(e){
+    return (
+      <div className="Flex1 ChooseType">
+        <div className="">
+          <RadioButton onClick={() => this.changeType('Request')}
+                       isChecked={this.state.viewingType == 'Request'}
+                       label="Request"/>
+        </div>
+        <div className="">
+          <RadioButton onClick={() => this.changeType('Response')}
+                       isChecked={this.state.viewingType == 'Response'}
+                       label="Response"/>
+        </div>
+      </div>
+    );
+  }
 
-		}
+  renderData() {
+    return (
+      <div className="Data">
+        {this.renderDataHeaders()}
+        {this.renderDataBody()}
+      </div>
+    );
+  }
 
-		return (
-			<div className="DataBody">
-				<div className="Title">
-					{this.state.viewingType}&nbsp;Body
-				</div>
-				{content}
-			</div>
-		);
-	}
-	render() {
-		if(!this.props.webhookData || !Object.keys(this.props.webhookData).length) {
-			return (
-				<div className="WebhookData" style={this.props.style || {}}>
-					<span className="RedColor">Failed to load webhook data</span>
-				</div>
-			);		
-		}
+  renderDataHeaders() {
+    let headers = this.state.activeData.headers;
 
-		let className = 'WebhookData';
+    let displayHeaders = (
+      <div className="FlexRow">
+        <div className="Key">
+          {`No ${this.state.viewingType} Headers Available`}
+        </div>
+      </div>
+    );
 
-		if(this.props.modal) {
-			className += ' Modal';
+    if (headers && typeof headers == 'object') {
+      displayHeaders = Object.keys(headers).map((key, index) => {
+        return (
+          <div className="FlexRow" key={index}>
+            <span className="Key">{key}:&nbsp;</span>
+            <span className="Value">{headers[key]}</span>
+          </div>
+        );
+      });
+    }
 
-			return (
-				<div className="ScreenCover JustifyCenter">
-					<div className={className}>
-						{this.renderControls()}
-						{this.renderData()}
-					</div>
-				</div>	
-			);
-		}
+    return (
+      <div className="DataHeaders">
+        <div className="Title">
+          {this.state.viewingType}&nbsp;Headers
+        </div>
+        <div className="Headers">
+          {displayHeaders}
+        </div>
+      </div>
+    );
+  }
 
-		return (
-			<div className={className}>
-				{this.renderControls()}
-				{this.renderData()}
-			</div>
-		);
+  renderDataBody() {
+    let body = this.state.activeData.body;
+    let content = (
+      <span style={{fontFamily: 'Courier New', fontSize: '0.875rem'}}>
+        {(body) ? body : `No ${this.state.viewingType} Body Available`}
+      </span>
+    );
+
+    try {
+      content = (
+        <pre>
+          {JSON.stringify(JSON.parse(body), null, 2)}
+        </pre>
+      );
+
+    } catch (e) {
+
+    }
+
+    return (
+      <div className="DataBody">
+        <div className="Title">
+          {this.state.viewingType}&nbsp;Body
+        </div>
+        {content}
+      </div>
+    );
+  }
+
+  render() {
+    if (!this.props.webhookData || !Object.keys(this.props.webhookData).length) {
+      return (
+        <div className="WebhookData" style={this.props.style || {}}>
+          <span className="RedColor">Failed to load webhook data</span>
+        </div>
+      );
+    }
+
+    let className = 'WebhookData';
+
+    if (this.props.modal) {
+      className += ' Modal';
+
+      return (
+        <div className="ScreenCover JustifyCenter">
+          <div className={className}>
+            {this.renderControls()}
+            {this.renderData()}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className={className}>
+        {this.renderControls()}
+        {this.renderData()}
+      </div>
+    );
 
 
-	}
+  }
 }
 
 WebhookData.propTypes = {
-	webhookData: PropTypes.object.isRequired,
-	recordId: PropTypes.string,
-	close: PropTypes.func,
-	modal: PropTypes.bool,
-	style: PropTypes.object
+  webhookData: PropTypes.object.isRequired,
+  recordId: PropTypes.string,
+  close: PropTypes.func,
+  modal: PropTypes.bool,
+  style: PropTypes.object
 };
 
 WebhookData.childContextTypes = {
-    actions: PropTypes.object,
+  actions: PropTypes.object,
 };
 
 WebhookData.contextTypes = {
-    actions: PropTypes.object,
+  actions: PropTypes.object,
 };
