@@ -31,6 +31,12 @@ export default class StorageSettings extends Component {
     }
   }
 
+  keyPress(e) {
+    if (e.keyCode == 13) {
+      this.saveStorageSettings()
+    }
+  }
+
   componentWillUnmount() {
     // Avoid race conditions
     setTimeout(() => {
@@ -175,6 +181,7 @@ export default class StorageSettings extends Component {
         <input className={className}
                value={NPECheck(this.props, `settings/storage/storageCreds/${inputConfig.key}`, '')}
                onChange={(e) => this.context.actions.updateStorageCreds(inputConfig.key, e)}
+               onKeyDown={(e) => this.keyPress(e)}
                placeholder={inputConfig.placeholder}
                type={inputConfig.type}
                {...readOnly} />
