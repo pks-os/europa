@@ -205,7 +205,7 @@ export default class Repositories extends Component {
           <div className="HelperText FlexRow">
             <div className="Code">
               <div id="DockerLoginCopyCommands" style={{display: 'none'}}>
-                docker&nbsp;login&nbsp;-u&nbsp;TOKEN&nbsp;--password&nbsp;{`${token}`}&nbsp;{`${this.props.dnsName}`}
+                docker login -u TOKEN --password {`${token}`} {`${this.props.dnsName}`}
               </div>
               <div id="maskedDockerLoginCopyCommands">
                 docker&nbsp;login&nbsp;-u&nbsp;TOKEN&nbsp;--password&nbsp;•••••••••&nbsp;{`${this.props.dnsName}`}<i
