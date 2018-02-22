@@ -8,16 +8,10 @@
 */
 package com.distelli.europa.db;
 
-import java.util.Arrays;
-import java.util.List;
-import javax.inject.Inject;
-
-import com.distelli.utils.CompositeKey;
-import com.distelli.europa.Constants;
-import com.distelli.europa.ajax.*;
-import com.distelli.europa.models.*;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.RegistryProvider;
+import com.distelli.europa.models.RepoEvent;
 import com.distelli.jackson.transform.TransformModule;
-import com.distelli.persistence.AttrDescription;
 import com.distelli.persistence.AttrType;
 import com.distelli.persistence.Attribute;
 import com.distelli.persistence.ConvertMarker;
@@ -26,13 +20,19 @@ import com.distelli.persistence.IndexDescription;
 import com.distelli.persistence.IndexType;
 import com.distelli.persistence.PageIterator;
 import com.distelli.persistence.TableDescription;
-import com.distelli.webserver.*;
+import com.distelli.utils.CompositeKey;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.JsonError;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import java.util.Map;
 import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
 import javax.persistence.RollbackException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 @Log4j
 @Singleton
@@ -393,5 +393,17 @@ public class ContainerRepoDb extends BaseDb
         } catch ( RollbackException ex ) {
             return false;
         }
+    }
+
+    public String getMainIndexMarker(ContainerRepo repo) {
+        return _main.toMarker(repo, false);
+    }
+
+    public String getSecondaryIndexMarker(ContainerRepo repo) {
+        String marker = _secondaryIndex.toMarker(repo, true);
+        String[] attrs =  CompositeKey.split(marker);
+        if ( attrs.length != 4 ) throw new IllegalStateException("Unexpected marker="+marker);
+        return attrs[2];
+
     }
 }

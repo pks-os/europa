@@ -4,24 +4,17 @@ import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.RegistryManifestDb;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.europa.models.RegistryManifest;
-import com.distelli.europa.registry.RegistryError;
-import com.distelli.europa.registry.RegistryErrorCode;
 import com.distelli.persistence.PageIterator;
-import com.distelli.webserver.RequestContext;
-import com.distelli.webserver.RequestHandler;
 import com.distelli.webserver.WebResponse;
-import com.fasterxml.jackson.databind.JsonNode;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import lombok.extern.log4j.Log4j;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import lombok.extern.log4j.Log4j;
-import org.eclipse.jetty.http.HttpMethod;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Log4j
 @Singleton
@@ -62,17 +55,8 @@ public class RegistryTagList extends RegistryBase {
             .map((manifest) -> manifest.getTag())
             .collect(Collectors.toList());
 
-        String location = null;
-        if ( null != it.getMarker() ) {
-            location = joinWithSlash("/v2", ownerUsername, name, "tags/list") + "?last=" + it.getMarker();
-            if ( DEFAULT_PAGE_SIZE != it.getPageSize() ) {
-                location = location + "&n="+it.getPageSize();
-            }
-        }
         WebResponse webResponse = toJson(response);
-        if ( null != location ) {
-            webResponse.setResponseHeader("Link", location + "; rel=\"next\"");
-        }
+        addPaginationLinkHeader(webResponse, it, "v2", ownerUsername, name, "tags", "list");
         return webResponse;
     }
 }
