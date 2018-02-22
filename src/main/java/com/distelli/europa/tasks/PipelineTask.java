@@ -4,7 +4,9 @@ import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.db.PipelineDb;
 import com.distelli.europa.db.RegistryManifestDb;
 import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.PCCopyToRepository;
 import com.distelli.europa.models.Pipeline;
+import com.distelli.europa.models.PipelineComponent;
 import com.distelli.europa.models.RawTaskEntry;
 import com.distelli.europa.models.RegistryManifest;
 import com.distelli.europa.pipeline.RunPipeline;
@@ -20,6 +22,7 @@ import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.List;
 
 @Log4j
 @Data
@@ -36,6 +39,8 @@ public class PipelineTask implements Task {
     private String containerRepoId;
     private String manifestId;
     private String pipelineId;
+    private String startComponentId;
+    private String destinationTag;
 
     public static final String ENTITY_TYPE = "pipe";
 
@@ -81,8 +86,18 @@ public class PipelineTask implements Task {
                     reference = manifestId;
                 }
             }
-            _runPipeline.runPipeline(pipeline.getComponents(), repo, reference, manifestId);
+            List<PipelineComponent> componentsToRun = pipeline.getComponents();
+            if (null != startComponentId) {
+                int startComponentIndex = pipeline.getComponentIndex(startComponentId).orElse(0);
+                componentsToRun = componentsToRun.subList(startComponentIndex, componentsToRun.size());
+            }
+            if ((destinationTag != null) && (componentsToRun.get(0) instanceof PCCopyToRepository)) {
+                ((PCCopyToRepository) componentsToRun.get(0)).setTag(destinationTag);
+            }
+
+            _runPipeline.runPipeline(componentsToRun, repo, reference, manifestId);
         }
+
     }
 
     public static class Factory implements TaskFactory {
