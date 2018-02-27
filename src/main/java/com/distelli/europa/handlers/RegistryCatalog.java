@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Log4j
 @Singleton
@@ -41,26 +41,23 @@ public class RegistryCatalog extends RegistryBase {
         // In order for pagination to work properly with access control, we
         // handle it manually, since the DB doesn't know anything about it.
         for (PageIterator iter : pageIterator) {
+
             List<ContainerRepo> repos = listRepositories(ownerUsername, ownerDomain, iter);
             Map<ContainerRepo, Boolean> permissionResult = _permissionCheck.checkBatch(this.getClass().getSimpleName(),
                                                                                        requestContext,
                                                                                        repos);
-            List<ContainerRepo> filteredRepos = repos.stream()
+            AtomicReference<ContainerRepo> lastRef = new AtomicReference<>();
+            repos.stream()
                 .filter(repo -> (repo.isPublicRepo() || permissionResult.get(repo).equals(Boolean.TRUE)))
-                .collect(Collectors.toList());
-            List<String> filteredRepoNames = filteredRepos.stream()
-                .map(repo -> joinWithSlash(getUsername(usernameCache, repo.getDomain()),
-                                           repo.getName()))
-                .collect(Collectors.toList());
-            if (response.repositories.size() + filteredRepos.size() >= pageIterator.getPageSize()) {
-                int nextIndex = pageIterator.getPageSize() - response.repositories.size();
-                response.repositories.addAll(filteredRepoNames.subList(0, nextIndex));
-                if (iter.getMarker() != null) {
-                    pageIterator.setMarker(getMarker(filteredRepos.get(nextIndex - 1), ownerUsername));
-                }
+                .limit(pageIterator.getPageSize() - response.repositories.size())
+                .forEachOrdered((repo) -> {
+                    lastRef.set(repo);
+                    response.repositories.add(joinWithSlash(getUsername(usernameCache, repo.getDomain()),
+                                                            repo.getName()));
+                });
+            if (response.repositories.size() == pageIterator.getPageSize()) {
+                pageIterator.setMarker(getMarker(lastRef.get(), ownerUsername));
                 break;
-            } else {
-                response.repositories.addAll(filteredRepoNames);
             }
         }
 

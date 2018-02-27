@@ -114,7 +114,7 @@ public abstract class RegistryBase extends RequestHandler<EuropaRequestContext>
         //     Link: </uri/path/to/resource?foo=bar;baz=1>; rel=next
         // Note that the URI is surrounded by angle brackets, per RFC 5988.
         if (pageIterator.getMarker() != null) {
-            StringBuilder linkUriBuilder = new StringBuilder("/");
+            StringBuilder linkUriBuilder = new StringBuilder("</");
             linkUriBuilder.append(String.join("/", pathComponents));
             linkUriBuilder.append("?last=");
             linkUriBuilder.append(pageIterator.getMarker());
@@ -122,7 +122,6 @@ public abstract class RegistryBase extends RequestHandler<EuropaRequestContext>
                 linkUriBuilder.append("&n=");
                 linkUriBuilder.append(pageIterator.getPageSize());
             }
-            linkUriBuilder.insert(0, "<");
             linkUriBuilder.append(">; rel=\"next\"");
             webResponse.setResponseHeader("Link", linkUriBuilder.toString());
         }
