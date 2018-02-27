@@ -81,6 +81,6 @@ public class RegistryCatalog extends RegistryBase {
     }
 
     protected String getMarker(ContainerRepo repo, String ownerUsername) {
-        return _reposDb.getSecondaryIndexMarker(repo);
+        return _reposDb.getSecondaryIndexMarker(repo, true);
     }
 }
