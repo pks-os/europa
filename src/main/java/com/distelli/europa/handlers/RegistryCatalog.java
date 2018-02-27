@@ -1,18 +1,19 @@
 package com.distelli.europa.handlers;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.persistence.PageIterator;
 import com.distelli.webserver.WebResponse;
 import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Log4j
 @Singleton
@@ -32,38 +33,42 @@ public class RegistryCatalog extends RegistryBase {
             .pageSize(getPageSize(requestContext))
             .marker(requestContext.getParameter("last"));
 
-        List<ContainerRepo> repoList = listRepositories(ownerUsername, ownerDomain, pageIterator);
-
-        Map<ContainerRepo, Boolean> permissionResult = _permissionCheck.checkBatch(this.getClass().getSimpleName(),
-                                                                                   requestContext,
-                                                                                   repoList);
         Response response = new Response();
+
         Map<String, String> usernameCache = new HashMap<>();
         usernameCache.put(ownerDomain, ownerUsername);
-        for(ContainerRepo repo : repoList)
-        {
-            boolean allow = repo.isPublicRepo();
-            if(!allow)
-                allow = permissionResult.get(repo);
-            if(allow)
-            {
-                String repoName = joinWithSlash(getUsername(usernameCache, repo.getDomain()), repo.getName());
-                response.repositories.add(repoName);
-            }
-        }
 
-        String location = null;
-        if ( null != pageIterator.getMarker() ) {
-            location = joinWithSlash("/v2", ownerUsername, "_catalog") + "?last=" + pageIterator.getMarker();
-            if ( DEFAULT_PAGE_SIZE != pageIterator.getPageSize() ) {
-                location = location + "&n="+pageIterator.getPageSize();
+        // In order for pagination to work properly with access control, we
+        // handle it manually, since the DB doesn't know anything about it.
+        for (PageIterator iter : pageIterator) {
+
+            List<ContainerRepo> repos = listRepositories(ownerUsername, ownerDomain, iter);
+            Map<ContainerRepo, Boolean> permissionResult = _permissionCheck.checkBatch(this.getClass().getSimpleName(),
+                                                                                       requestContext,
+                                                                                       repos);
+            AtomicReference<ContainerRepo> lastRef = new AtomicReference<>();
+            repos.stream()
+                .filter(repo -> (repo.isPublicRepo() || permissionResult.get(repo).equals(Boolean.TRUE)))
+                .limit(pageIterator.getPageSize() - response.repositories.size())
+                .forEachOrdered((repo) -> {
+                    lastRef.set(repo);
+                    response.repositories.add(joinWithSlash(getUsername(usernameCache, repo.getDomain()),
+                                                            repo.getName()));
+                });
+            if (response.repositories.size() == pageIterator.getPageSize()) {
+                pageIterator.setMarker(getMarker(lastRef.get(), ownerUsername));
+                break;
             }
         }
 
         WebResponse webResponse = toJson(response);
-        if ( null != location ) {
-            webResponse.setResponseHeader("Link", location + "; rel=\"next\"");
+
+        if (ownerUsername != null) {
+            addPaginationLinkHeader(webResponse, pageIterator, "v2", ownerUsername, "_catalog");
+        } else {
+            addPaginationLinkHeader(webResponse, pageIterator, "v2", "_catalog");
         }
+
         return webResponse;
     }
 
@@ -73,5 +78,9 @@ public class RegistryCatalog extends RegistryBase {
 
     protected String getUsername(Map<String, String> usernameCache, String domain) {
         return usernameCache.get(domain);
+    }
+
+    protected String getMarker(ContainerRepo repo, String ownerUsername) {
+        return _reposDb.getSecondaryIndexMarker(repo, true);
     }
 }

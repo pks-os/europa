@@ -8,31 +8,29 @@
 */
 package com.distelli.europa.db;
 
-import java.util.Arrays;
-import java.util.List;
-import javax.inject.Inject;
-
-import com.distelli.utils.CompositeKey;
-import com.distelli.europa.Constants;
-import com.distelli.europa.ajax.*;
-import com.distelli.europa.models.*;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.RegistryProvider;
+import com.distelli.europa.models.RepoEvent;
 import com.distelli.jackson.transform.TransformModule;
-import com.distelli.persistence.AttrDescription;
 import com.distelli.persistence.AttrType;
-import com.distelli.persistence.Attribute;
 import com.distelli.persistence.ConvertMarker;
 import com.distelli.persistence.Index;
 import com.distelli.persistence.IndexDescription;
 import com.distelli.persistence.IndexType;
 import com.distelli.persistence.PageIterator;
 import com.distelli.persistence.TableDescription;
-import com.distelli.webserver.*;
+import com.distelli.utils.CompositeKey;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.JsonError;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import java.util.Map;
 import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
 import javax.persistence.RollbackException;
+import java.util.Arrays;
+import java.util.List;
 
 @Log4j
 @Singleton
@@ -142,40 +140,7 @@ public class ContainerRepoDb extends BaseDb
         .withHashKeyName("hk")
         .withRangeKeyName("sidx")
         .withConvertValue(_om::convertValue)
-            // Custom convert marker implementation to support /v2/_catalog API:
-            .withConvertMarker(new ConvertMarker() {
-                    public String toMarker(Map<String, Object> attributes, boolean hasHashKey) {
-                        if ( hasHashKey ) {
-                            return CompositeKey.build(""+attributes.get("sidx"),
-                                                      ""+attributes.get("id"));
-                        }
-                        // TODO: implement...
-                        throw new UnsupportedOperationException("scan is not supported");
-                    }
-                    public Attribute[] fromMarker(Object hk, String marker) {
-                        String[] attrs = CompositeKey.split(marker, 4);
-                        if ( null == attrs || attrs.length != 4 ) {
-                            throw new IllegalArgumentException("Expected marker in format "+CompositeKey.build("<provider>",
-                                                                                                               "<region>",
-                                                                                                               "<name>",
-                                                                                                               "<id>")+" got="+marker);
-                        }
-                        return new Attribute[] {
-                            new Attribute()
-                            .withName("hk")
-                            .withValue(hk),
-                            new Attribute()
-                            .withName("sidx")
-                            .withValue(getSecondaryKey(
-                                           RegistryProvider.valueOf(attrs[0].toUpperCase()),
-                                           attrs[1],
-                                           attrs[2])),
-                            new Attribute()
-                            .withName("id")
-                            .withValue(attrs[3])
-                        };
-                    }
-                })
+        .withConvertMarker(convertMarkerFactory.create("hk", "sidx", "id"))
         .build();
 
         _byCredId = indexFactory.create(ContainerRepo.class)
@@ -233,49 +198,10 @@ public class ContainerRepoDb extends BaseDb
     public List<ContainerRepo> listEuropaRepos(String domain,
                                                PageIterator pageIterator)
     {
-        String marker = pageIterator.getMarker();
-        String newMarker = null;
-        if ( null != marker ) {
-            String sidx = getSecondaryKey(
-                RegistryProvider.EUROPA,
-                "",
-                marker);
-            ContainerRepo repo = null;
-            for ( PageIterator it : new PageIterator().pageSize(100) ) {
-                List<ContainerRepo> list = _secondaryIndex.queryItems(getHashKey(domain), it)
-                    .eq(sidx)
-                    .list();
-                if ( list.size() > 0 ) repo = list.get(list.size()-1);
-            }
-            if ( null == repo ) {
-                newMarker = CompositeKey.buildPrefix(sidx);
-            } else {
-                newMarker = _secondaryIndex.toMarker(repo, true);
-            }
-            pageIterator.marker(newMarker);
-        }
-
         String rangeKey = CompositeKey.buildPrefix(RegistryProvider.EUROPA.toString().toLowerCase());
-        try {
-            return _secondaryIndex.queryItems(getHashKey(domain), pageIterator)
-                .beginsWith(rangeKey)
-                .list();
-        } finally {
-            String outMarker = pageIterator.getMarker();
-            if ( null != outMarker ) {
-                if ( newMarker != null && newMarker.equals(outMarker) ) {
-                    // restore...
-                    pageIterator.marker(marker);
-                } else if ( outMarker.startsWith(rangeKey) ) {
-                    String[] attrs = CompositeKey.split(outMarker, 4);
-                    if ( attrs.length != 4 ) throw new IllegalStateException("Unexpected marker="+marker);
-                    pageIterator.marker(attrs[2]);
-                } else {
-                    throw new IllegalStateException(
-                        "Expected marker to begin with "+rangeKey+" marker="+outMarker);
-                }
-            }
-        }
+        return _secondaryIndex.queryItems(getHashKey(domain), pageIterator)
+            .beginsWith(rangeKey)
+            .list();
     }
 
     public List<ContainerRepo> listRepos(String domain,
@@ -393,5 +319,13 @@ public class ContainerRepoDb extends BaseDb
         } catch ( RollbackException ex ) {
             return false;
         }
+    }
+
+    public String getMainIndexMarker(ContainerRepo repo, boolean hasHashKey) {
+        return _main.toMarker(repo, hasHashKey);
+    }
+
+    public String getSecondaryIndexMarker(ContainerRepo repo, boolean hasHashKey) {
+        return _secondaryIndex.toMarker(repo, hasHashKey);
     }
 }
