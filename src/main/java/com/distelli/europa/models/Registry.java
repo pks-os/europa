@@ -70,29 +70,4 @@ public interface Registry {
      * @throws IOException exception on failure to connect to remote
      */
     GcrManifestMeta putManifest(String repository, String reference, GcrManifest manifest) throws IOException;
-
-    /**
-     * Get a Registry object which can connect to the registry for the specified {@link ContainerRepo}
-     *
-     * @param repo the repository we want to connect to
-     * @param isPush {@code true} if we need to push to the repository, {@code false} if we don't
-     * @param crossBlobMountFrom the name of the source repository, if we're pushing to this registry
-     * @return a Registry object for the requested registry
-     * @throws IOException exception on failure to connect to remote
-     */
-    static Registry createRegistry(ContainerRepo repo, boolean isPush, String crossBlobMountFrom) throws IOException {
-        switch (repo.getProvider()) {
-            case DOCKERHUB:
-                return new DockerHubRegistry(repo, isPush, crossBlobMountFrom);
-            case GCR:
-                return new GcrRegistry(repo);
-            case ECR:
-                return new EcrRegistry(repo);
-            case EUROPA:
-                return new EuropaRegistry(repo);
-            default:
-                throw new UnsupportedOperationException(String.format("No Registry implementation for provider=%s",
-                                                                      repo.getProvider()));
-        }
-    }
 }

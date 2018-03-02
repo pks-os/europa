@@ -3,6 +3,8 @@ package com.distelli.europa.models;
 import com.distelli.gcr.GcrClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.inject.assistedinject.Assisted;
+import com.google.inject.assistedinject.AssistedInject;
 import okhttp3.ConnectionPool;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -18,32 +20,59 @@ import java.util.Base64;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class DockerHubRegistry extends RemoteRegistry {
+    public interface Factory {
+        DockerHubRegistry create(ContainerRepo repo, Boolean isPush, String crossBlobMountFrom);
+        DockerHubRegistry create(ContainerRepo repo, Boolean isPush);
+    }
+
     private static final URI ENDPOINT_URI = URI.create("https://index.docker.io/");
     private static final URI AUTH_URI = URI.create("https://auth.docker.io/");
     private static final ObjectMapper OM = new ObjectMapper();
 
-    public DockerHubRegistry(ContainerRepo repo) throws IOException {
-        super(repo, new DockerHubGcrClientGenerator(false, null));
+    @AssistedInject
+    public DockerHubRegistry(DockerHubGcrClientGenerator.Factory dockerHubGcrClientGeneratorFactory,
+                             @Assisted ContainerRepo repo,
+                             @Assisted Boolean isPush,
+                             @Assisted String crossBlobMountFrom
+                            ) throws IOException {
+        super(repo, dockerHubGcrClientGeneratorFactory.create(isPush, crossBlobMountFrom));
     }
 
-    public DockerHubRegistry(ContainerRepo repo, boolean isPush, String crossBlobMountFrom) throws IOException {
-        super(repo, new DockerHubGcrClientGenerator(isPush, crossBlobMountFrom));
+    @AssistedInject
+    public DockerHubRegistry(DockerHubGcrClientGenerator.Factory dockerHubGcrClientGeneratorFactory,
+                             @Assisted ContainerRepo repo,
+                             @Assisted Boolean isPush
+                             ) throws IOException {
+        super(repo, dockerHubGcrClientGeneratorFactory.create(isPush));
     }
 
-    private static class DockerHubGcrClientGenerator implements GcrClientGenerator {
+    public static class DockerHubGcrClientGenerator implements GcrClientGenerator {
+        public interface Factory {
+            DockerHubGcrClientGenerator create(Boolean isPush, String crossBlobMountFrom);
+            DockerHubGcrClientGenerator create(Boolean isPush);
+        }
+
         @Inject
         private ConnectionPool _connectionPool;
 
         private boolean isPush;
         private String crossBlobMountFrom;
 
-        public DockerHubGcrClientGenerator(boolean isPush, String crossBlobMountFrom) {
+        @AssistedInject
+        public DockerHubGcrClientGenerator(@Assisted Boolean isPush,
+                                           @Assisted String crossBlobMountFrom) {
+            this.isPush = isPush;
+            this.crossBlobMountFrom = crossBlobMountFrom;
+        }
+
+        @AssistedInject
+        public DockerHubGcrClientGenerator(@Assisted Boolean isPush) {
             this.isPush = isPush;
             this.crossBlobMountFrom = crossBlobMountFrom;
         }
 
         @Override
-        public GcrClient getClient(Provider<GcrClient.Builder> gcrClientBuilderProvider, ContainerRepo repo, RegistryCred cred) throws IOException {
+        public GcrClient createClient(Provider<GcrClient.Builder> gcrClientBuilderProvider, ContainerRepo repo, RegistryCred cred) throws IOException {
             String token = getToken(repo.getName(), cred, isPush, crossBlobMountFrom);
             return gcrClientBuilderProvider.get()
                 .gcrCredentials(() -> "Bearer " + token)
@@ -52,6 +81,9 @@ public class DockerHubRegistry extends RemoteRegistry {
         }
 
         private String getToken(String repoName, RegistryCred cred, boolean isPush, String crossBlobMountFrom) throws IOException {
+            if (_connectionPool == null) {
+                throw new IllegalStateException("Injector.injectMembers(this) has not been called");
+            }
             OkHttpClient client = new OkHttpClient.Builder()
                 .connectionPool(_connectionPool)
                 .build();

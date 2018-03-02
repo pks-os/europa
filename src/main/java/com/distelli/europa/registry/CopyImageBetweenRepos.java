@@ -13,19 +13,25 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 /**
- * Copy an image between two repositories
+ * Copy an image between two repositories.
  *
- * This class supports chaining; for example,
- * <p>
- *     {@code new CopyImageBetweenRepos()
- *                .sourceRepo(fooRepo)
- *                .destinationRepo(barRepo)
- *                .sourceReference(fooDigest)
- *                .destinationTag("latest")
- *                .run()}
+ * Use this class by injecting a provider, then chaining the methods before
+ * calling {@link #run()}; for example,
+ *
+ * <pre>
+ * {@code
+ * _copyImageBetweenReposProvider.get()
+ *     .sourceRepo(fooRepo)
+ *     .destinationRepo(barRepo)
+ *     .sourceReference(fooDigest)
+ *     .destinationTag("latest")
+ *     .run()
+ * }
+ * </pre>
  */
 @NoArgsConstructor
-public class CopyImageBetweenRepos {
+public final class CopyImageBetweenRepos {
+
     private ContainerRepo sourceRepo;
     private ContainerRepo destinationRepo;
     private String sourceReference;
@@ -34,6 +40,8 @@ public class CopyImageBetweenRepos {
 
     @Inject
     private RegistryManifestDb _manifestDb;
+    @Inject
+    private RegistryFactory _registryFactory;
 
     /**
      * Set the source repository to copy from.
@@ -80,7 +88,7 @@ public class CopyImageBetweenRepos {
      *                     object for a registry
      * @throws DuplicateRegistryOperationException thrown if called twice
      */
-    public void run() throws RegistryNotFoundException, ManifestNotFoundException, IOException, DuplicateRegistryOperationException {
+    public void run() throws RegistryNotFoundException, ManifestNotFoundException, IOException {
         validate();
         hasRun = true;
         destinationTag = (destinationTag == null) ? sourceReference : destinationTag;
@@ -116,21 +124,15 @@ public class CopyImageBetweenRepos {
         GcrManifest manifest;
 
         try {
-            sourceRegistry = Registry.createRegistry(sourceRepo, false, null);
+            sourceRegistry = _registryFactory.createRegistry(sourceRepo, Boolean.FALSE, null);
         } catch (IOException e) {
             throw new RegistryNotFoundException(sourceRepo.getProvider(), sourceRepo.getName(), e);
         }
-        if (sourceRegistry == null) {
-            throw new RegistryNotFoundException(sourceRepo.getProvider(), sourceRepo.getName());
-        }
 
         try {
-            destinationRegistry = Registry.createRegistry(destinationRepo, true, crossBlobMountFrom);
+            destinationRegistry = _registryFactory.createRegistry(destinationRepo, Boolean.TRUE, crossBlobMountFrom);
         } catch (IOException e) {
             throw new RegistryNotFoundException(destinationRepo.getProvider(), destinationRepo.getName(), e);
-        }
-        if (destinationRegistry == null) {
-            throw new RegistryNotFoundException(destinationRepo.getProvider(), destinationRepo.getName());
         }
 
         try {
@@ -160,7 +162,10 @@ public class CopyImageBetweenRepos {
         destinationRegistry.putManifest(destinationRepo.getName(), destinationTag, manifest);
     }
 
-    private void validate() throws DuplicateRegistryOperationException {
+    private void validate() {
+        if (_manifestDb == null) {
+            throw new IllegalStateException("Injector.injectMembers(this) has not been called");
+        }
         if (hasRun) {
             throw new DuplicateRegistryOperationException(this.getClass().getSimpleName());
         }

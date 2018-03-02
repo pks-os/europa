@@ -1,6 +1,6 @@
 package com.distelli.europa.registry;
 
-public class DuplicateRegistryOperationException extends Exception {
+public class DuplicateRegistryOperationException extends RuntimeException {
     public DuplicateRegistryOperationException(String op) {
         super(formatMessage(op));
     }

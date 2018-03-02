@@ -12,6 +12,7 @@ import com.distelli.gcr.models.GcrManifestMeta;
 import com.distelli.objectStore.ObjectKey;
 import com.distelli.utils.CountingInputStream;
 import com.distelli.utils.ResettableInputStream;
+import com.google.inject.assistedinject.Assisted;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -27,6 +28,9 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static javax.xml.bind.DatatypeConverter.printHexBinary;
 
 public class EuropaRegistry implements Registry {
+    public interface Factory {
+        EuropaRegistry create(ContainerRepo repo);
+    }
 
     @Inject
     private RegistryManifestDb _manifestDb;
@@ -39,7 +43,8 @@ public class EuropaRegistry implements Registry {
 
     private ContainerRepo repo;
 
-    public EuropaRegistry(ContainerRepo repo) {
+    @Inject
+    public EuropaRegistry(@Assisted ContainerRepo repo) {
         this.repo = repo;
     }
 
