@@ -11,6 +11,9 @@ import lombok.NoArgsConstructor;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Copy an image between two repositories.
@@ -35,7 +38,7 @@ public final class CopyImageBetweenRepos {
     private ContainerRepo sourceRepo;
     private ContainerRepo destinationRepo;
     private String sourceReference;
-    private String destinationTag;
+    private Set<String> destinationTags = new HashSet<>();
     private boolean hasRun = false;
 
     @Inject
@@ -68,12 +71,22 @@ public final class CopyImageBetweenRepos {
     }
 
     /**
-     * Set the tag to use for the remote image.
+     * Add a tag to use for the remote image.
      *
-     * Defaults to the value set with {@link #sourceReference(String)}.
+     * If none are set, it will use the value set with {@link #sourceReference(String)}.
      */
     public CopyImageBetweenRepos destinationTag(String destinationTag) {
-        this.destinationTag = destinationTag;
+        this.destinationTags.add(destinationTag);
+        return this;
+    }
+
+    /**
+     * Add multiple tags to use for the remote image.
+     *
+     * If none are set, to the value set with {@link #sourceReference(String)}.
+     */
+    public CopyImageBetweenRepos destinationTags(List<String> destinationTags) {
+        this.destinationTags.addAll(destinationTags);
         return this;
     }
 
@@ -91,7 +104,9 @@ public final class CopyImageBetweenRepos {
     public void run() throws RegistryNotFoundException, ManifestNotFoundException, IOException {
         validate();
         hasRun = true;
-        destinationTag = (destinationTag == null) ? sourceReference : destinationTag;
+        if (destinationTags.isEmpty()) {
+            destinationTags.add(sourceReference);
+        }
         if (sourceRepo.isLocal() && destinationRepo.isLocal()) {
             copyLocal();
         } else {
@@ -106,12 +121,14 @@ public final class CopyImageBetweenRepos {
         if (manifest == null) {
             throw new ManifestNotFoundException(sourceRepo.getName(), sourceReference);
         }
-        RegistryManifest copy = manifest.toBuilder()
-            .domain(destinationRepo.getDomain())
-            .containerRepoId(destinationRepo.getId())
-            .tag(destinationTag)
-            .build();
-        _manifestDb.put(copy);
+        for (String tag : destinationTags) {
+            RegistryManifest copy = manifest.toBuilder()
+                .domain(destinationRepo.getDomain())
+                .containerRepoId(destinationRepo.getId())
+                .tag(tag)
+                .build();
+            _manifestDb.put(copy);
+        }
     }
 
     private void copyRemote() throws RegistryNotFoundException, ManifestNotFoundException, IOException {
@@ -159,7 +176,9 @@ public final class CopyImageBetweenRepos {
             }
         }
 
-        destinationRegistry.putManifest(destinationRepo.getName(), destinationTag, manifest);
+        for (String tag : destinationTags) {
+            destinationRegistry.putManifest(destinationRepo.getName(), tag, manifest);
+        }
     }
 
     private void validate() {
@@ -181,8 +200,12 @@ public final class CopyImageBetweenRepos {
         if (!Tag.isValid(sourceReference)) {
             throw new IllegalArgumentException("Source reference must be a valid tag or digest");
         }
-        if (destinationTag != null && !Tag.isValid(destinationTag)) {
-            throw new IllegalArgumentException("Destination tag must be a valid tag or digest");
+        if (!destinationTags.isEmpty()) {
+            for (String tag : destinationTags) {
+                if (!Tag.isValid(tag)) {
+                    throw new IllegalArgumentException(String.format("Destination tag must be a valid tag or digest, got invalid value %s", tag));
+                }
+            }
         }
     }
 }

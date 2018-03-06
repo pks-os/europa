@@ -22,6 +22,7 @@ import com.distelli.persistence.TableDescription;
 import com.distelli.utils.CompositeKey;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.JsonError;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
@@ -31,6 +32,7 @@ import javax.inject.Inject;
 import javax.persistence.RollbackException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Log4j
 @Singleton
@@ -94,6 +96,7 @@ public class ContainerRepoDb extends BaseDb
         .put("lr", Boolean.class, "local")
         .put("lst", Long.class, "lastSyncTime")
         .put("syc", Long.class, "syncCount")
+        .put("sdcrid", new TypeReference<Set<String>>(){}, "syncDestinationContainerRepoIds")
         .put("levent", RepoEvent.class, "lastEvent");
         return module;
     }

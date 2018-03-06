@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -27,6 +30,7 @@ public class ContainerRepo
     protected String overviewId;
     protected long lastSyncTime;
     protected long syncCount; // Incremented at the beginning of each sync.
+    protected Set<String> syncDestinationContainerRepoIds = new HashSet<>();
 
     public String getPullCommand()
     {
