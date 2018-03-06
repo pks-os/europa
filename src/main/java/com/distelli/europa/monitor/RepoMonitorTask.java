@@ -8,20 +8,27 @@
 */
 package com.distelli.europa.monitor;
 
-import java.util.function.Function;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.inject.Inject;
-
-import com.distelli.europa.db.*;
-import com.distelli.europa.models.*;
+import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.db.RegistryCredsDb;
+import com.distelli.europa.db.RegistryManifestDb;
+import com.distelli.europa.db.RepoEventsDb;
+import com.distelli.europa.db.TasksDb;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.DockerImage;
+import com.distelli.europa.models.DockerImageComparator;
+import com.distelli.europa.models.Monitor;
+import com.distelli.europa.models.RegistryManifest;
+import com.distelli.europa.sync.RepoSyncTask;
 import com.distelli.persistence.PageIterator;
 import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 
 @Log4j
 public abstract class RepoMonitorTask extends MonitorTask
@@ -34,6 +41,11 @@ public abstract class RepoMonitorTask extends MonitorTask
     protected RegistryManifestDb _manifestDb = null;
     @Inject
     protected ContainerRepoDb _containerRepoDb;
+
+    @Inject
+    private TasksDb _tasksDb;
+    @Inject
+    private Monitor _monitor;
 
     protected ContainerRepo _repo;
     public RepoMonitorTask(ContainerRepo repo)
@@ -104,6 +116,7 @@ public abstract class RepoMonitorTask extends MonitorTask
     protected void saveChanges(List<DockerImage> images) {
         Collections.sort(images, new DockerImageComparator());
         saveManifests(images);
+        scheduleSyncTasks(images);
     }
 
     private void saveManifests(List<DockerImage> images) {
@@ -128,6 +141,30 @@ public abstract class RepoMonitorTask extends MonitorTask
         }
         _repo.setLastSyncTime(System.currentTimeMillis());
         _containerRepoDb.setLastSyncTime(_repo.getDomain(), _repo.getId(), _repo.getLastSyncTime());
+    }
+
+    private void scheduleSyncTasks(List<DockerImage> images) {
+        Set<String> syncDestinationRepoIds = _repo.getSyncDestinationContainerRepoIds();
+        if (syncDestinationRepoIds != null) {
+            for (String destinationRepoId : syncDestinationRepoIds) {
+                for (DockerImage image : images) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Adding sync task from repo id %s to repo id %s for image %s",
+                                                _repo.getId(),
+                                                destinationRepoId,
+                                                image.getImageSha()));
+                    }
+                    _tasksDb.addTask(_monitor,
+                                     RepoSyncTask.builder()
+                                         .domain(_repo.getDomain())
+                                         .sourceRepoId(_repo.getId())
+                                         .destinationRepoId(destinationRepoId)
+                                         .imageTags(image.getImageTags())
+                                         .manifestDigestSha(image.getImageSha())
+                                         .build());
+                }
+            }
+        }
     }
 
     @Override
