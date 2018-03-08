@@ -15,6 +15,7 @@ import ConvertTimeUTC from './../util/ConvertTimeUTC'
 import CopyToClipboard from './../util/CopyToClipboard'
 import {getRepoRedirect} from './../util/RedirectHelper'
 import CreateLocalRepo from './../pages/CreateLocalRepo'
+import CreateCacheRepo from './../pages/CreateCacheRepo'
 import ControlRoom from './../components/ControlRoom'
 
 export default class Repositories extends Component {
@@ -146,6 +147,8 @@ export default class Repositories extends Component {
 
     if (NPECheck(this.props, 'addRepo/isCreatingLocalRepo', false)) {
       content = this.renderCreateNewLocalRepo();
+    } else if (NPECheck(this.props, 'addRepo/isCreatingCacheRepo', false)) {
+      content = this.renderCreateNewCacheRepo();
     }
 
     return (
@@ -160,6 +163,13 @@ export default class Repositories extends Component {
                 icon: 'icon icon-dis-add',
                 toolTip: 'Create Local Repository',
                 onClick: () => this.context.actions.toggleCreateNewLocalRepo()
+              }]}/>
+            </div>
+            <div className="Flex1">
+              <BtnGroup buttons={[{
+                icon: 'icon icon-dis-copy',
+                toolTip: 'Create Cache Repository',
+                onClick: () => this.context.actions.toggleCreateNewCacheRepo()
               }]}/>
             </div>
             <div className="Flex1">
@@ -299,6 +309,27 @@ export default class Repositories extends Component {
                            <span className="CR_HeaderClose">
                              <i className="icon-dis-close"
                          onClick={() => this.context.actions.toggleCreateNewLocalRepo()}/>
+                           </span>
+                         </div>
+                       );
+                     }}/>
+      </div>
+    );
+  }
+
+  renderCreateNewCacheRepo() {
+    return (
+      <div style={{marginTop: '14px'}}>
+        <ControlRoom renderBodyContent={() => <CreateCacheRepo {...this.props} />}
+                     renderHeaderContent={() => {
+                       return (
+                         <div className="CR_Header">
+                           <span className="CR_HeaderTitle">
+                             New Repository
+                           </span>
+                           <span className="CR_HeaderClose">
+                             <i className="icon-dis-close"
+                                onClick={() => this.context.actions.toggleCreateNewCacheRepo()}/>
                            </span>
                          </div>
                        );

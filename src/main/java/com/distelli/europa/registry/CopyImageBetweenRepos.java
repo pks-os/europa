@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 
 import javax.inject.Inject;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -85,7 +85,7 @@ public final class CopyImageBetweenRepos {
      *
      * If none are set, to the value set with {@link #sourceReference(String)}.
      */
-    public CopyImageBetweenRepos destinationTags(List<String> destinationTags) {
+    public CopyImageBetweenRepos destinationTags(Collection<String> destinationTags) {
         this.destinationTags.addAll(destinationTags);
         return this;
     }

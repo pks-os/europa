@@ -1,12 +1,22 @@
 package com.distelli.europa.ajax;
 
 import com.distelli.europa.EuropaRequestContext;
+import com.distelli.europa.db.TasksDb;
 import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.Monitor;
+import com.distelli.europa.sync.RepoSyncTask;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.AjaxRequest;
 import com.distelli.webserver.HTTPMethod;
 
+import javax.inject.Inject;
+
 public class CreateCacheRepo extends CreateLocalRepo {
+    @Inject
+    private TasksDb _tasksDb;
+    @Inject
+    private Monitor _monitor;
+
     public CreateCacheRepo() {
         this.supportedHttpMethods.add(HTTPMethod.POST);
     }
@@ -29,9 +39,21 @@ public class CreateCacheRepo extends CreateLocalRepo {
                                           AjaxErrors.Codes.BadRepoType,
                                           400);
         }
-        ContainerRepo destinationRepo = (ContainerRepo)super.get(ajaxRequest, requestContext);
+
+        ContainerRepo destinationRepo = getRepoToSave(ajaxRequest, requestContext);
+        destinationRepo.setCacheRepo(true);
+        _repoDb.save(destinationRepo);
+
         sourceRepo.getSyncDestinationContainerRepoIds().add(destinationRepo.getId());
         _repoDb.save(sourceRepo);
+
+        _tasksDb.addTask(_monitor,
+                         RepoSyncTask.builder()
+                             .domain(ownerDomain)
+                             .sourceRepoId(sourceRepoId)
+                             .destinationRepoId(destinationRepo.getId())
+                             .build());
+
         return destinationRepo;
     }
 }

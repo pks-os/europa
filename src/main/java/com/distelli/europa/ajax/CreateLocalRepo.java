@@ -8,11 +8,6 @@
 */
 package com.distelli.europa.ajax;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import javax.inject.Inject;
-import javax.inject.Singleton;
-
 import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.models.ContainerRepo;
@@ -23,9 +18,12 @@ import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.AjaxHelper;
 import com.distelli.webserver.AjaxRequest;
 import com.distelli.webserver.HTTPMethod;
-import com.distelli.webserver.JsonSuccess;
-
 import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Log4j
 @Singleton
@@ -47,6 +45,15 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
     {
         _permissionCheck.check(ajaxRequest.getOperation(), requestContext);
 
+        ContainerRepo repo = getRepoToSave(ajaxRequest, requestContext);
+        _repoDb.save(repo);
+
+        return repo;
+    }
+
+    // This is used by CreateCacheRepo so we can avoid duplicate code.
+    protected ContainerRepo getRepoToSave(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
+    {
         String ownerDomain = requestContext.getOwnerDomain();
         String repoName = ajaxRequest.getParam("repoName", true);
         ContainerRepo repo = _repoDb.getRepo(ownerDomain, RegistryProvider.EUROPA, "", repoName);
@@ -66,11 +73,11 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
             .provider(RegistryProvider.EUROPA)
             .local(true)
             .publicRepo(false)
+            .cacheRepo(false)
             .build();
 
         repo.setOverviewId(CompactUUID.randomUUID().toString());
         repo.setId(CompactUUID.randomUUID().toString());
-        _repoDb.save(repo);
 
         return repo;
     }

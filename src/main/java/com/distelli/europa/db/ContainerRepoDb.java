@@ -94,6 +94,7 @@ public class ContainerRepoDb extends BaseDb
         .put("oid", String.class, "overviewId")
         .put("endpt", String.class, "endpoint")
         .put("lr", Boolean.class, "local")
+        .put("cr", Boolean.class, "cacheRepo")
         .put("lst", Long.class, "lastSyncTime")
         .put("syc", Long.class, "syncCount")
         .put("sdcrid", new TypeReference<Set<String>>(){}, "syncDestinationContainerRepoIds")
@@ -294,6 +295,13 @@ public class ContainerRepoDb extends BaseDb
         _main.updateItem(getHashKey(domain),
                          id.toLowerCase())
         .set("lst", lastSyncTime)
+        .when((expr) -> expr.eq("id", id.toLowerCase()));
+    }
+
+    public void setSyncDestinationContainerRepoIds(String domain, String id, Set<String> destinationIds) {
+        _main.updateItem(getHashKey(domain),
+                         id.toLowerCase())
+        .set("sdcrid", destinationIds)
         .when((expr) -> expr.eq("id", id.toLowerCase()));
     }
 

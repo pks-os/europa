@@ -38,6 +38,8 @@ import com.distelli.europa.monitor.EcrMonitorTask;
 import com.distelli.europa.monitor.GcrMonitorTask;
 import com.distelli.europa.monitor.MonitorTask;
 import com.distelli.europa.registry.RegistryAccess;
+import com.distelli.europa.sync.ImageSyncTask;
+import com.distelli.europa.sync.RepoSyncTask;
 import com.distelli.europa.tasks.PipelineTask;
 import com.distelli.europa.tasks.ReapMonitorTask;
 import com.distelli.europa.tasks.TaskFactory;
@@ -225,5 +227,7 @@ public class EuropaInjectorModule extends AbstractModule
             MapBinder.newMapBinder(binder(), String.class, TaskFactory.class);
         taskFactoryBinder.addBinding(PipelineTask.ENTITY_TYPE).to(PipelineTask.Factory.class);
         taskFactoryBinder.addBinding(ReapMonitorTask.ENTITY_TYPE).to(ReapMonitorTask.Factory.class);
+        taskFactoryBinder.addBinding(ImageSyncTask.ENTITY_TYPE).to(ImageSyncTask.Factory.class);
+        taskFactoryBinder.addBinding(RepoSyncTask.ENTITY_TYPE).to(RepoSyncTask.Factory.class);
     }
 }

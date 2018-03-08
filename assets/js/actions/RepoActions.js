@@ -119,9 +119,15 @@ export function addRepoState() {
       }
     },
     isCreatingLocalRepo: false,
+    isCreatingCacheRepo: false,
     createLocalName: '',
     createLocalXHR: false,
-    createLocalError: ''
+    createLocalError: '',
+    createCacheName: '',
+    createCacheSourceId: '',
+    createCacheSourceName: '',
+    createCacheXHR: false,
+    createCacheError: '',
   };
 }
 
@@ -154,6 +160,55 @@ export function toggleCreateNewLocalRepo() {
     addRepo: GA.modifyProperty(this.state.addRepo, {
       isCreatingLocalRepo: !NPECheck(this.state, 'addRepo/isCreatingLocalRepo', true)
     })
+  });
+}
+
+export function updateNewCacheRepoName(e, eIsValue = false) {
+  let value = (eIsValue) ? e : e.target.value;
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        createCacheName: value,
+        createCacheError: '',
+      })
+    };
+  });
+}
+
+export function updateNewCacheSource(repo) {
+  let sourceRepoId = repo.id;
+  let sourceRepoName = repo.name;
+  if (sourceRepoId === null || sourceRepoName === null) {
+    return;
+  }
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        createCacheSourceId: sourceRepoId,
+        createCacheSourceName: sourceRepoName,
+        createCacheError: '',
+      })
+    };
+  });
+}
+
+export function clearCreateCacheRepoErrors() {
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        createCacheError: '',
+      })
+    };
+  });
+}
+
+export function toggleCreateNewCacheRepo() {
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        isCreatingCacheRepo: !NPECheck(prevState, 'addRepo/isCreatingCacheRepo', true)
+      })
+    };
   });
 }
 
@@ -202,6 +257,71 @@ export function createLocalRepo() {
   });
 }
 
+export function createCacheRepo() {
+  return new Promise((resolve, reject) => {
+
+    let repoName = NPECheck(this.state, 'addRepo/createCacheName', '');
+
+    if (!repoName) {
+      this.setState((prevState, props) => {
+        return {
+          addRepo: GA.modifyProperty(prevState.addRepo, {
+            createCacheError: 'Invalid repository name.'
+          })
+        }
+      }, () => reject());
+      return;
+    }
+
+    let sourceRepo = NPECheck(this.state, 'addRepo/createCacheSourceId', '');
+
+    if (!sourceRepo) {
+      this.setState((prevState, props) => {
+        return {
+          addRepo: GA.modifyProperty(prevState.addRepo, {
+            createCacheError: 'Invalid source repository.'
+          })
+        }
+      }, () => reject());
+      return;
+    }
+
+    this.setState((prevState, props) => {
+      return {
+        addRepo: GA.modifyProperty(this.state.addRepo, {
+          createCacheXHR: true
+        })
+      }
+    }, () => {
+
+      RAjax.POST.call(this, 'CreateCacheRepo', {}, {
+        repoName: repoName,
+        sourceRepoId: sourceRepo,
+      })
+        .then((res) => {
+          this.setState((prevState, props) => {
+            return {
+              addRepo: GA.modifyProperty(this.state.addRepo, {
+                createCacheXHR: false
+              })
+            };
+          }, () => resolve(res));
+        })
+        .catch((err) => {
+          console.error(err);
+          let errorMsg = `There was an error creating your repository: ${err.error.message}`
+          this.setState((prevState, props) => {
+            return {
+              addRepo: GA.modifyProperty(this.state.addRepo, {
+                createCacheXHR: false,
+                createCacheError: errorMsg
+              })
+            };
+          }, () => reject());
+        });
+    });
+  });
+}
 export function updateNewRepoField(keyPath, e, eIsValue = false) {
   let value = (eIsValue) ? e : e.target.value;
 

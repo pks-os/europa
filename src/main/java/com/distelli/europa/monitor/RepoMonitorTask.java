@@ -18,13 +18,16 @@ import com.distelli.europa.models.DockerImage;
 import com.distelli.europa.models.DockerImageComparator;
 import com.distelli.europa.models.Monitor;
 import com.distelli.europa.models.RegistryManifest;
-import com.distelli.europa.sync.RepoSyncTask;
+import com.distelli.europa.sync.ImageSyncTask;
+import com.distelli.europa.tasks.Task;
 import com.distelli.persistence.PageIterator;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,7 +48,7 @@ public abstract class RepoMonitorTask extends MonitorTask
     @Inject
     private TasksDb _tasksDb;
     @Inject
-    private Monitor _monitor;
+    private Provider<Monitor> _monitorProvider;
 
     protected ContainerRepo _repo;
     public RepoMonitorTask(ContainerRepo repo)
@@ -146,7 +149,16 @@ public abstract class RepoMonitorTask extends MonitorTask
     private void scheduleSyncTasks(List<DockerImage> images) {
         Set<String> syncDestinationRepoIds = _repo.getSyncDestinationContainerRepoIds();
         if (syncDestinationRepoIds != null) {
+            Set<String> activeSyncDestinationRepoIds = new HashSet<>();
+            Set<Task> tasks = new HashSet<>();
+
             for (String destinationRepoId : syncDestinationRepoIds) {
+                ContainerRepo destinationRepo = _containerRepoDb.getRepo(_repo.getDomain(), destinationRepoId);
+                // The repo could have been deleted.
+                if (destinationRepo == null) {
+                    continue;
+                }
+                activeSyncDestinationRepoIds.add(destinationRepoId);
                 for (DockerImage image : images) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Adding sync task from repo id %s to repo id %s for image %s",
@@ -154,15 +166,21 @@ public abstract class RepoMonitorTask extends MonitorTask
                                                 destinationRepoId,
                                                 image.getImageSha()));
                     }
-                    _tasksDb.addTask(_monitor,
-                                     RepoSyncTask.builder()
-                                         .domain(_repo.getDomain())
-                                         .sourceRepoId(_repo.getId())
-                                         .destinationRepoId(destinationRepoId)
-                                         .imageTags(image.getImageTags())
-                                         .manifestDigestSha(image.getImageSha())
-                                         .build());
+                    tasks.add(ImageSyncTask.builder()
+                                  .domain(_repo.getDomain())
+                                  .sourceRepoId(_repo.getId())
+                                  .destinationRepoId(destinationRepoId)
+                                  .imageTags(image.getImageTags())
+                                  .manifestDigestSha(image.getImageSha())
+                                  .build());
                 }
+            }
+            // Update for any repos which no longer exist.
+            _containerRepoDb.setSyncDestinationContainerRepoIds(_repo.getDomain(),
+                                                                _repo.getId(),
+                                                                activeSyncDestinationRepoIds);
+            for (Task task : tasks) {
+                _tasksDb.addTask(_monitorProvider.get(), task);
             }
         }
     }
