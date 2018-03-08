@@ -7,6 +7,7 @@ import com.distelli.gcr.models.GcrBlobReader;
 import com.distelli.gcr.models.GcrBlobUpload;
 import com.distelli.gcr.models.GcrManifest;
 import com.distelli.gcr.models.GcrManifestMeta;
+import lombok.Getter;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -15,36 +16,32 @@ import java.io.InputStream;
 
 public abstract class RemoteRegistry implements Registry {
     @Inject
-    protected Provider<GcrClient.Builder> _gcrClientBuilderProvider;
-    @Inject
     protected RegistryCredsDb _registryCredsDb;
+    @Inject
+    protected GcrClient.Builder _gcrClientBuilder;
 
-    private GcrClientGenerator gcrClientGenerator;
-    private ContainerRepo repo;
     private GcrClient client;
+    @Getter
+    private ContainerRepo repo;
+    @Getter
+    private RegistryCred cred = null;
 
-    protected RemoteRegistry(ContainerRepo repo, GcrClientGenerator gcrClientGenerator) {
-        if (repo == null || gcrClientGenerator == null) {
-            throw new IllegalArgumentException("Missing required field");
+    protected RemoteRegistry(ContainerRepo repo) {
+        if (repo == null) {
+            throw new IllegalArgumentException("Repo cannot be empty");
         }
         this.repo = repo;
-        this.gcrClientGenerator = gcrClientGenerator;
-    }
-
-    protected GcrClient getClient() throws IOException {
-        if (client != null) {
-            return client;
-        }
-        if (_gcrClientBuilderProvider == null || _registryCredsDb == null) {
-            throw new IllegalStateException("Field injection never occurred!");
-        }
-
-
-        RegistryCred cred = null;
         if (repo.getCredId() != null) {
             cred = _registryCredsDb.getCred(repo.getDomain(), repo.getCredId());
         }
-        client = gcrClientGenerator.createClient(_gcrClientBuilderProvider, repo, cred);
+    }
+
+    abstract protected GcrClient createClient() throws IOException;
+
+    protected final GcrClient getClient() throws IOException {
+        if (client == null) {
+            client = createClient();
+        }
         return client;
     }
 

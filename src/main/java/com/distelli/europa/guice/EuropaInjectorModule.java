@@ -30,7 +30,6 @@ import com.distelli.europa.models.EuropaRegistry;
 import com.distelli.europa.models.GcrRegistry;
 import com.distelli.europa.models.Monitor;
 import com.distelli.europa.models.Registry;
-import com.distelli.europa.models.RemoteRegistry;
 import com.distelli.europa.models.SslSettings;
 import com.distelli.europa.models.StorageSettings;
 import com.distelli.europa.monitor.DockerHubMonitorTask;
@@ -204,9 +203,6 @@ public class EuropaInjectorModule extends AbstractModule
         install(new FactoryModuleBuilder()
                     .implement(Registry.class, DockerHubRegistry.class)
                     .build(DockerHubRegistry.Factory.class));
-        install(new FactoryModuleBuilder()
-                    .implement(RemoteRegistry.GcrClientGenerator.class, DockerHubRegistry.DockerHubGcrClientGenerator.class)
-                    .build(DockerHubRegistry.DockerHubGcrClientGenerator.Factory.class));
         install(new FactoryModuleBuilder()
                     .implement(Registry.class, EcrRegistry.class)
                     .build(EcrRegistry.Factory.class));
