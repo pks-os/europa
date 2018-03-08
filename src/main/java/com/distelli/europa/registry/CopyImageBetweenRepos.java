@@ -8,6 +8,7 @@ import com.distelli.europa.util.Tag;
 import com.distelli.gcr.models.GcrBlobUpload;
 import com.distelli.gcr.models.GcrManifest;
 import lombok.NoArgsConstructor;
+import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -33,6 +34,7 @@ import java.util.Set;
  * </pre>
  */
 @NoArgsConstructor
+@Log4j
 public final class CopyImageBetweenRepos {
 
     private ContainerRepo sourceRepo;
@@ -93,15 +95,13 @@ public final class CopyImageBetweenRepos {
     /**
      * Perform the copy operation.
      *
-     * @throws RegistryNotFoundException thrown if we cannot connect to either
-     *                                   the source or destination registry
      * @throws ManifestNotFoundException thrown if we cannot load the desired
      *                                   manifest from the source registry
      * @throws IOException thrown if we have any issues reading or writing an
      *                     object for a registry
      * @throws DuplicateRegistryOperationException thrown if called twice
      */
-    public void run() throws RegistryNotFoundException, ManifestNotFoundException, IOException {
+    public void run() throws ManifestNotFoundException, IOException {
         validate();
         hasRun = true;
         if (destinationTags.isEmpty()) {
@@ -131,7 +131,7 @@ public final class CopyImageBetweenRepos {
         }
     }
 
-    private void copyRemote() throws RegistryNotFoundException, ManifestNotFoundException, IOException {
+    private void copyRemote() throws ManifestNotFoundException, IOException {
         boolean crossRepositoryBlobMount = (sourceRepo.getProvider() == destinationRepo.getProvider() &&
                                             sourceRepo.getCredId().equalsIgnoreCase(destinationRepo.getCredId()));
         String crossBlobMountFrom = (crossRepositoryBlobMount) ? sourceRepo.getName() : null;
@@ -140,23 +140,11 @@ public final class CopyImageBetweenRepos {
         Registry destinationRegistry;
         GcrManifest manifest;
 
-        try {
-            sourceRegistry = _registryFactory.createRegistry(sourceRepo, Boolean.FALSE, null);
-        } catch (IOException e) {
-            throw new RegistryNotFoundException(sourceRepo.getProvider(), sourceRepo.getName(), e);
-        }
+        sourceRegistry = _registryFactory.createRegistry(sourceRepo, Boolean.FALSE, null);
 
-        try {
-            destinationRegistry = _registryFactory.createRegistry(destinationRepo, Boolean.TRUE, crossBlobMountFrom);
-        } catch (IOException e) {
-            throw new RegistryNotFoundException(destinationRepo.getProvider(), destinationRepo.getName(), e);
-        }
+        destinationRegistry = _registryFactory.createRegistry(destinationRepo, Boolean.TRUE, crossBlobMountFrom);
 
-        try {
-            manifest = sourceRegistry.getManifest(sourceRepo.getName(), sourceReference);
-        } catch (IOException e) {
-            throw new ManifestNotFoundException(sourceRepo.getName(), sourceReference, e);
-        }
+        manifest = sourceRegistry.getManifest(sourceRepo.getName(), sourceReference);
         if (manifest == null) {
             throw new ManifestNotFoundException(sourceRepo.getName(), sourceReference);
         }

@@ -4,7 +4,6 @@ import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.registry.ContainerRepoNotFoundException;
 import com.distelli.europa.registry.CopyImageBetweenRepos;
 import com.distelli.europa.registry.ManifestNotFoundException;
-import com.distelli.europa.registry.RegistryNotFoundException;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.JsonError;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -97,10 +96,6 @@ public class PCCopyToRepository extends PipelineComponent {
                 .destinationRepo(destinationRepo)
                 .destinationTag(destinationTag)
                 .run();
-        } catch (RegistryNotFoundException e) {
-            // Could be due to user giving bad input, network issue, credentials change, etc.
-            log.error(String.format("Failed to connect to registry when evaluating PipelineComponentId=%s", getId()), e);
-            return (Optional.of(promotedImage));
         } catch (ManifestNotFoundException e) {
             // Manifest could have been deleted, we could have received bad input, etc.
             log.error(String.format("Failed to find manifest when evaluating PipelineComponentId=%s", getId()), e);

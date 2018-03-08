@@ -8,7 +8,6 @@ import com.distelli.europa.models.RegistryProvider;
 import com.distelli.europa.registry.ContainerRepoNotFoundException;
 import com.distelli.europa.registry.CopyImageBetweenRepos;
 import com.distelli.europa.registry.ManifestNotFoundException;
-import com.distelli.europa.registry.RegistryNotFoundException;
 import com.distelli.europa.tasks.Task;
 import com.distelli.europa.tasks.TaskFactory;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -131,7 +130,7 @@ public class ImageSyncTask implements Task {
             }
         }
 
-        private void add() throws RegistryNotFoundException, ManifestNotFoundException, IOException {
+        private void add() throws ManifestNotFoundException, IOException {
             ContainerRepo sourceRepo = getSourceRepo();
             ContainerRepo destinationRepo = getDestinationRepo();
 

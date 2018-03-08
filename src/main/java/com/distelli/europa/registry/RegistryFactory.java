@@ -8,7 +8,6 @@ import com.distelli.europa.models.GcrRegistry;
 import com.distelli.europa.models.Registry;
 
 import javax.inject.Inject;
-import java.io.IOException;
 
 public class RegistryFactory {
     @Inject
@@ -27,12 +26,11 @@ public class RegistryFactory {
      * @param isPush {@code true} if we need to push to the repository, {@code false} if we don't
      * @param crossBlobMountFrom the name of the source repository, if we're pushing to this registry
      * @return a Registry object for the requested registry
-     * @throws IOException exception on failure to connect to remote
      */
-    public Registry createRegistry(ContainerRepo repo, Boolean isPush, String crossBlobMountFrom) throws IOException {
+    public Registry createRegistry(ContainerRepo repo, Boolean isPush, String crossBlobMountFrom) {
         switch (repo.getProvider()) {
             case DOCKERHUB:
-                if (crossBlobMountFrom == null) {
+                if (null == crossBlobMountFrom) {
                     return _dockerHubRegistryFactory.create(repo, isPush);
                 } else {
                     return _dockerHubRegistryFactory.create(repo, isPush, crossBlobMountFrom);
