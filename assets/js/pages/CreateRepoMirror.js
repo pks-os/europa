@@ -6,7 +6,7 @@ import Msg from './../components/Msg'
 import CopyToClipboard from './../util/CopyToClipboard'
 import RepoSelector from "../components/RepoSelector";
 
-export default class CreateCacheRepo extends Component {
+export default class CreateRepoMirror extends Component {
   constructor(props) {
     super(props);
     this.state = {};
@@ -16,8 +16,8 @@ export default class CreateCacheRepo extends Component {
     this.context.actions.resetAddRepoState();
   }
 
-  createCacheRepo() {
-    this.context.actions.createCacheRepo()
+  createRepoMirror() {
+    this.context.actions.createRepoMirror()
     .then((res) => {
       this.context.router.push(`/repositories/${res.name}`);
     })
@@ -27,7 +27,7 @@ export default class CreateCacheRepo extends Component {
 
   keyPress(e) {
     if (e.keyCode == 13) {
-      this.createCacheRepo();
+      this.createRepoMirror();
     }
   }
 
@@ -40,7 +40,7 @@ export default class CreateCacheRepo extends Component {
     if (sourceRepoId === null) {
       return;
     }
-    this.context.actions.updateNewCacheSource(sourceRepoId);
+    this.context.actions.updateNewMirrorSource(sourceRepoId);
   }
 
   renderRepoNameInput() {
@@ -48,7 +48,7 @@ export default class CreateCacheRepo extends Component {
       <div className="FlexColumn">
         <label style={{marginBottom: '5px'}}>Repository Name</label>
         <input className="BlueBorder FullWidth White"
-               onChange={(e) => this.context.actions.updateNewCacheRepoName(e)}
+               onChange={(e) => this.context.actions.updateNewRepoMirrorName(e)}
                placeholder="Enter repository name.."
                ref="name"/>
         {this.renderButton()}
@@ -58,7 +58,7 @@ export default class CreateCacheRepo extends Component {
   }
 
   renderButton() {
-    if (NPECheck(this.props, 'addRepo/createCacheXHR', false)) {
+    if (NPECheck(this.props, 'addRepo/createMirrorXHR', false)) {
       return (
         <Loader/>
       );
@@ -68,18 +68,18 @@ export default class CreateCacheRepo extends Component {
       <CenteredConfirm confirmButtonText="Create"
                        noMessage={true}
                        confirmButtonStyle={{}}
-                       onConfirm={() => this.createCacheRepo()}
-                       onCancel={() => this.context.actions.toggleCreateNewCacheRepo()}
+                       onConfirm={() => this.createRepoMirror()}
+                       onCancel={() => this.context.actions.toggleCreateNewRepoMirror()}
                        containerStyle={{paddingBottom: '0px'}}/>
     );
   }
 
   renderError() {
-    let error = NPECheck(this.props, 'addRepo/createCacheError', false)
+    let error = NPECheck(this.props, 'addRepo/createMirrorError', false)
     if (error) {
       return (
         <Msg text={error}
-             close={() => this.context.actions.clearCreateCacheRepoErrors()}
+             close={() => this.context.actions.clearCreateRepoMirrorErrors()}
              style={{marginTop: '1rem'}}/>
       );
     }
@@ -107,9 +107,9 @@ export default class CreateCacheRepo extends Component {
   render() {
     return (
       <div className="CR_BodyContent" onKeyDown={(e) => this.keyPress(e)}>
-        <RepoSelector onSelectFn={(repo) => this.context.actions.updateNewCacheSource(repo)}
+        <RepoSelector onSelectFn={(repo) => this.context.actions.updateNewMirrorSource(repo)}
                       repoList={this.props.repos}
-                      valueFn={() => NPECheck(this.props, 'addRepo/createCacheSourceName', '')}
+                      valueFn={() => NPECheck(this.props, 'addRepo/createMirrorSourceName', '')}
                       filterFn={this.repoFilter.bind(this)}/>
         {this.renderRepoNameInput()}
         {this.renderCommands()}
@@ -118,12 +118,12 @@ export default class CreateCacheRepo extends Component {
   }
 }
 
-CreateCacheRepo.childContextTypes = {
+CreateRepoMirror.childContextTypes = {
   actions: PropTypes.object,
   router: PropTypes.object
 };
 
-CreateCacheRepo.contextTypes = {
+CreateRepoMirror.contextTypes = {
   actions: PropTypes.object,
   router: PropTypes.object
 };

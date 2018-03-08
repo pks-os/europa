@@ -10,7 +10,7 @@ package com.distelli.europa.guice;
 
 import com.distelli.europa.ajax.AddPipelineComponent;
 import com.distelli.europa.ajax.CreateAuthToken;
-import com.distelli.europa.ajax.CreateCacheRepo;
+import com.distelli.europa.ajax.CreateRepoMirror;
 import com.distelli.europa.ajax.CreateLocalRepo;
 import com.distelli.europa.ajax.DeleteAuthToken;
 import com.distelli.europa.ajax.DeleteContainerRepo;
@@ -94,7 +94,7 @@ public class AjaxHelperModule extends AbstractModule
         //Container CRUD helpers
         addBinding(SaveContainerRepo.class);
         addBinding(CreateLocalRepo.class);
-        addBinding(CreateCacheRepo.class);
+        addBinding(CreateRepoMirror.class);
         addBinding(GetContainerRepo.class);
         addBinding(ListContainerRepos.class);
         addBinding(DeleteContainerRepo.class);

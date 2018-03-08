@@ -34,7 +34,7 @@ public class ContainerRepo
      * @see com.distelli.europa.sync.RepoSyncTask
      * @see com.distelli.europa.sync.ImageSyncTask
      */
-    protected boolean cacheRepo = false;
+    protected boolean mirror = false;
     /**
      * The ID of the object in the ObjectStore that holds the readme
      */

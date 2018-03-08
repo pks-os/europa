@@ -157,7 +157,7 @@ public class RepoSyncTask implements Task {
             }
             if (destinationRepo.getProvider() != RegistryProvider.EUROPA ||
                 !destinationRepo.isLocal() ||
-                !destinationRepo.isCacheRepo()) {
+                !destinationRepo.isMirror()) {
                 StringBuilder message = new StringBuilder();
                 message.append(String.format("Can only sync to a local cache repository, destination repo id %s has provider %s",
                                              destinationRepoId,
@@ -165,7 +165,7 @@ public class RepoSyncTask implements Task {
                 if (!destinationRepo.isLocal()) {
                     message.append(" and is not local");
                 }
-                if (!destinationRepo.isCacheRepo()) {
+                if (!destinationRepo.isMirror()) {
                     message.append(" and is not a cache repo");
                 }
                 throw new IllegalArgumentException(message.toString());

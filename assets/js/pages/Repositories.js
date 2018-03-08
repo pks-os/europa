@@ -15,7 +15,7 @@ import ConvertTimeUTC from './../util/ConvertTimeUTC'
 import CopyToClipboard from './../util/CopyToClipboard'
 import {getRepoRedirect} from './../util/RedirectHelper'
 import CreateLocalRepo from './../pages/CreateLocalRepo'
-import CreateCacheRepo from './../pages/CreateCacheRepo'
+import CreateRepoMirror from './CreateRepoMirror'
 import ControlRoom from './../components/ControlRoom'
 
 export default class Repositories extends Component {
@@ -147,8 +147,8 @@ export default class Repositories extends Component {
 
     if (NPECheck(this.props, 'addRepo/isCreatingLocalRepo', false)) {
       content = this.renderCreateNewLocalRepo();
-    } else if (NPECheck(this.props, 'addRepo/isCreatingCacheRepo', false)) {
-      content = this.renderCreateNewCacheRepo();
+    } else if (NPECheck(this.props, 'addRepo/isCreatingRepoMirror', false)) {
+      content = this.renderCreateNewRepoMirror();
     }
 
     return (
@@ -168,8 +168,8 @@ export default class Repositories extends Component {
             <div className="Flex1">
               <BtnGroup buttons={[{
                 icon: 'icon icon-dis-copy',
-                toolTip: 'Create Cache Repository',
-                onClick: () => this.context.actions.toggleCreateNewCacheRepo()
+                toolTip: 'Create Local Mirror',
+                onClick: () => this.context.actions.toggleCreateNewRepoMirror()
               }]}/>
             </div>
             <div className="Flex1">
@@ -317,10 +317,10 @@ export default class Repositories extends Component {
     );
   }
 
-  renderCreateNewCacheRepo() {
+  renderCreateNewRepoMirror() {
     return (
       <div style={{marginTop: '14px'}}>
-        <ControlRoom renderBodyContent={() => <CreateCacheRepo {...this.props} />}
+        <ControlRoom renderBodyContent={() => <CreateRepoMirror {...this.props} />}
                      renderHeaderContent={() => {
                        return (
                          <div className="CR_Header">
@@ -329,7 +329,7 @@ export default class Repositories extends Component {
                            </span>
                            <span className="CR_HeaderClose">
                              <i className="icon-dis-close"
-                                onClick={() => this.context.actions.toggleCreateNewCacheRepo()}/>
+                                onClick={() => this.context.actions.toggleCreateNewRepoMirror()}/>
                            </span>
                          </div>
                        );

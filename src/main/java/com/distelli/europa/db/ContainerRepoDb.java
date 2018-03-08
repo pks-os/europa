@@ -94,7 +94,7 @@ public class ContainerRepoDb extends BaseDb
         .put("oid", String.class, "overviewId")
         .put("endpt", String.class, "endpoint")
         .put("lr", Boolean.class, "local")
-        .put("cr", Boolean.class, "cacheRepo")
+        .put("mr", Boolean.class, "mirror")
         .put("lst", Long.class, "lastSyncTime")
         .put("syc", Long.class, "syncCount")
         .put("sdcrid", new TypeReference<Set<String>>(){}, "syncDestinationContainerRepoIds")

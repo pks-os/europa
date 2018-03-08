@@ -11,13 +11,13 @@ import com.distelli.webserver.HTTPMethod;
 
 import javax.inject.Inject;
 
-public class CreateCacheRepo extends CreateLocalRepo {
+public class CreateRepoMirror extends CreateLocalRepo {
     @Inject
     private TasksDb _tasksDb;
     @Inject
     private Monitor _monitor;
 
-    public CreateCacheRepo() {
+    public CreateRepoMirror() {
         this.supportedHttpMethods.add(HTTPMethod.POST);
     }
 
@@ -41,7 +41,7 @@ public class CreateCacheRepo extends CreateLocalRepo {
         }
 
         ContainerRepo destinationRepo = getRepoToSave(ajaxRequest, requestContext);
-        destinationRepo.setCacheRepo(true);
+        destinationRepo.setMirror(true);
         _repoDb.save(destinationRepo);
 
         sourceRepo.getSyncDestinationContainerRepoIds().add(destinationRepo.getId());

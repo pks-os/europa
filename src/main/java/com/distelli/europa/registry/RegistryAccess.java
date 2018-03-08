@@ -70,7 +70,7 @@ public interface RegistryAccess
                         return false;
                     }
                     ContainerRepo repo = _repoDb.getLocalRepo(ownerDomain, repoName);
-                    return repo != null && !repo.isCacheRepo();
+                    return repo != null && !repo.isMirror();
                 }
                 return true;
             }

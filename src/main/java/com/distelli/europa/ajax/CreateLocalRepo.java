@@ -51,7 +51,7 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
         return repo;
     }
 
-    // This is used by CreateCacheRepo so we can avoid duplicate code.
+    // This is used by CreateRepoMirror so we can avoid duplicate code.
     protected ContainerRepo getRepoToSave(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
     {
         String ownerDomain = requestContext.getOwnerDomain();
@@ -73,7 +73,7 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
             .provider(RegistryProvider.EUROPA)
             .local(true)
             .publicRepo(false)
-            .cacheRepo(false)
+            .mirror(false)
             .build();
 
         repo.setOverviewId(CompactUUID.randomUUID().toString());

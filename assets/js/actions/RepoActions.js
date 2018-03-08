@@ -119,15 +119,15 @@ export function addRepoState() {
       }
     },
     isCreatingLocalRepo: false,
-    isCreatingCacheRepo: false,
+    isCreatingRepoMirror: false,
     createLocalName: '',
     createLocalXHR: false,
     createLocalError: '',
-    createCacheName: '',
-    createCacheSourceId: '',
-    createCacheSourceName: '',
-    createCacheXHR: false,
-    createCacheError: '',
+    createMirrorName: '',
+    createMirrorSourceId: '',
+    createMirrorSourceName: '',
+    createMirrorXHR: false,
+    createMirrorError: '',
   };
 }
 
@@ -163,19 +163,19 @@ export function toggleCreateNewLocalRepo() {
   });
 }
 
-export function updateNewCacheRepoName(e, eIsValue = false) {
+export function updateNewRepoMirrorName(e, eIsValue = false) {
   let value = (eIsValue) ? e : e.target.value;
   this.setState((prevState, props) => {
     return {
       addRepo: GA.modifyProperty(prevState.addRepo, {
-        createCacheName: value,
-        createCacheError: '',
+        createMirrorName: value,
+        createMirrorError: '',
       })
     };
   });
 }
 
-export function updateNewCacheSource(repo) {
+export function updateNewMirrorSource(repo) {
   let sourceRepoId = repo.id;
   let sourceRepoName = repo.name;
   if (sourceRepoId === null || sourceRepoName === null) {
@@ -184,29 +184,29 @@ export function updateNewCacheSource(repo) {
   this.setState((prevState, props) => {
     return {
       addRepo: GA.modifyProperty(prevState.addRepo, {
-        createCacheSourceId: sourceRepoId,
-        createCacheSourceName: sourceRepoName,
-        createCacheError: '',
+        createMirrorSourceId: sourceRepoId,
+        createMirrorSourceName: sourceRepoName,
+        createMirrorError: '',
       })
     };
   });
 }
 
-export function clearCreateCacheRepoErrors() {
+export function clearCreateRepoMirrorErrors() {
   this.setState((prevState, props) => {
     return {
       addRepo: GA.modifyProperty(prevState.addRepo, {
-        createCacheError: '',
+        createMirrorError: '',
       })
     };
   });
 }
 
-export function toggleCreateNewCacheRepo() {
+export function toggleCreateNewRepoMirror() {
   this.setState((prevState, props) => {
     return {
       addRepo: GA.modifyProperty(prevState.addRepo, {
-        isCreatingCacheRepo: !NPECheck(prevState, 'addRepo/isCreatingCacheRepo', true)
+        isCreatingMirrorRepo: !NPECheck(prevState, 'addRepo/isCreatingRepoMirror', true)
       })
     };
   });
@@ -257,29 +257,29 @@ export function createLocalRepo() {
   });
 }
 
-export function createCacheRepo() {
+export function createRepoMirror() {
   return new Promise((resolve, reject) => {
 
-    let repoName = NPECheck(this.state, 'addRepo/createCacheName', '');
+    let repoName = NPECheck(this.state, 'addRepo/createMirrorName', '');
 
     if (!repoName) {
       this.setState((prevState, props) => {
         return {
           addRepo: GA.modifyProperty(prevState.addRepo, {
-            createCacheError: 'Invalid repository name.'
+            createMirrorError: 'Invalid repository name.'
           })
         }
       }, () => reject());
       return;
     }
 
-    let sourceRepo = NPECheck(this.state, 'addRepo/createCacheSourceId', '');
+    let sourceRepo = NPECheck(this.state, 'addRepo/createMirrorSourceId', '');
 
     if (!sourceRepo) {
       this.setState((prevState, props) => {
         return {
           addRepo: GA.modifyProperty(prevState.addRepo, {
-            createCacheError: 'Invalid source repository.'
+            createMirrorError: 'Invalid source repository.'
           })
         }
       }, () => reject());
@@ -289,12 +289,12 @@ export function createCacheRepo() {
     this.setState((prevState, props) => {
       return {
         addRepo: GA.modifyProperty(this.state.addRepo, {
-          createCacheXHR: true
+          createMirrorXHR: true
         })
       }
     }, () => {
 
-      RAjax.POST.call(this, 'CreateCacheRepo', {}, {
+      RAjax.POST.call(this, 'CreateRepoMirror', {}, {
         repoName: repoName,
         sourceRepoId: sourceRepo,
       })
@@ -302,7 +302,7 @@ export function createCacheRepo() {
           this.setState((prevState, props) => {
             return {
               addRepo: GA.modifyProperty(this.state.addRepo, {
-                createCacheXHR: false
+                createMirrorXHR: false
               })
             };
           }, () => resolve(res));
@@ -313,8 +313,8 @@ export function createCacheRepo() {
           this.setState((prevState, props) => {
             return {
               addRepo: GA.modifyProperty(this.state.addRepo, {
-                createCacheXHR: false,
-                createCacheError: errorMsg
+                createMirrorXHR: false,
+                createMirrorError: errorMsg
               })
             };
           }, () => reject());
