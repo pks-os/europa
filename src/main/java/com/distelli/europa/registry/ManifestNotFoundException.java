@@ -1,17 +1,17 @@
 package com.distelli.europa.registry;
 
-public class ManifestNotFoundException extends Exception {
+import javax.persistence.EntityNotFoundException;
+
+public class ManifestNotFoundException extends EntityNotFoundException {
+    /**
+     * Exception for being unable to find the requested container image manifest
+     *
+     * @param repoName the repo name used to look up the manifest
+     * @param manifestReference the reference (digest or tag) used to look up the manifest
+     */
     public ManifestNotFoundException(String repoName, String manifestReference) {
-        super(formatMessage(repoName, manifestReference));
-    }
-
-    public ManifestNotFoundException(String repoName, String manifestReference, Throwable throwable) {
-        super(formatMessage(repoName, manifestReference), throwable);
-    }
-
-    private static String formatMessage(String repoName, String manifestReference) {
-        return String.format("No manifest found for reference %s in repository %s",
+        super(String.format("No manifest found for reference %s in repository %s",
                              manifestReference,
-                             repoName);
+                             repoName));
     }
 }
