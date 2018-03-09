@@ -37,7 +37,7 @@ public class DockerHubRegistry extends RemoteRegistry {
     @AssistedInject
     public DockerHubRegistry(@Assisted ContainerRepo repo,
                              @Assisted Boolean isPush,
-                             @Assisted String crossBlobMountFrom) throws IOException {
+                             @Assisted String crossBlobMountFrom) {
         super(repo);
         this.isPush = isPush;
         this.crossBlobMountFrom = crossBlobMountFrom;
@@ -45,7 +45,7 @@ public class DockerHubRegistry extends RemoteRegistry {
 
     @AssistedInject
     public DockerHubRegistry(@Assisted ContainerRepo repo,
-                             @Assisted Boolean isPush) throws IOException {
+                             @Assisted Boolean isPush) {
         super(repo);
         this.isPush = isPush;
         this.crossBlobMountFrom = null;
