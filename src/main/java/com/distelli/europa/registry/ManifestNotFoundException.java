@@ -10,9 +10,7 @@ public class ManifestNotFoundException extends EntityNotFoundException {
      * @param manifestReference the reference (digest or tag) used to look up the manifest
      */
     public ManifestNotFoundException(String repoName, String manifestReference) {
-        super(String.format("No manifest found for reference %s in repository %s",
-                            manifestReference,
-                            repoName));
+        super(formatMessage(repoName, manifestReference));
     }
 
     /**
@@ -25,9 +23,7 @@ public class ManifestNotFoundException extends EntityNotFoundException {
     public ManifestNotFoundException(String repoName,
                                      String manifestReference,
                                      Throwable throwable) {
-        super(String.format("No manifest found for reference %s in repository %s",
-                            manifestReference,
-                            repoName));
+        super(formatMessage(repoName, manifestReference));
         this.initCause(throwable);
     }
 
