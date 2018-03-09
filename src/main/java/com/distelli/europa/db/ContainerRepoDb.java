@@ -11,6 +11,7 @@ package com.distelli.europa.db;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.europa.models.RegistryProvider;
 import com.distelli.europa.models.RepoEvent;
+import com.distelli.europa.registry.ContainerRepoNotFoundException;
 import com.distelli.jackson.transform.TransformModule;
 import com.distelli.persistence.AttrType;
 import com.distelli.persistence.ConvertMarker;
@@ -29,7 +30,6 @@ import com.google.inject.Singleton;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.RollbackException;
 import java.util.Arrays;
 import java.util.List;
@@ -306,10 +306,7 @@ public class ContainerRepoDb extends BaseDb
                 .setAdd("sdcrid", destinationRepoId)
                 .when((expr) -> expr.eq("id", id.toLowerCase()));
         } catch (RollbackException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e);
-            }
-            throw new EntityNotFoundException(e.toString());
+            throw new ContainerRepoNotFoundException(domain, null, id, e);
         }
     }
 
@@ -320,10 +317,7 @@ public class ContainerRepoDb extends BaseDb
                 .setRemove("sdcrid", destinationRepoId)
                 .when((expr) -> expr.eq("id", id.toLowerCase()));
         } catch (RollbackException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e);
-            }
-            throw new EntityNotFoundException(e.toString());
+            throw new ContainerRepoNotFoundException(domain, null, id, e);
         }
     }
 
