@@ -29,6 +29,7 @@ import com.google.inject.Singleton;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.RollbackException;
 import java.util.Arrays;
 import java.util.List;
@@ -299,17 +300,31 @@ public class ContainerRepoDb extends BaseDb
     }
 
     public void addSyncDestinationContainerRepoId(String domain, String id, String destinationRepoId) {
-        _main.updateItem(getHashKey(domain),
-                         id.toLowerCase())
-        .setAdd("sdcrid", destinationRepoId)
-        .when((expr) -> expr.eq("id", id.toLowerCase()));
+        try {
+            _main.updateItem(getHashKey(domain),
+                             id.toLowerCase())
+                .setAdd("sdcrid", destinationRepoId)
+                .when((expr) -> expr.eq("id", id.toLowerCase()));
+        } catch (RollbackException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e);
+            }
+            throw new EntityNotFoundException(e.toString());
+        }
     }
 
     public void removeSyncDestinationContainerRepoId(String domain, String id, String destinationRepoId) {
-        _main.updateItem(getHashKey(domain),
-                         id.toLowerCase())
-            .setRemove("sdcrid", destinationRepoId)
-            .when((expr) -> expr.eq("id", id.toLowerCase()));
+        try {
+            _main.updateItem(getHashKey(domain),
+                             id.toLowerCase())
+                .setRemove("sdcrid", destinationRepoId)
+                .when((expr) -> expr.eq("id", id.toLowerCase()));
+        } catch (RollbackException e) {
+            if (log.isDebugEnabled()) {
+                log.debug(e);
+            }
+            throw new EntityNotFoundException(e.toString());
+        }
     }
 
     public List<ContainerRepo> listReposByCred(String domain, String credId, PageIterator pageIterator)
