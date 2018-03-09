@@ -85,25 +85,6 @@ export default class CreateRepoMirror extends Component {
     }
   }
 
-  renderCommands() {
-    return (
-      <div className="FlexColumn NewRepoCommands">
-        <div className="HelperText">or</div>
-        <div className="HelperText">Push a Docker image to a local repository</div>
-        <div className="HelperText FlexRow">
-          <div className="Code White">
-            <span>$&nbsp;<span
-              id="copyCommands">docker push&nbsp;{`${this.props.dnsName}/${(this.props.isLoggedIn && this.props.isEnterprise) ? NPECheck(this.props, 'ctx/username', '') + '/' : ''}REPO_NAME[:IMAGE_TAG]`}</span></span>
-            <i className="icon icon-dis-copy"
-               onClick={() => CopyToClipboard(document.getElementById('copyCommands'))}
-               data-tip="Click To Copy"
-               data-for="ToolTipTop"/>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   render() {
     return (
       <div className="CR_BodyContent" onKeyDown={(e) => this.keyPress(e)}>
@@ -112,7 +93,6 @@ export default class CreateRepoMirror extends Component {
                       valueFn={() => NPECheck(this.props, 'addRepo/createMirrorSourceName', '')}
                       filterFn={this.repoFilter.bind(this)}/>
         {this.renderRepoNameInput()}
-        {this.renderCommands()}
       </div>
     );
   }
