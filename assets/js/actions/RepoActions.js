@@ -119,9 +119,15 @@ export function addRepoState() {
       }
     },
     isCreatingLocalRepo: false,
+    isCreatingRepoMirror: false,
     createLocalName: '',
     createLocalXHR: false,
-    createLocalError: ''
+    createLocalError: '',
+    createMirrorName: '',
+    createMirrorSourceId: '',
+    createMirrorSourceName: '',
+    createMirrorXHR: false,
+    createMirrorError: '',
   };
 }
 
@@ -154,6 +160,55 @@ export function toggleCreateNewLocalRepo() {
     addRepo: GA.modifyProperty(this.state.addRepo, {
       isCreatingLocalRepo: !NPECheck(this.state, 'addRepo/isCreatingLocalRepo', true)
     })
+  });
+}
+
+export function updateNewRepoMirrorName(e, eIsValue = false) {
+  let value = (eIsValue) ? e : e.target.value;
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        createMirrorName: value,
+        createMirrorError: '',
+      })
+    };
+  });
+}
+
+export function updateNewMirrorSource(repo) {
+  let sourceRepoId = repo.id;
+  let sourceRepoName = repo.name;
+  if (sourceRepoId === null || sourceRepoName === null) {
+    return;
+  }
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        createMirrorSourceId: sourceRepoId,
+        createMirrorSourceName: sourceRepoName,
+        createMirrorError: '',
+      })
+    };
+  });
+}
+
+export function clearCreateRepoMirrorErrors() {
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        createMirrorError: '',
+      })
+    };
+  });
+}
+
+export function toggleCreateNewRepoMirror() {
+  this.setState((prevState, props) => {
+    return {
+      addRepo: GA.modifyProperty(prevState.addRepo, {
+        isCreatingRepoMirror: !NPECheck(prevState, 'addRepo/isCreatingRepoMirror', true)
+      })
+    };
   });
 }
 
@@ -202,6 +257,71 @@ export function createLocalRepo() {
   });
 }
 
+export function createRepoMirror() {
+  return new Promise((resolve, reject) => {
+
+    let repoName = NPECheck(this.state, 'addRepo/createMirrorName', '');
+
+    if (!repoName) {
+      this.setState((prevState, props) => {
+        return {
+          addRepo: GA.modifyProperty(prevState.addRepo, {
+            createMirrorError: 'Invalid repository name.'
+          })
+        }
+      }, () => reject());
+      return;
+    }
+
+    let sourceRepo = NPECheck(this.state, 'addRepo/createMirrorSourceId', '');
+
+    if (!sourceRepo) {
+      this.setState((prevState, props) => {
+        return {
+          addRepo: GA.modifyProperty(prevState.addRepo, {
+            createMirrorError: 'Invalid source repository.'
+          })
+        }
+      }, () => reject());
+      return;
+    }
+
+    this.setState((prevState, props) => {
+      return {
+        addRepo: GA.modifyProperty(this.state.addRepo, {
+          createMirrorXHR: true
+        })
+      }
+    }, () => {
+
+      RAjax.POST.call(this, 'CreateRepoMirror', {}, {
+        repoName: repoName,
+        sourceRepoId: sourceRepo,
+      })
+        .then((res) => {
+          this.setState((prevState, props) => {
+            return {
+              addRepo: GA.modifyProperty(this.state.addRepo, {
+                createMirrorXHR: false
+              })
+            };
+          }, () => resolve(res));
+        })
+        .catch((err) => {
+          console.error(err);
+          let errorMsg = `There was an error creating your repository: ${err.error.message}`
+          this.setState((prevState, props) => {
+            return {
+              addRepo: GA.modifyProperty(this.state.addRepo, {
+                createMirrorXHR: false,
+                createMirrorError: errorMsg
+              })
+            };
+          }, () => reject());
+        });
+    });
+  });
+}
 export function updateNewRepoField(keyPath, e, eIsValue = false) {
   let value = (eIsValue) ? e : e.target.value;
 

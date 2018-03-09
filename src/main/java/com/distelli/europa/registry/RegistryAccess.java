@@ -8,14 +8,14 @@
 */
 package com.distelli.europa.registry;
 
-import java.util.HashSet;
-import java.util.Set;
-import javax.inject.Inject;
-
 import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.models.ContainerRepo;
 import lombok.extern.log4j.Log4j;
+
+import javax.inject.Inject;
+import java.util.HashSet;
+import java.util.Set;
 
 public interface RegistryAccess
 {
@@ -27,6 +27,7 @@ public interface RegistryAccess
         protected ContainerRepoDb _repoDb;
 
         protected static final Set<String> READ_OPERATIONS = new HashSet<String>();
+        protected static final Set<String> NO_REPO_OPERATIONS = new HashSet<String>();
 
         static {
             READ_OPERATIONS.add("RegistryLayerPull");
@@ -35,6 +36,9 @@ public interface RegistryAccess
             READ_OPERATIONS.add("RegistryManifestPull");
             READ_OPERATIONS.add("RegistryLayerExists");
             READ_OPERATIONS.add("RegistryManfestExists");
+
+            NO_REPO_OPERATIONS.add("RegistryVersionCheck");
+            NO_REPO_OPERATIONS.add("RegistryCatalog");
         }
 
         public void checkAccess(String operationName, EuropaRequestContext requestContext)
@@ -57,14 +61,30 @@ public interface RegistryAccess
         protected boolean allowAuthenticatedRequest(String operationName, EuropaRequestContext requestContext)
         {
             String requesterDomain = requestContext.getRequesterDomain();
-            if(requesterDomain != null)
+            if(requesterDomain != null) {
+                // Write operations are not allowed for cache repos.
+                if (!isReadOperation(operationName) && !isNoRepoOperation(operationName)) {
+                    String ownerDomain = requestContext.getOwnerDomain();
+                    String repoName = requestContext.getMatchedRoute().getParam("name");
+                    if (repoName == null) {
+                        return false;
+                    }
+                    ContainerRepo repo = _repoDb.getLocalRepo(ownerDomain, repoName);
+                    return repo != null && !repo.isMirror();
+                }
                 return true;
+            }
             return false;
         }
 
         protected boolean isReadOperation(String operationName)
         {
             return READ_OPERATIONS.contains(operationName);
+        }
+
+        protected boolean isNoRepoOperation(String operationName)
+        {
+            return NO_REPO_OPERATIONS.contains(operationName);
         }
 
         protected void checkPublicRepo(String operationName, EuropaRequestContext requestContext)

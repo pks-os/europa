@@ -1,9 +1,12 @@
 package com.distelli.europa.models;
 
-import lombok.Data;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -17,16 +20,28 @@ public class ContainerRepo
     protected String credId = null;
     protected String region = null;
     protected RegistryProvider provider = null;
-    //This is the AWS Account for ECR registries
+    /**
+     * The AWS Account for ECR registries
+     */
     protected String registryId = null;
     protected String endpoint = null;
     protected RepoEvent lastEvent = null;
     protected boolean publicRepo = false;
     protected boolean local = true;
-    //The ID of the object in the ObjectStore that holds the readme
+    /**
+     * Users cannot push to a cache repo; sync tasks populate them instead.
+     *
+     * @see com.distelli.europa.sync.RepoSyncTask
+     * @see com.distelli.europa.sync.ImageSyncTask
+     */
+    protected boolean mirror = false;
+    /**
+     * The ID of the object in the ObjectStore that holds the readme
+     */
     protected String overviewId;
     protected long lastSyncTime;
     protected long syncCount; // Incremented at the beginning of each sync.
+    protected Set<String> syncDestinationContainerRepoIds = new HashSet<>();
 
     public String getPullCommand()
     {

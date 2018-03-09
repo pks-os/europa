@@ -11,6 +11,7 @@ package com.distelli.europa.db;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.europa.models.RegistryProvider;
 import com.distelli.europa.models.RepoEvent;
+import com.distelli.europa.registry.ContainerRepoNotFoundException;
 import com.distelli.jackson.transform.TransformModule;
 import com.distelli.persistence.AttrType;
 import com.distelli.persistence.ConvertMarker;
@@ -22,6 +23,7 @@ import com.distelli.persistence.TableDescription;
 import com.distelli.utils.CompositeKey;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.JsonError;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.inject.Singleton;
@@ -31,6 +33,7 @@ import javax.inject.Inject;
 import javax.persistence.RollbackException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 @Log4j
 @Singleton
@@ -92,8 +95,10 @@ public class ContainerRepoDb extends BaseDb
         .put("oid", String.class, "overviewId")
         .put("endpt", String.class, "endpoint")
         .put("lr", Boolean.class, "local")
+        .put("mr", Boolean.class, "mirror")
         .put("lst", Long.class, "lastSyncTime")
         .put("syc", Long.class, "syncCount")
+        .put("sdcrid", new TypeReference<Set<String>>(){}, "syncDestinationContainerRepoIds")
         .put("levent", RepoEvent.class, "lastEvent");
         return module;
     }
@@ -292,6 +297,28 @@ public class ContainerRepoDb extends BaseDb
                          id.toLowerCase())
         .set("lst", lastSyncTime)
         .when((expr) -> expr.eq("id", id.toLowerCase()));
+    }
+
+    public void addSyncDestinationContainerRepoId(String domain, String id, String destinationRepoId) {
+        try {
+            _main.updateItem(getHashKey(domain),
+                             id.toLowerCase())
+                .setAdd("sdcrid", destinationRepoId)
+                .when((expr) -> expr.eq("id", id.toLowerCase()));
+        } catch (RollbackException e) {
+            throw new ContainerRepoNotFoundException(domain, null, id, e);
+        }
+    }
+
+    public void removeSyncDestinationContainerRepoId(String domain, String id, String destinationRepoId) {
+        try {
+            _main.updateItem(getHashKey(domain),
+                             id.toLowerCase())
+                .setRemove("sdcrid", destinationRepoId)
+                .when((expr) -> expr.eq("id", id.toLowerCase()));
+        } catch (RollbackException e) {
+            throw new ContainerRepoNotFoundException(domain, null, id, e);
+        }
     }
 
     public List<ContainerRepo> listReposByCred(String domain, String credId, PageIterator pageIterator)

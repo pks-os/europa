@@ -8,62 +8,70 @@
 */
 package com.distelli.europa.guice;
 
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import javax.inject.Provider;
-import javax.inject.Singleton;
-
-import com.distelli.europa.tasks.ReapMonitorTask;
-import com.distelli.europa.tasks.PipelineTask;
-import com.distelli.europa.tasks.TaskFactory;
-import com.google.inject.multibindings.MapBinder;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import com.distelli.cred.CredPair;
 import com.distelli.europa.EuropaConfiguration;
+import com.distelli.europa.clients.DockerHubClient;
 import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.db.MonitorDb;
 import com.distelli.europa.db.NotificationsDb;
 import com.distelli.europa.db.PipelineDb;
-import com.distelli.europa.db.MonitorDb;
 import com.distelli.europa.db.RegistryBlobDb;
 import com.distelli.europa.db.RegistryCredsDb;
 import com.distelli.europa.db.RegistryManifestDb;
 import com.distelli.europa.db.RepoEventsDb;
 import com.distelli.europa.db.SequenceDb;
 import com.distelli.europa.db.SettingsDb;
-import com.distelli.europa.db.TokenAuthDb;
 import com.distelli.europa.db.TasksDb;
+import com.distelli.europa.db.TokenAuthDb;
 import com.distelli.europa.models.DnsSettings;
+import com.distelli.europa.models.DockerHubRegistry;
+import com.distelli.europa.models.EcrRegistry;
+import com.distelli.europa.models.EuropaRegistry;
+import com.distelli.europa.models.GcrRegistry;
 import com.distelli.europa.models.Monitor;
+import com.distelli.europa.models.Registry;
 import com.distelli.europa.models.SslSettings;
 import com.distelli.europa.models.StorageSettings;
+import com.distelli.europa.monitor.DockerHubMonitorTask;
+import com.distelli.europa.monitor.EcrMonitorTask;
+import com.distelli.europa.monitor.GcrMonitorTask;
+import com.distelli.europa.monitor.MonitorTask;
 import com.distelli.europa.registry.RegistryAccess;
-import com.distelli.europa.monitor.*;
-import com.distelli.europa.clients.DockerHubClient;
+import com.distelli.europa.sync.ImageSyncTask;
+import com.distelli.europa.sync.RepoSyncTask;
+import com.distelli.europa.tasks.PipelineTask;
+import com.distelli.europa.tasks.ReapMonitorTask;
+import com.distelli.europa.tasks.TaskFactory;
 import com.distelli.europa.util.ObjectKeyFactory;
 import com.distelli.europa.util.PermissionCheck;
-import com.distelli.objectStore.*;
+import com.distelli.gcr.GcrClient;
+import com.distelli.objectStore.ObjectStore;
 import com.distelli.persistence.Index;
 import com.distelli.persistence.TableDescription;
 import com.distelli.persistence.impl.mysql.MysqlDataSource;
-import com.distelli.webserver.AjaxHelperMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
-import okhttp3.ConnectionPool;
+import com.google.inject.multibindings.OptionalBinder;
 import lombok.extern.log4j.Log4j;
+import okhttp3.ConnectionPool;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
+
+import javax.inject.Provider;
+import javax.inject.Singleton;
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.ThreadFactory;
-import com.distelli.gcr.GcrClient;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import com.google.inject.multibindings.OptionalBinder;
 
 @Log4j
 public class EuropaInjectorModule extends AbstractModule
@@ -192,6 +200,19 @@ public class EuropaInjectorModule extends AbstractModule
                 .implement(MonitorTask.class, DockerHubMonitorTask.class)
                 .build(DockerHubMonitorTask.Factory.class));
 
+        install(new FactoryModuleBuilder()
+                    .implement(Registry.class, DockerHubRegistry.class)
+                    .build(DockerHubRegistry.Factory.class));
+        install(new FactoryModuleBuilder()
+                    .implement(Registry.class, EcrRegistry.class)
+                    .build(EcrRegistry.Factory.class));
+        install(new FactoryModuleBuilder()
+                    .implement(Registry.class, EuropaRegistry.class)
+                    .build(EuropaRegistry.Factory.class));
+        install(new FactoryModuleBuilder()
+                    .implement(Registry.class, GcrRegistry.class)
+                    .build(GcrRegistry.Factory.class));
+
         Multibinder<TableDescription> tableBinder =
             Multibinder.newSetBinder(binder(), TableDescription.class);
         for ( Provider<TableDescription> tableProvider : _tables ) {
@@ -202,5 +223,7 @@ public class EuropaInjectorModule extends AbstractModule
             MapBinder.newMapBinder(binder(), String.class, TaskFactory.class);
         taskFactoryBinder.addBinding(PipelineTask.ENTITY_TYPE).to(PipelineTask.Factory.class);
         taskFactoryBinder.addBinding(ReapMonitorTask.ENTITY_TYPE).to(ReapMonitorTask.Factory.class);
+        taskFactoryBinder.addBinding(ImageSyncTask.ENTITY_TYPE).to(ImageSyncTask.Factory.class);
+        taskFactoryBinder.addBinding(RepoSyncTask.ENTITY_TYPE).to(RepoSyncTask.Factory.class);
     }
 }
