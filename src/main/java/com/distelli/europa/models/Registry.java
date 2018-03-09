@@ -18,7 +18,8 @@ public interface Registry {
      *
      * @param repository the name of the repository
      * @param reference the tag or SHA for the manifest
-     * @return GcrManifest object corresponding to the manifest data retrieved from the remote
+     * @return GcrManifest object corresponding to the manifest data retrieved
+     *         from the remote, or null if no manifest was found
      * @throws IOException exception on failure to connect to remote
      */
     GcrManifest getManifest(String repository, String reference) throws IOException;
@@ -43,7 +44,7 @@ public interface Registry {
      * @param repository the name of the destination repository
      * @param digest the SHA digest of the blob
      * @param fromRepository the name of the source repository, if from the same repository
-     * @return the
+     * @return metadata about the new blob session, or null if nothing was found
      * @throws IOException exception on failure to connect to remote
      */
     GcrBlobUpload createBlobUpload(String repository, String digest, String fromRepository) throws IOException;
@@ -55,7 +56,7 @@ public interface Registry {
      * @param chunk the data to send
      * @param chunkLength the length of the data to upload
      * @param digest the SHA digest of the blob
-     * @return metadata about the uploaded blob
+     * @return metadata about the uploaded blob, or null if no data was found
      * @throws IOException exception on failure to connect to remote
      */
     GcrBlobMeta blobUploadChunk(GcrBlobUpload blobUpload, InputStream chunk, Long chunkLength, String digest) throws IOException;
@@ -66,7 +67,7 @@ public interface Registry {
      * @param repository the name of the repository
      * @param reference the tag or SHA digest for the manifest
      * @param manifest the actual manifest to upload
-     * @return metadata about the uploaded manifest
+     * @return metadata about the uploaded manifest, or null if no data was found
      * @throws IOException exception on failure to connect to remote
      */
     GcrManifestMeta putManifest(String repository, String reference, GcrManifest manifest) throws IOException;

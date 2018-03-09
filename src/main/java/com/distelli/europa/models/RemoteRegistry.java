@@ -16,9 +16,7 @@ import java.io.InputStream;
 
 public abstract class RemoteRegistry implements Registry {
     @Inject
-    protected RegistryCredsDb _registryCredsDb;
-    @Inject
-    protected GcrClient.Builder _gcrClientBuilder;
+    private RegistryCredsDb _registryCredsDb;
 
     private GcrClient client;
     @Getter

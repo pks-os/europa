@@ -5,10 +5,15 @@ import com.distelli.gcr.GcrClient;
 import com.google.inject.assistedinject.Assisted;
 import com.google.inject.assistedinject.AssistedInject;
 
+import javax.inject.Inject;
+
 public class EcrRegistry extends RemoteRegistry {
     public interface Factory {
         EcrRegistry create(ContainerRepo repo);
     }
+
+    @Inject
+    private GcrClient.Builder _gcrClientBuilder;
 
     @AssistedInject
     public EcrRegistry(@Assisted ContainerRepo repo) {

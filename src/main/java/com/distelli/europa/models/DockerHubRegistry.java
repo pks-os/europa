@@ -29,6 +29,8 @@ public class DockerHubRegistry extends RemoteRegistry {
     private static final ObjectMapper OM = new ObjectMapper();
 
     @Inject
+    private GcrClient.Builder _gcrClientBuilder;
+    @Inject
     private ConnectionPool _connectionPool;
 
     private boolean isPush;
