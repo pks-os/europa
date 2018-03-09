@@ -298,11 +298,18 @@ public class ContainerRepoDb extends BaseDb
         .when((expr) -> expr.eq("id", id.toLowerCase()));
     }
 
-    public void setSyncDestinationContainerRepoIds(String domain, String id, Set<String> destinationIds) {
+    public void addSyncDestinationContainerRepoId(String domain, String id, String destinationRepoId) {
         _main.updateItem(getHashKey(domain),
                          id.toLowerCase())
-        .set("sdcrid", destinationIds)
+        .setAdd("sdcrid", destinationRepoId)
         .when((expr) -> expr.eq("id", id.toLowerCase()));
+    }
+
+    public void removeSyncDestinationContainerRepoId(String domain, String id, String destinationRepoId) {
+        _main.updateItem(getHashKey(domain),
+                         id.toLowerCase())
+            .setRemove("sdcrid", destinationRepoId)
+            .when((expr) -> expr.eq("id", id.toLowerCase()));
     }
 
     public List<ContainerRepo> listReposByCred(String domain, String credId, PageIterator pageIterator)

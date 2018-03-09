@@ -149,16 +149,16 @@ public abstract class RepoMonitorTask extends MonitorTask
     private void scheduleSyncTasks(List<DockerImage> images) {
         Set<String> syncDestinationRepoIds = _repo.getSyncDestinationContainerRepoIds();
         if (syncDestinationRepoIds != null) {
-            Set<String> activeSyncDestinationRepoIds = new HashSet<>();
             Set<Task> tasks = new HashSet<>();
 
             for (String destinationRepoId : syncDestinationRepoIds) {
                 ContainerRepo destinationRepo = _containerRepoDb.getRepo(_repo.getDomain(), destinationRepoId);
                 // The repo could have been deleted.
                 if (destinationRepo == null) {
-                    continue;
+                    _containerRepoDb.removeSyncDestinationContainerRepoId(_repo.getDomain(),
+                                                                       _repo.getId(),
+                                                                       destinationRepoId);
                 }
-                activeSyncDestinationRepoIds.add(destinationRepoId);
                 for (DockerImage image : images) {
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Adding sync task from repo id %s to repo id %s for image %s",
@@ -175,10 +175,6 @@ public abstract class RepoMonitorTask extends MonitorTask
                                   .build());
                 }
             }
-            // Update for any repos which no longer exist.
-            _containerRepoDb.setSyncDestinationContainerRepoIds(_repo.getDomain(),
-                                                                _repo.getId(),
-                                                                activeSyncDestinationRepoIds);
             for (Task task : tasks) {
                 _tasksDb.addTask(_monitorProvider.get(), task);
             }

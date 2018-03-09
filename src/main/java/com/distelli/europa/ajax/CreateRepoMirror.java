@@ -45,7 +45,9 @@ public class CreateRepoMirror extends CreateLocalRepo {
         _repoDb.save(destinationRepo);
 
         sourceRepo.getSyncDestinationContainerRepoIds().add(destinationRepo.getId());
-        _repoDb.save(sourceRepo);
+        _repoDb.addSyncDestinationContainerRepoId(ownerDomain,
+                                                  sourceRepoId,
+                                                  destinationRepo.getId());
 
         _tasksDb.addTask(_monitor,
                          RepoSyncTask.builder()
