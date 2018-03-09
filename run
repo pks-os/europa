@@ -3,4 +3,6 @@
 JAVA_HOME=/usr
 CLASSPATH="$(find /europa-85fac6ec/lib/ -name '*.jar' | xargs echo | tr ' ' ':')"
 JVM_ARGS="-Duser.timezone=UTC -Xmx2000M -Xms2000M -Dlog4j.configuration=file:$(pwd)/log4j-console-only.properties"
-exec $JAVA_HOME/bin/java $JVM_ARGS -cp $CLASSPATH com.distelli.europa.Europa --stage prod --port 80 --ssl-port 443 $@
+EUROPA_PORT=${EUROPA_PORT:-80}
+EUROPA_SSL_PORT=${EUROPA_SSL_PORT:-443}
+exec $JAVA_HOME/bin/java $JVM_ARGS -cp $CLASSPATH com.distelli.europa.Europa --stage prod --port $EUROPA_PORT --ssl-port $EUROPA_SSL_PORT $@
