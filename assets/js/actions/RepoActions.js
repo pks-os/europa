@@ -206,7 +206,7 @@ export function toggleCreateNewRepoMirror() {
   this.setState((prevState, props) => {
     return {
       addRepo: GA.modifyProperty(prevState.addRepo, {
-        isCreatingMirrorRepo: !NPECheck(prevState, 'addRepo/isCreatingRepoMirror', true)
+        isCreatingRepoMirror: !NPECheck(prevState, 'addRepo/isCreatingRepoMirror', true)
       })
     };
   });

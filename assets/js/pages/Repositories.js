@@ -15,7 +15,7 @@ import ConvertTimeUTC from './../util/ConvertTimeUTC'
 import CopyToClipboard from './../util/CopyToClipboard'
 import {getRepoRedirect} from './../util/RedirectHelper'
 import CreateLocalRepo from './../pages/CreateLocalRepo'
-import CreateRepoMirror from './CreateRepoMirror'
+import CreateRepoMirror from './../pages/CreateRepoMirror'
 import ControlRoom from './../components/ControlRoom'
 
 export default class Repositories extends Component {
