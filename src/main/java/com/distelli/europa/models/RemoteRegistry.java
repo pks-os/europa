@@ -23,7 +23,6 @@ public abstract class RemoteRegistry implements Registry {
     private GcrClient client;
     @Getter
     private ContainerRepo repo;
-    @Getter
     private RegistryCred cred = null;
 
     protected RemoteRegistry(ContainerRepo repo) {
@@ -31,9 +30,6 @@ public abstract class RemoteRegistry implements Registry {
             throw new IllegalArgumentException("Repo cannot be empty");
         }
         this.repo = repo;
-        if (repo.getCredId() != null) {
-            cred = _registryCredsDb.getCred(repo.getDomain(), repo.getCredId());
-        }
     }
 
     abstract protected GcrClient createClient() throws IOException;
@@ -43,6 +39,13 @@ public abstract class RemoteRegistry implements Registry {
             client = createClient();
         }
         return client;
+    }
+
+    protected final RegistryCred getCred() {
+        if (cred == null && repo.getCredId() != null) {
+            cred = _registryCredsDb.getCred(repo.getDomain(), repo.getCredId());
+        }
+        return cred;
     }
 
     @Override

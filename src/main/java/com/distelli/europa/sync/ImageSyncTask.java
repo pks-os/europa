@@ -22,7 +22,6 @@ import lombok.Singular;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -99,7 +98,7 @@ public class ImageSyncTask implements Task {
         @Inject
         private RegistryManifestDb _manifestDb;
         @Inject
-        private Provider<CopyImageBetweenRepos> _copyImageBetweenReposProvider;
+        private CopyImageBetweenRepos.Builder _copyImageBetweenReposBuilder;
 
         @Override
         public void run() {
@@ -134,11 +133,12 @@ public class ImageSyncTask implements Task {
             ContainerRepo sourceRepo = getSourceRepo();
             ContainerRepo destinationRepo = getDestinationRepo();
 
-            _copyImageBetweenReposProvider.get()
+            _copyImageBetweenReposBuilder
                 .sourceRepo(sourceRepo)
                 .destinationRepo(destinationRepo)
                 .sourceReference(manifestDigestSha)
                 .destinationTags(imageTags)
+                .build()
                 .run();
         }
 

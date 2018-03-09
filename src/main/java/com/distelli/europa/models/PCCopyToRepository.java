@@ -7,7 +7,6 @@ import com.distelli.europa.registry.ManifestNotFoundException;
 import com.distelli.webserver.AjaxClientException;
 import com.distelli.webserver.JsonError;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.inject.Injector;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -15,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -38,13 +36,11 @@ public class PCCopyToRepository extends PipelineComponent {
     @Inject
     private ContainerRepoDb _repoDb;
     @Inject
-    private Provider<CopyImageBetweenRepos> _copyImageBetweenReposProvider;
-    @Inject
-    private Injector _injector;
+    private CopyImageBetweenRepos.Builder _copyImageBetweenReposBuilder;
 
     @Override
     public Optional<PromotedImage> execute(PromotedImage promotedImage) throws IOException {
-        if (_repoDb == null) {
+        if (null == _repoDb) {
             throw new IllegalStateException("Injector.injectMembers(this) has not been called");
         }
 
@@ -53,21 +49,21 @@ public class PCCopyToRepository extends PipelineComponent {
         String manifestDigestSha = promotedImage.getManifestDigestSha();
 
         // sourceRepo should never be null in normal use
-        if (sourceRepo == null) {
+        if (null == sourceRepo) {
             throw new IllegalArgumentException("Source repository must not be null");
         }
         // sourceTag should never be null in normal use
-        if (sourceTag == null) {
+        if (null == sourceTag) {
             throw new IllegalArgumentException("Source tag must not be null");
         }
         // TODO: if manifestDigestSha is null, we should issue a "DELETE"
-        if (manifestDigestSha == null) {
+        if (null == manifestDigestSha) {
             log.debug("Tag delete is not implemented");
             return (Optional.of(promotedImage));
         }
         // Not configured? Ignore...
-        if (destinationContainerRepoId == null ||
-            destinationContainerRepoDomain == null) {
+        if (null == destinationContainerRepoId ||
+            null == destinationContainerRepoDomain) {
             log.error(String.format("PipelineComponentId=%s has null destinationContainerRepoId or destinationContainerRepoDomain", getId()));
             return (Optional.of(promotedImage));
         }
@@ -78,10 +74,10 @@ public class PCCopyToRepository extends PipelineComponent {
         }
 
         ContainerRepo destinationRepo = _repoDb.getRepo(destinationContainerRepoDomain, destinationContainerRepoId);
-        String destinationTag = (tag == null) ? sourceTag : tag;
+        String destinationTag = (null == tag) ? sourceTag : tag;
 
         // destinationRepo will be null when a repo referenced by a pipeline is deleted.
-        if (destinationRepo == null) {
+        if (null == destinationRepo) {
             ContainerRepoNotFoundException e = new ContainerRepoNotFoundException(destinationContainerRepoDomain,
                                                                                   null,
                                                                                   destinationContainerRepoId);
@@ -90,11 +86,12 @@ public class PCCopyToRepository extends PipelineComponent {
         }
 
         try {
-            _copyImageBetweenReposProvider.get()
+            _copyImageBetweenReposBuilder
                 .sourceRepo(sourceRepo)
-                .sourceReference(manifestDigestSha)
                 .destinationRepo(destinationRepo)
+                .sourceReference(manifestDigestSha)
                 .destinationTag(destinationTag)
+                .build()
                 .run();
         } catch (ManifestNotFoundException e) {
             // Manifest could have been deleted, we could have received bad input, etc.
