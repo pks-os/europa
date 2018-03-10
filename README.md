@@ -1,19 +1,18 @@
-# europa
-Europa is a new Container Registry that makes it easy for software teams to host docker images within their infrastructure along with a unified view of all their images stored in local and remote repositories.
+# Puppet Container Registry
+Puppet Container Registry (formerly known as Europa from Distelli) makes it easy for software teams to host Docker images within their infrastructure along with a unified view of all their images stored in local and remote repositories.
 
-<img src="https://www.distelli.com/images/europa.png" width="300px"></img>
 <br/>
-https://www.distelli.com/registry
+https://puppet.com/products/puppet-container-registry
 
 ### Editions
 
-There are three editions of Europa:
+There are three editions of Puppet Container Registry (PCR):
 
-- Europa Community Edition (CE) is available freely under the Apache 2.0 license.
-- Europa Premium Edition (PE) includes extra features that are useful for small teams
-- Europa Enterprise Edition (EE) includes even more feautures (Teams, SAML, Service Accounts) useful for enterprises.
+- Community Edition (CE) is available freely under the Apache 2.0 license.
+- Premium Edition (PE) includes extra features that are useful for small teams
+- Enterprise Edition (EE) includes even more feautures (Teams, SAML, Service Accounts) useful for enterprises.
 
-For pricing and support for Europa Premium & Enterprise Editions please visit https://distelli.com/europa.
+For pricing and support for PCR Premium & Enterprise Editions please visit https://puppet.com/products/puppet-container-registry.
 
 ### Features
 
@@ -30,7 +29,7 @@ For pricing and support for Europa Premium & Enterprise Editions please visit ht
 </ul>
 
 <table>
-  <tr><th><br>Feature</th><th style="text-align:center">Europa<br>Community</th><th style="text-align:center">Europa<br>Premium</th><th style="text-align:center">Europa<br>Enterprise</th></tr>
+  <tr><th><br>Feature</th><th style="text-align:center">Community</th><th style="text-align:center">Premium</th><th style="text-align:center">Enterprise</th></tr>
   <tr><td>Open Source</td>             <td style="text-align:center">Yes</td><td style="text-align:center">.</td><td style="text-align:center">.</td></tr>
   <tr><td>Local Repositories</td>      <td style="text-align:center">Yes</td><td style="text-align:center">Yes</td><td style="text-align:center">Yes</td></tr>
   <tr><td>Remote Repositories</td>     <td style="text-align:center">Yes</td><td style="text-align:center">Yes</td><td style="text-align:center">Yes</td></tr>
@@ -44,11 +43,16 @@ For pricing and support for Europa Premium & Enterprise Editions please visit ht
 
 ### Getting Started
 
-To get started with Europa Community Edition you can pull the latest image from Docker Hub:
+To get started with Community Edition you can pull the latest image from Docker Hub:
 
 `docker pull distelli/europa:latest`
 
-Full documentation and a getting started guide is available at https://www.distelli.com/docs/europa
+```shell
+docker run -d --rm -p 3306:3306 --name=mysql -e MYSQL_DATABASE=pcr -e MYSQL_USER=pcr -e MYSQL_PASSWORD=password -e MYSQL_ROOT_PASSWORD=password mysql/mysql-server:latest
+docker run --rm --name europa -e EUROPA_DB_ENDPOINT=mysql://172.17.0.2:3306/pcr -e EUROPA_DB_USER=pcr -e EUROPA_DB_PASS=password --link mysql:mysql -p 8080:80 -p 8443:443 distelli/europa:latest
+```
+
+Full documentation and a getting started guide is available at https://puppet.com/docs/container-registry/team/index.html
 
 ### Contribute
 
@@ -56,27 +60,7 @@ Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute i
 
 ### Support
 
-If any issues are encountered while using Europa Community Edition, several
-avenues are available for support:
-
-<table>
-<tr>
-	<th align="left">
-	Issue Tracker
-	</th>
-	<td>
-	https://github.com/distelli/europa/issues
-	</td>
-</tr>
-<tr>
-	<th align="left">
-	Mailing List
-	</th>
-	<td>
-	europa-community@distelli.com
-	</td>
-</tr>
-</table>
+If any issues are encountered while using PCR Community Edition, please file an issue on the [GitHub issue tracker](github.com/puppetlabs/europa/issues).
 
 ### License
 
