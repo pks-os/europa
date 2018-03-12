@@ -110,7 +110,7 @@ export default class RepoDetailsPage extends Component {
     }
 
     let message = "Are you sure you want to disconnect this repository? All data will be lost.";
-    let confirmText = "Disonnect";
+    let confirmText = "Disconnect";
 
     if (activeRepo.local) {
       message = "Are you sure you want to delete this repository? All data will be lost.";
