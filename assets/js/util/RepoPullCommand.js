@@ -6,7 +6,7 @@ export default function repoPullCommand(repoObj, dnsName, ctx = null) {
   switch (provider) {
 
     case 'GCR':
-      return `glcoud docker -- pull ${repoObj.region}/${repoObj.name}`;
+      return `gcloud docker -- pull ${repoObj.region}/${repoObj.name}`;
       break;
 
     case 'ECR':
