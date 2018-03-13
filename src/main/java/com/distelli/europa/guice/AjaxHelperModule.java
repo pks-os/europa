@@ -12,6 +12,7 @@ import com.distelli.europa.ajax.AddPipelineComponent;
 import com.distelli.europa.ajax.CreateAuthToken;
 import com.distelli.europa.ajax.CreateRepoMirror;
 import com.distelli.europa.ajax.CreateLocalRepo;
+import com.distelli.europa.ajax.CreateRepoMirrorsBatch;
 import com.distelli.europa.ajax.DeleteAuthToken;
 import com.distelli.europa.ajax.DeleteContainerRepo;
 import com.distelli.europa.ajax.DeletePipelineContainerRepoId;
@@ -95,6 +96,7 @@ public class AjaxHelperModule extends AbstractModule
         addBinding(SaveContainerRepo.class);
         addBinding(CreateLocalRepo.class);
         addBinding(CreateRepoMirror.class);
+        addBinding(CreateRepoMirrorsBatch.class);
         addBinding(GetContainerRepo.class);
         addBinding(ListContainerRepos.class);
         addBinding(DeleteContainerRepo.class);

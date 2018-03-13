@@ -22,8 +22,6 @@ import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Log4j
 @Singleton
@@ -33,8 +31,6 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
     protected ContainerRepoDb _repoDb;
     @Inject
     protected PermissionCheck _permissionCheck;
-
-    private final Pattern repoNamePattern = Pattern.compile("[a-zA-Z0-9_\\.-]+");
 
     public CreateLocalRepo()
     {
@@ -61,9 +57,8 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
             throw(new AjaxClientException("The specified Repository already exists",
                                           AjaxErrors.Codes.RepoAlreadyExists,
                                           400));
-        Matcher m = repoNamePattern.matcher(repoName);
-        if(!m.matches())
-            throw(new AjaxClientException("The Repo Name is invalid. It must match regex [a-zA-Z0-9_.-]",
+        if(!ContainerRepo.isValidName(repoName))
+            throw(new AjaxClientException("The Repo Name is invalid. It must match regex [a-zA-Z0-9_.-]+",
                                           AjaxErrors.Codes.BadRepoName,
                                           400));
         repo = ContainerRepo.builder()
