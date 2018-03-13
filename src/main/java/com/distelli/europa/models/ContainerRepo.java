@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 @Data
 @Builder
@@ -15,8 +14,6 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 public class ContainerRepo
 {
-    private static final Pattern REPO_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_.-]+");
-
     protected String domain = null;
     protected String id = null;
     protected String name = null;
@@ -73,17 +70,5 @@ public class ContainerRepo
         default:
             return null;
         }
-    }
-
-    /**
-     * Check if a repository name is valid.
-     *
-     * A repository name is considered valid if it matches the regular
-     * expression {@code [a-zA-Z0-9_.-]+}.
-     * @param repoName the repository name to check
-     * @return true if the name is valid, false if it is not
-     */
-    public static boolean isValidName(String repoName) {
-        return null != repoName && REPO_NAME_PATTERN.matcher(repoName).matches();
     }
 }
