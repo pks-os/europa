@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
@@ -63,13 +64,12 @@ public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
         JsonNode repos = ajaxRequest.getContent("/repos", true);
         List<NewMirrorRequest> mirrorRequests = OM.convertValue(repos, new TypeReference<List<NewMirrorRequest>>(){});
 
-        Map<String, ContainerRepoDb.RepoNameValidity> validities =
-            _repoDb.validateLocalNames(domain,
-                                       mirrorRequests.stream()
-                                           .map(NewMirrorRequest::getDestinationRepoName)
-                                           .collect(Collectors.toList()));
+        Map<String, ContainerRepoDb.RepoNameValidity> validityMap = mirrorRequests.stream()
+            .map(NewMirrorRequest::getDestinationRepoName)
+            .collect(Collectors.toMap(Function.identity(),
+                                      repoName -> _repoDb.validateLocalName(domain, repoName)));
 
-        List<String> invalidRepoNames = validities.entrySet().stream()
+        List<String> invalidRepoNames = validityMap.entrySet().stream()
             .filter(entry -> ContainerRepoDb.RepoNameValidity.INVALID == entry.getValue())
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());
@@ -79,7 +79,7 @@ public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
             throw(new AjaxClientException(message, AjaxErrors.Codes.BadRepoName, 400));
         }
 
-        List<String> existingRepoNames = validities.entrySet().stream()
+        List<String> existingRepoNames = validityMap.entrySet().stream()
             .filter(entry -> ContainerRepoDb.RepoNameValidity.EXISTS == entry.getValue())
             .map(Map.Entry::getKey)
             .collect(Collectors.toList());

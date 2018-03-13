@@ -22,7 +22,6 @@ import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.Collections;
 
 @Log4j
 @Singleton
@@ -53,8 +52,8 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
     {
         String ownerDomain = requestContext.getOwnerDomain();
         String repoName = ajaxRequest.getParam("repoName", true);
-        ContainerRepoDb.RepoNameValidity validity =
-            _repoDb.validateLocalNames(ownerDomain, Collections.singleton(repoName)).get(repoName);
+        ContainerRepoDb.RepoNameValidity validity = _repoDb.validateLocalName(ownerDomain, repoName);
+
         if(ContainerRepoDb.RepoNameValidity.EXISTS == validity) {
             throw(new AjaxClientException("The specified Repository already exists",
                                           AjaxErrors.Codes.RepoAlreadyExists,

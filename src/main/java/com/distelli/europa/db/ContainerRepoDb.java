@@ -32,10 +32,7 @@ import lombok.extern.log4j.Log4j;
 import javax.inject.Inject;
 import javax.persistence.RollbackException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -363,30 +360,26 @@ public class ContainerRepoDb extends BaseDb
     }
 
     /**
-     * Check whether repository names are valid and available.
+     * Check whether a repository name is valid and available.
      *
      * @param domain the domain to check names under
-     * @param repoNames the names to check
-     * @return a Map between name and validity
+     * @param repoName the name to check
+     * @return the validity status of the name
      */
-    public Map<String, RepoNameValidity> validateLocalNames(String domain, Collection<String> repoNames) {
+    public RepoNameValidity validateLocalName(String domain, String repoName) {
         if (null == domain) {
             throw new NullPointerException("Domain cannot be null");
         }
-        if (null == repoNames) {
-            throw new NullPointerException("Why would you ever pass a null value for a List?");
+        if (null == repoName) {
+            throw new NullPointerException("Repo name cannot be null");
         }
-        Map<String, RepoNameValidity> retval = new HashMap<>();
-        for (String name : repoNames) {
-            if (!isRepoNameValidFormat(name)) {
-                retval.put(name, RepoNameValidity.INVALID);
-            } else if (repoExists(domain, RegistryProvider.EUROPA, "", name)) {
-                retval.put(name, RepoNameValidity.EXISTS);
-            } else {
-                retval.put(name, RepoNameValidity.VALID);
-            }
+        if (!isRepoNameValidFormat(repoName)) {
+            return RepoNameValidity.INVALID;
         }
-        return retval;
+        if (repoExists(domain, RegistryProvider.EUROPA, "", repoName)) {
+            return RepoNameValidity.EXISTS;
+        }
+        return RepoNameValidity.VALID;
     }
 
     /**
