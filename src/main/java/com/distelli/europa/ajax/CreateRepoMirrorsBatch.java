@@ -25,8 +25,8 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
@@ -63,9 +63,15 @@ public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
         JsonNode repos = ajaxRequest.getContent("/repos", true);
         List<NewMirrorRequest> mirrorRequests = OM.convertValue(repos, new TypeReference<List<NewMirrorRequest>>(){});
 
-        List<String> invalidRepoNames = mirrorRequests.stream()
-            .filter(request -> !ContainerRepo.isValidName(request.getDestinationRepoName()))
-            .map(NewMirrorRequest::getDestinationRepoName)
+        Map<String, ContainerRepoDb.RepoNameValidity> validities =
+            _repoDb.validateLocalNames(domain,
+                                       mirrorRequests.stream()
+                                           .map(NewMirrorRequest::getDestinationRepoName)
+                                           .collect(Collectors.toList()));
+
+        List<String> invalidRepoNames = validities.entrySet().stream()
+            .filter(entry -> ContainerRepoDb.RepoNameValidity.INVALID == entry.getValue())
+            .map(Map.Entry::getKey)
             .collect(Collectors.toList());
         if (!invalidRepoNames.isEmpty()) {
             String message = String.format("The following repository names are invalid: %s\nRepository names must match the regex [a-zA-Z0-9_.-]+",
@@ -73,14 +79,10 @@ public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
             throw(new AjaxClientException(message, AjaxErrors.Codes.BadRepoName, 400));
         }
 
-        List<String> existingRepoNames = mirrorRequests.stream()
-            .filter(request -> null != _repoDb.getRepo(domain,
-                                                       RegistryProvider.EUROPA,
-                                                       "",
-                                                       request.getDestinationRepoName()))
-            .map(NewMirrorRequest::getDestinationRepoName)
+        List<String> existingRepoNames = validities.entrySet().stream()
+            .filter(entry -> ContainerRepoDb.RepoNameValidity.EXISTS == entry.getValue())
+            .map(Map.Entry::getKey)
             .collect(Collectors.toList());
-
         if (!existingRepoNames.isEmpty()) {
             String message = String.format("The following repositories already exist: %s",
                                            String.join(", ", existingRepoNames));
@@ -144,7 +146,7 @@ public class CreateRepoMirrorsBatch extends AjaxHelper<EuropaRequestContext> {
             .credId(cred.getId())
             .id(CompactUUID.randomUUID().toString())
             .overviewId(CompactUUID.randomUUID().toString())
-            .syncDestinationContainerRepoIds(new HashSet<>(Collections.singletonList(destinationRepoId)))
+            .syncDestinationContainerRepoIds(Collections.singleton(destinationRepoId))
             .build();
     }
 

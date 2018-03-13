@@ -32,8 +32,12 @@ import lombok.extern.log4j.Log4j;
 import javax.inject.Inject;
 import javax.persistence.RollbackException;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Log4j
 @Singleton
@@ -44,6 +48,8 @@ public class ContainerRepoDb extends BaseDb
     private Index<ContainerRepo> _byCredId;
 
     private final ObjectMapper _om = new ObjectMapper();
+
+    private static final Pattern REPO_NAME_PATTERN = Pattern.compile("[a-zA-Z0-9_.-]+");
 
     public static TableDescription getTableDescription() {
         return TableDescription.builder()
@@ -354,5 +360,63 @@ public class ContainerRepoDb extends BaseDb
 
     public String getSecondaryIndexMarker(ContainerRepo repo, boolean hasHashKey) {
         return _secondaryIndex.toMarker(repo, hasHashKey);
+    }
+
+    /**
+     * Check whether repository names are valid and available.
+     *
+     * @param domain the domain to check names under
+     * @param repoNames the names to check
+     * @return a Map between name and validity
+     */
+    public Map<String, RepoNameValidity> validateLocalNames(String domain, Collection<String> repoNames) {
+        if (null == domain) {
+            throw new NullPointerException("Domain cannot be null");
+        }
+        if (null == repoNames) {
+            throw new NullPointerException("Why would you ever pass a null value for a List?");
+        }
+        Map<String, RepoNameValidity> retval = new HashMap<>();
+        for (String name : repoNames) {
+            if (!isRepoNameValidFormat(name)) {
+                retval.put(name, RepoNameValidity.INVALID);
+            } else if (repoExists(domain, RegistryProvider.EUROPA, "", name)) {
+                retval.put(name, RepoNameValidity.EXISTS);
+            } else {
+                retval.put(name, RepoNameValidity.VALID);
+            }
+        }
+        return retval;
+    }
+
+    /**
+     * Check if a repository name is in the valid format.
+     *
+     * A repository name is considered valid if it matches the regular
+     * expression {@code [a-zA-Z0-9_.-]+}.
+     *
+     * @param repoName the name to check
+     * @return true if the name is valid, false if it is not
+     */
+    public boolean isRepoNameValidFormat(String repoName) {
+        return null != repoName && REPO_NAME_PATTERN.matcher(repoName).matches();
+    }
+
+    /**
+     * Represents the validity of a repository name.
+     */
+    public enum RepoNameValidity {
+        /**
+         * The name is valid and available.
+         */
+        VALID,
+        /**
+         * The name is not valid.
+         */
+        INVALID,
+        /**
+         * A repository with the name already exists.
+         */
+        EXISTS;
     }
 }
