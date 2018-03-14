@@ -22,8 +22,6 @@ import lombok.extern.log4j.Log4j;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Log4j
 @Singleton
@@ -33,8 +31,6 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
     protected ContainerRepoDb _repoDb;
     @Inject
     protected PermissionCheck _permissionCheck;
-
-    private final Pattern repoNamePattern = Pattern.compile("[a-zA-Z0-9_\\.-]+");
 
     public CreateLocalRepo()
     {
@@ -56,17 +52,19 @@ public class CreateLocalRepo extends AjaxHelper<EuropaRequestContext>
     {
         String ownerDomain = requestContext.getOwnerDomain();
         String repoName = ajaxRequest.getParam("repoName", true);
-        ContainerRepo repo = _repoDb.getRepo(ownerDomain, RegistryProvider.EUROPA, "", repoName);
-        if(repo != null)
+        ContainerRepoDb.RepoNameValidity validity = _repoDb.validateLocalName(ownerDomain, repoName);
+
+        if(ContainerRepoDb.RepoNameValidity.EXISTS == validity) {
             throw(new AjaxClientException("The specified Repository already exists",
                                           AjaxErrors.Codes.RepoAlreadyExists,
                                           400));
-        Matcher m = repoNamePattern.matcher(repoName);
-        if(!m.matches())
-            throw(new AjaxClientException("The Repo Name is invalid. It must match regex [a-zA-Z0-9_.-]",
+        }
+        if(ContainerRepoDb.RepoNameValidity.INVALID == validity) {
+            throw(new AjaxClientException("The Repo Name is invalid. It must match regex [a-zA-Z0-9_.-]+",
                                           AjaxErrors.Codes.BadRepoName,
                                           400));
-        repo = ContainerRepo.builder()
+        }
+        ContainerRepo repo = ContainerRepo.builder()
             .domain(ownerDomain)
             .name(repoName)
             .region("")
