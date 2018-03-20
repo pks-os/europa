@@ -34,52 +34,60 @@ export function resetRegistryState() {
 }
 
 export function listRegistries() {
-  this.setState({
-    registriesXHR: (this.state.registries.length) ? false : true
+  this.setState((prevState, props) => {
+    return {
+      registriesXHR: (prevState.registries.length) ? false : true
+    };
   }, () => {
     RAjax.GET.call(this, 'ListRegistryCreds', {})
     .then((res) => {
 
       let registriesMap = res.reduce((cur, repo) => {
-        cur[repo.id] = repo
+        cur[repo.id] = repo;
         return cur;
       }, {});
 
-      this.setState({
-        registries: res,
-        registriesMap: registriesMap,
-        registriesXHR: false,
-        registry: GA.modifyProperty(this.state.registry, {
-          isBlocked: false,
-          registriesError: ''
-        })
+      this.setState((prevState, props) => {
+        return {
+          registries: res,
+          registriesMap: registriesMap,
+          registriesXHR: false,
+          registry: GA.modifyProperty(prevState.registry, {
+            isBlocked: false,
+            registriesError: ''
+          })
+        };
       });
 
     })
     .catch((err) => {
       let errorMsg = NPECheck(err, 'error/message', 'There was an error listing your registries.');
       if (errorMsg == 'You do not have access to this operation') {
-        this.setState({
-          registries: [],
-          registriesMap: {},
-          registriesXHR: false,
-          registry: GA.modifyProperty(this.state.registry, {
-            isBlocked: true,
-            registriesError: 'You are not allowed to list registry credentials.'
-          })
+        this.setState((prevState, props) => {
+          return {
+            registries: [],
+            registriesMap: {},
+            registriesXHR: false,
+            registry: GA.modifyProperty(prevState.registry, {
+              isBlocked: true,
+              registriesError: 'You are not allowed to list registry credentials.'
+            })
+          };
         });
       } else {
-        this.setState({
-          registriesXHR: false,
-          registry: GA.modifyProperty(this.state.registry, {
-            isBlocked: false,
-            registriesError: errorMsg
-          })
+        this.setState((prevState, props) => {
+          return {
+            registriesXHR: false,
+            registry: GA.modifyProperty(prevState.registry, {
+              isBlocked: false,
+              registriesError: errorMsg
+            })
+          };
         });
       }
     });
   });
-};
+}
 
 export function setRegistryForDelete(registry = null) {
   this.setState({

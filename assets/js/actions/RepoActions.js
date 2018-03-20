@@ -27,9 +27,11 @@ import {
 // Read Permissions
 export function listRepos(repoId) {
   return new Promise((resolve, reject) => {
-    this.setState({
-      reposXHR: (this.state.repos.length > 1) ? false : true,
-      reposFilterQuery: ""
+    this.setState((prevState, props) => {
+      return {
+        reposXHR: (prevState.repos.length > 1) ? false : true,
+        reposFilterQuery: ""
+      }
     }, () => {
 
       let params = {};
@@ -48,12 +50,12 @@ export function listRepos(repoId) {
         }
 
         let reposMap = res.reduce((cur, repo) => {
-          cur[repo.id] = repo
+          cur[repo.id] = repo;
           return cur;
         }, {});
 
         let reposNameMap = res.reduce((cur, repo) => {
-          cur[getRepoRedirect(repo)] = repo
+          cur[getRepoRedirect(repo)] = repo;
           return cur;
         }, {});
 
@@ -69,11 +71,13 @@ export function listRepos(repoId) {
         let errorMsg = `${err.error.message}`;
 
         if (errorMsg == 'You do not have access to this operation') {
-          this.setState({
-            reposXHR: false,
-            repoDetails: GA.modifyProperty(this.state.repoDetails, {
-              isBlocked: true
-            })
+          this.setState((prevState, props) => {
+            return {
+              reposXHR: false,
+              repoDetails: GA.modifyProperty(prevState.repoDetails, {
+                isBlocked: true
+              })
+            }
           }, () => reject());
         } else {
           this.setState({
@@ -391,6 +395,7 @@ let listReposInRegistryDebounced = Debounce(function () {
             reposInRegistry: [],
             errorMsg: 'Unable to list repositories for selected registry. Please check your credentials.',
             reposInRegistryXHR: false,
+            originalError: err,
           })
         });
       });
@@ -577,6 +582,273 @@ function isAddRepoValid(validateOnInput) {
     });
     return true
   }
+}
+
+// *************************************************
+// Add Mirrors Actions
+// *************************************************
+
+export function addMirrorsState() {
+  return {
+    selectedRepos: {},
+    selectorOpen: false,
+    addMirrorsError: '',
+    addMirrorsXHR: false,
+  }
+}
+
+export function resetAddMirrorsState() {
+  this.setState((prevState, props) => {
+    return {
+      addMirrors: GA.modifyProperty(prevState.addMirrors, addMirrorsState.call(this)),
+    };
+  }, () => resetAddRepoState.call(this));
+}
+
+export function clearAddMirrorsError() {
+  this.setState((prevState, props) => {
+    return {
+      addMirrors: GA.modifyProperty(prevState.addMirrors, {
+        addMirrorsError: '',
+      }),
+    };
+  });
+}
+
+export function addMirrors(afterAddCb) {
+  let selectedRepos = getAddMirrorsSelectedRepoData.call(this);
+  if (!canAddMirrors.call(this)) {
+    let errorMsg = (selectedRepos.length === 0) ? 'No repos selected to mirror' : 'Proposed name conflicts with existing repo';
+    this.setState((prevState, props) => {
+      return {
+        addMirrors: GA.modifyProperty(prevState.addMirrors, {
+          addMirrorsError: errorMsg,
+        })
+      };
+    });
+    return;
+  }
+
+  let credId = NPECheck(this.state, 'addRepo/newRepo/repo/credId', null);
+  if (credId == null) {
+    this.setState((prevState, props) => {
+      return {
+        addMirrors: GA.modifyProperty(prevState.addMirrors, {
+          addMirrorsError: 'No registry credentials specified',
+        })
+      };
+    });
+    return;
+  }
+
+  let postData = {
+    repos: selectedRepos,
+  };
+
+  let params = {
+    credId,
+  };
+
+  this.setState((prevState, props) => {
+    return {
+      addMirrors: GA.modifyProperty(prevState.addMirrors, {
+        addMirrorsXHR: true,
+      }),
+    };
+  }, () => {
+    RAjax.POST.call(this, 'CreateRepoMirrorsBatch', postData, params)
+      .then((res) => {
+        this.setState((prevState, props) => {
+          return {
+            addMirrors: GA.modifyProperty(this.state.addMirrors, {
+              addMirrorsXHR: false,
+            }),
+          };
+        }, () => {
+          listRepos.call(this);
+          if (afterAddCb) {
+            afterAddCb();
+          }
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+        let errorMsg = `There was an error adding mirrors: ${err.error.message}`;
+        this.setState((prevState, props) => {
+          return {
+            addMirrors: GA.modifyProperty(this.state.addMirrors, {
+              addMirrorsXHR: false,
+              addMirrorsError: errorMsg,
+            })
+          }
+        });
+      });
+  });
+}
+
+export function getAddMirrorsSelectedRepoData() {
+  let remoteRepos = NPECheck(this.state, 'addRepo/reposInRegistry', []);
+  let configuredRepos = NPECheck(this.state, 'addMirrors/selectedRepos', {});
+  let selectedRepos = [];
+  remoteRepos.forEach(repoName => {
+    let lastElement = repoName.split("/").pop();
+    let repoData = {};
+    if (configuredRepos.hasOwnProperty(repoName)) {
+      if (!configuredRepos[repoName].hasOwnProperty("selected") || configuredRepos[repoName].selected) {
+        repoData = {
+          sourceRepoName: repoName,
+          destinationRepoName: (configuredRepos[repoName].localRepoName || lastElement),
+        };
+        selectedRepos.push(repoData);
+      }
+    } else {
+      repoData = {
+        sourceRepoName: repoName,
+        destinationRepoName: lastElement,
+      };
+      selectedRepos.push(repoData);
+    }
+  });
+  return selectedRepos;
+}
+
+export function canAddMirrors() {
+  let selectedRepos = getAddMirrorsSelectedRepoData.call(this);
+
+  if (selectedRepos.length === 0) {
+    return false;
+  }
+  let conflictingRepos = selectedRepos.filter(repoData => this.state.reposNameMap.hasOwnProperty(repoData.destinationRepoName));
+  return (conflictingRepos.length === 0);
+}
+
+export function getAddMirrorsIsRepoSelected(repoName) {
+  return getAddMirrorsRepoStateField(repoName, "selected", this.state, true);
+}
+
+export function getAddMirrorsLocalRepoName(repoName) {
+  let repoNameLastComponent = repoName.split('/').pop();
+  return getAddMirrorsRepoStateField(repoName, "localRepoName", this.state, repoNameLastComponent);
+}
+
+export function getAddMirrorsSelectorStatus() {
+  let repos = NPECheck(this.state, 'addRepo/reposInRegistry', []);
+  let all = true;
+  let none = true;
+  repos.forEach((repo) => {
+    if (getAddMirrorsRepoStateField(repo, "selected", this.state, true)) {
+      none = false;
+    } else {
+      all = false;
+    }
+  });
+  if (all) {
+    return getAddMirrorsSelectorOptions.call(this, "all");
+  }
+  if (none) {
+    return getAddMirrorsSelectorOptions.call(this, "none");
+  }
+}
+
+// We can't use NPECheck for this because the properties might have slashes in them.
+function getAddMirrorsRepoStateField(repoName, fieldName, state, defaultValue) {
+  let result = null;
+  if (state.addMirrors.selectedRepos.hasOwnProperty(repoName)) {
+    result = state.addMirrors.selectedRepos[repoName][fieldName];
+  }
+  if (result == null) {
+    result = defaultValue;
+  }
+  return result;
+}
+
+export function getAddMirrorsSelectorOptions(choice = null) {
+  let options = {
+    all: {
+      name: "All",
+      action: setAddMirrorsAllSelected.bind(this),
+    },
+    none: {
+      name: "None",
+      action: setAddMirrorsNoneSelected.bind(this),
+    },
+  };
+  if (choice != null) {
+    return options[choice.toLowerCase()];
+  }
+  return Object.values(options);
+}
+
+export function updateAddMirrorsRepoStateField(repoName, fieldName, value, callback = null) {
+  this.setState((prevState, props) => {
+    let change = {};
+    let repoState = (prevState.addMirrors.selectedRepos.hasOwnProperty(repoName))
+      ? prevState.addMirrors.selectedRepos[repoName]
+      : {};
+    change[repoName] = {
+      ...repoState,
+    };
+    change[repoName][fieldName] = value;
+    let addMirrors = {
+      selectedRepos: GA.modifyProperty(prevState.addMirrors.selectedRepos, change),
+    };
+    return {
+      addMirrors: GA.modifyProperty(prevState.addMirrors, addMirrors),
+    };
+  }, callback);
+}
+
+export function toggleAddMirrorsRepoStateField(repoName, fieldName, defaultValue, callback = null) {
+  this.setState((prevState, props) => {
+    let change = {};
+    let repoState = (prevState.addMirrors.selectedRepos.hasOwnProperty(repoName))
+      ? prevState.addMirrors.selectedRepos[repoName]
+      : {};
+    change[repoName] = {
+      ...repoState,
+    };
+    change[repoName][fieldName] = !getAddMirrorsRepoStateField(repoName, fieldName, prevState, defaultValue);
+    let addMirrors = {
+      selectedRepos: GA.modifyProperty(prevState.addMirrors.selectedRepos, change),
+    };
+    return {
+      addMirrors: GA.modifyProperty(prevState.addMirrors, addMirrors),
+    };
+  }, callback);
+}
+
+export function updateAddMirrorsRepoStateFieldAllRepos(fieldName, value, callback = null) {
+  this.setState((prevState, props) => {
+    let repos = NPECheck(prevState, 'addRepo/reposInRegistry', []);
+    let change = {};
+    repos.forEach((repoName) => {
+      let repoState = (prevState.addMirrors.selectedRepos.hasOwnProperty(repoName))
+        ? prevState.addMirrors.selectedRepos[repoName]
+        : {};
+      change[repoName] = {
+        ...repoState,
+      };
+      change[repoName][fieldName] = value;
+    });
+    let addMirrors = {
+      selectedRepos: GA.modifyProperty(prevState.addMirrors.selectedRepos, change),
+    };
+    return {
+      addMirrors: GA.modifyProperty(prevState.addMirrors, addMirrors),
+    };
+  }, callback);
+}
+
+function setAddMirrorsAllSelected() {
+  updateAddMirrorsRepoStateFieldAllRepos.call(this, "selected", true);
+}
+
+function setAddMirrorsNoneSelected() {
+  updateAddMirrorsRepoStateFieldAllRepos.call(this, "selected", false);
+}
+
+export function activateAddMirrorsSelector(option) {
+  getAddMirrorsSelectorOptions.call(this).find((x) => x.name === option.name).action.call(this);
 }
 
 // *************************************************

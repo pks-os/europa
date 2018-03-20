@@ -1,0 +1,90 @@
+div.SelectReposToMirror label span.hint {
+    color: $grey;
+    font-style: italic;
+}
+
+div.SelectReposToMirror div.MirrorRepoConfig {
+    margin-top: 5px;
+}
+
+div.LocalRepoHeaderOperations,
+div.RepoListHeaderSelector {
+    display: flex;
+    align-items: stretch;
+}
+
+div.RepoListHeaderFilterContainer {
+    align-items: stretch;
+    border-radius: 3px;
+    background: $simple-table-row-bg;
+    display: flex;
+    flex-flow: row;
+    min-width: 390px;
+    padding: 0 5px;
+}
+
+div.RepoListHeaderFilterLabel {
+    align-items: center;
+    display: flex;
+    flex-flow: row;
+    flex: 0;
+
+    label {
+        color: $black;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 0;
+    }
+}
+
+div.RepoListHeaderFilters {
+    align-items: stretch;
+    display: flex;
+    flex: 1;
+    flex-flow: row;
+    justify-content: space-around;
+
+    label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    & > div {
+        align-items: center;
+        display: flex;
+        flex-flow: row;
+
+        i.icon {
+            font-size: 0.875rem;
+            margin-right: 3px;
+        }
+
+        i.icon-dis-box-check {
+            color: $green;
+
+            & + label {
+                color: $black;
+            }
+        }
+
+        i.icon-dis-box-uncheck {
+            color: $grey;
+
+            & + label {
+                color: $grey;
+            }
+        }
+    }
+
+    & > div.RepoListHeaderConflictsFilter.conflicts {
+        i.icon-dis-box-check,
+        i.icon-dis-box-uncheck {
+            color: $red;
+
+            & + label {
+                color: $red;
+            }
+        }
+    }
+}
