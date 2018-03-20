@@ -3,6 +3,7 @@
 */
 
 import React, {Component, PropTypes} from 'react'
+import {Link} from 'react-router'
 import Loader from './../components/Loader'
 import RegistryNames from './../util/RegistryNames'
 import RepoSettings from './../components/RepoSettings'
@@ -14,6 +15,7 @@ import RepoDetailsContent from './../components/RepoDetailsContent'
 import ControlRoom from './../components/ControlRoom'
 import BtnGroup from './../components/BtnGroup'
 import Msg from './../components/Msg'
+import {getRepoRedirect} from './../util/RedirectHelper'
 import NotFound from './../pages/NotFound'
 import AccessDenied from './../components/AccessDenied';
 
@@ -28,31 +30,41 @@ export default class RepoDetailsPage extends Component {
     };
   }
 
-  componentDidMount() {
+  loadPage() {
     this.context.actions.resetRepoDetailsState();
     this.context.actions.toggleRepoDetailsPageXHR(true);
-    this.context.actions.listRepos(this.state.repoId)
-    .then(() => {
-      return new Promise((resolve, reject) => {
-        let activeRepo = this.props.reposNameMap[this.props.params.repoName];
+    this.context.actions.listRepos()
+      .then(() => {
+        return new Promise((resolve, reject) => {
+          let activeRepo = this.props.reposNameMap[this.props.params.repoName];
 
 
-        resolve((activeRepo) ? activeRepo.id : null);
+          resolve((activeRepo) ? activeRepo.id : null);
+        });
+      })
+      .then((repoId) => {
+        let repoDeps = [
+          this.context.actions.setActiveRepoDetails(repoId),
+          this.context.actions.getRepoOverview(repoId)
+        ];
+
+        return Promise.all(repoDeps);
+      })
+      .then(this.context.actions.toggleRepoDetailsPageXHR.bind(this, false))
+      .catch((err) => {
+        console.error(err);
+        this.context.actions.toggleRepoDetailsPageXHR(false);
       });
-    })
-    .then((repoId) => {
-      let repoDeps = [
-        this.context.actions.setActiveRepoDetails(repoId),
-        this.context.actions.getRepoOverview(repoId)
-      ];
+  }
 
-      return Promise.all(repoDeps);
-    })
-    .then(this.context.actions.toggleRepoDetailsPageXHR.bind(this, false))
-    .catch((err) => {
-      console.error(err);
-      this.context.actions.toggleRepoDetailsPageXHR(false);
-    });
+  componentDidMount() {
+    this.loadPage();
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.params.repoName !== this.props.params.repoName) {
+      this.loadPage();
+    }
   }
 
   componentWillUnmount() {
@@ -77,8 +89,8 @@ export default class RepoDetailsPage extends Component {
         <span style={{paddingLeft: '0'}}>Settings</span>
         <span className="Close"
               onClick={() => this.context.actions.toggleActiveRepoSettings()}>
-					<i className="icon icon-dis-close"/>
-				</span>
+          <i className="icon icon-dis-close"/>
+        </span>
       </div>
     );
   }
@@ -166,10 +178,42 @@ export default class RepoDetailsPage extends Component {
           </div>
           <span>{RegistryNames(true)[activeRepo.provider]}</span>
         </div>
+        {this.renderMirroredFrom(activeRepo)}
         <div className="FlexRow">
           {this.renderRepoPullCommands()}
           {this.renderActions(activeRepo)}
         </div>
+      </div>
+    );
+  }
+
+  renderMirroredFrom(activeRepo) {
+    if (!activeRepo.mirror) {
+      return;
+    }
+    let sourceRepo = this.props.repos.find((repo) => repo.syncDestinationContainerRepoIds.includes(activeRepo.id));
+    if (sourceRepo == null) {
+      return;
+    }
+    return (
+      <div className="MirrorData FlexRow Flex2 AlignCenter">
+        <div className="FlexRow">
+          <img className="MirrorIcon"
+               src="/public/images/dis-mirror-color.svg"/>
+          <div>
+            <span className="MirroredFrom">Mirrored from:</span>
+          </div>
+        </div>
+        <Link to={`/repositories/${getRepoRedirect(sourceRepo)}`}>
+          <div className="FlexRow">
+            <img className="ProviderIcon"
+                 src={RegistryProviderIcons(sourceRepo.provider)}/>
+            <div className="Flex1 FlexColumn">
+              <span className="RepoName">{sourceRepo.name}</span>
+              <span className="RepoProvider">{RegistryNames(true)[sourceRepo.provider]}</span>
+            </div>
+          </div>
+        </Link>
       </div>
     );
   }
