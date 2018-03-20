@@ -128,7 +128,7 @@ export default class MirrorRepoConfigItem extends Component {
     if (!this.props.isSelected) {
       return;
     }
-    let deleteButton = (this.props.checkConflictFn(this.props.localRepoName))
+    let deleteButton = (this.props.localRepoDeleteFn && this.props.checkConflictFn(this.props.localRepoName))
       ? (
         <div className="LocalRepoDeleteButton Clickable"
              onClick={this.props.localRepoDeleteFn}>
