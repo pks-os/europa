@@ -5,8 +5,12 @@ div.SelectorContainer {
     display: flex;
     flex-flow: row;
     margin: 0 5px;
-    min-width: 105px;
     position: relative;
+}
+
+div.SelectorToggleWrapper {
+    display: flex;
+    flex-flow: column;
 }
 
 div.SelectorToggle {
@@ -16,10 +20,15 @@ div.SelectorToggle {
     flex-flow: row;
     justify-content: space-between;
     padding: 0 5px;
+
+    &.inactive {
+        height: 0;
+        max-height: 0;
+        visibility: hidden;
+    }
 }
 
 div.SelectorToggle div.SelectorToggleLabel {
-    flex: 0;
     padding: 0 5px;
 
     label {
@@ -35,7 +44,6 @@ div.SelectorToggle div.SelectorToggleValue {
 }
 
 div.SelectorToggle div.SelectorToggleIcon {
-    flex: 0;
     padding: 0 5px;
 
     i {

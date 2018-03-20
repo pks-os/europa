@@ -848,7 +848,7 @@ function setAddMirrorsNoneSelected() {
 }
 
 export function activateAddMirrorsSelector(option) {
-  getAddMirrorsSelectorOptions.call(this).find((x) => x.name === option.name).action.call(this);
+  getAddMirrorsSelectorOptions.call(this).find((x) => x.name === option).action.call(this);
 }
 
 // *************************************************
