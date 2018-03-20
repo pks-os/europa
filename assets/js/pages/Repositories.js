@@ -17,12 +17,15 @@ import {getRepoRedirect} from './../util/RedirectHelper'
 import CreateLocalRepo from './../pages/CreateLocalRepo'
 import CreateRepoMirror from './../pages/CreateRepoMirror'
 import ControlRoom from './../components/ControlRoom'
-import AddMirrorRepos from "./AddMirrorRepos";
+import Selector from "../components/Selector";
 
 export default class Repositories extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      mirrorSelectorOpen: false,
+      mirrorFilter: 'All',
+    };
   }
 
   componentDidMount() {
@@ -41,7 +44,17 @@ export default class Repositories extends Component {
 
   renderRepos() {
     let filteredRepos = this.props.repos.sort((repo1, repo2) => repo1.name > repo2.name ? 1 : -1).filter((repo) => {
-      if (!this.props.reposFilterQuery) return true;
+      if (this.state.mirrorFilter === 'Mirrored' && !repo.mirror) {
+        return false;
+      }
+
+      if (this.state.mirrorFilter === 'Not Mirrored' && repo.mirror) {
+        return false;
+      }
+
+      if (!this.props.reposFilterQuery) {
+        return true;
+      }
 
       return repo.name.indexOf(this.props.reposFilterQuery) > -1
     });
@@ -62,16 +75,17 @@ export default class Repositories extends Component {
       <Link to={`/repositories/${getRepoRedirect(repo)}`} key={index}>
         <div className="Flex1 RepoItem FlexColumn">
           <div className="Inside FlexRow">
-            <img className="ProviderIcon"
-                 src={RegistryProviderIcons(repo.provider)}/>
-            <div className="Flex1 FlexColumn">
-              <span className="RepoName">{repo.name}</span>
-              <span className="RepoProvider">{RegistryNames(true)[repo.provider]}</span>
+            <div className="RepoTableColumn1 FlexRow">
+              <img className="ProviderIcon"
+                   src={RegistryProviderIcons(repo.provider)}/>
+              <div className="Flex1 FlexColumn">
+                <span className="RepoName">{repo.name}</span>
+                <span className="RepoProvider">{RegistryNames(true)[repo.provider]}</span>
+              </div>
             </div>
-            {this.renderRepoItemDetails(repo)}
-            <div className="FlexColumn"
-                 style={{flex: '0.45', alignItems: 'flex-end', paddingRight: '7px', justifyContent: 'center'}}>
-              <span className="LastWebhookStatus"></span>
+            <div className="RepoTableColumn2 FlexRow AlignCenter">
+              {this.renderRepoItemDetails(repo)}
+              {this.renderMirrorSourceDetails(repo)}
             </div>
           </div>
         </div>
@@ -85,7 +99,7 @@ export default class Repositories extends Component {
 
     if (!repo.local && !lastSynced) {
       return (
-        <div className="Flex2 FlexColumn UnknownDetails">
+        <div className="Flex1 FlexColumn UnknownDetails">
           Retrieving repository details..
         </div>
       );
@@ -93,7 +107,7 @@ export default class Repositories extends Component {
 
     if (!lastEvent) {
       return (
-        <div className="Flex2 FlexColumn UnknownDetails">
+        <div className="Flex1 FlexColumn UnknownDetails">
           No events found. {(lastSynced) ? `Last synced at ${ConvertTimeUTC(new Date(lastSynced))}` : null}
         </div>
       );
@@ -101,7 +115,7 @@ export default class Repositories extends Component {
 
     let friendlyTime = (lastEvent.eventTime) ? ConvertTimeFriendly(lastEvent.eventTime) : 'Unknown';
     return (
-      <div className="Flex2 FlexColumn JustifyCenter">
+      <div className="Flex1 FlexColumn JustifyCenter">
         <div className="FlexRow">
           <span className="LastPushed">Pushed image <span className="LightBlueColor">{repo.name}</span></span>
           <span className="Label">&nbsp;&mdash;&nbsp;{friendlyTime}</span>
@@ -117,6 +131,31 @@ export default class Repositories extends Component {
     );
   }
 
+  renderMirrorSourceDetails(repo) {
+    if (!repo.mirror) {
+      return;
+    }
+    let sourceRepo = this.props.repos.find((r) => r.syncDestinationContainerRepoIds.includes(repo.id));
+    if (sourceRepo == null) {
+      return;
+    }
+    return (
+      <div className="FlexRow AlignCenter">
+        <img className="MirrorIcon"
+             src="/public/images/dis-mirror-color.svg"/>
+        <div>
+          <span className="MirroredFrom">Mirrored from:</span>
+        </div>
+        <img className="ProviderIcon"
+             src={RegistryProviderIcons(sourceRepo.provider)}/>
+        <div className="Flex1 FlexColumn">
+          <span className="RepoName">{sourceRepo.name}</span>
+          <span className="RepoProvider">{RegistryNames(true)[sourceRepo.provider]}</span>
+        </div>
+      </div>
+    );
+  }
+
   renderSearchRepos() {
     return (
       <input key={1}
@@ -127,11 +166,51 @@ export default class Repositories extends Component {
     );
   }
 
+  getMirrorSelectorOptions() {
+    return [
+      'All',
+      'Mirrored',
+      'Not Mirrored',
+    ];
+  }
+
+  toggleMirrorSelectorOpen() {
+    this.setState((prevState, props) => {
+      return {
+        mirrorSelectorOpen: !prevState.mirrorSelectorOpen,
+      };
+    });
+  }
+
+  setMirrorFilter(filter) {
+    this.setState({
+      mirrorSelectorOpen: false,
+      mirrorFilter: filter,
+    });
+  }
+
+  renderMirrorFilter() {
+    return (
+      <div className="ShowMirroredSelector">
+        <Selector
+          isOpen={this.state.mirrorSelectorOpen}
+          toggleOpen={this.toggleMirrorSelectorOpen.bind(this)}
+          listItems={this.getMirrorSelectorOptions()}
+          onClick={this.setMirrorFilter.bind(this)}
+          currentValue={this.state.mirrorFilter}
+          labelText="Show:"/>
+      </div>
+    );
+  }
+
   renderLegend() {
     return (
       <div className="ReposLegend" key={2}>
-        <div style={{flex: '0.91'}}>Repository</div>
-        <div className="Flex2">Last event</div>
+        <div className="RepoTableColumn1">Repository</div>
+        <div className="RepoTableColumn2 FlexRow">
+          <div className="Flex1">Last event</div>
+          {this.renderMirrorFilter()}
+        </div>
       </div>
     );
   }
