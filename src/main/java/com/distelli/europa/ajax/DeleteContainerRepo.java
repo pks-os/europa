@@ -50,6 +50,7 @@ public class DeleteContainerRepo extends AjaxHelper<EuropaRequestContext>
             throw (new AjaxClientException("The specified Repository was not found",
                                            AjaxErrors.Codes.RepoNotFound, 400));
         }
+        _permissionCheck.check(ajaxRequest.getOperation(), requestContext, repo);
         for (String destinationContainerRepoId : repo.getSyncDestinationContainerRepoIds()) {
             ContainerRepo destinationRepo = _repoDb.getRepo(domain, destinationContainerRepoId);
             if (null != destinationRepo) {
@@ -57,7 +58,6 @@ public class DeleteContainerRepo extends AjaxHelper<EuropaRequestContext>
                                                AjaxErrors.Codes.RepoIsMirrorSource, 400));
             }
         }
-        _permissionCheck.check(ajaxRequest.getOperation(), requestContext, repo);
         _repoDb.deleteRepo(domain, repoId);
         return JsonSuccess.Success;
     }
