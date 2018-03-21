@@ -17,6 +17,7 @@ import {getRepoRedirect} from './../util/RedirectHelper'
 import CreateLocalRepo from './../pages/CreateLocalRepo'
 import CreateRepoMirror from './../pages/CreateRepoMirror'
 import ControlRoom from './../components/ControlRoom'
+import AddMirrorRepos from "./AddMirrorRepos";
 
 export default class Repositories extends Component {
   constructor(props) {
@@ -159,17 +160,15 @@ export default class Repositories extends Component {
           </h2>
           <div className="FlexRow">
             <div className="Flex1">
+              <Link to="/mirror-repositories">
+                <BtnGroup buttons={[{ icon: 'icon icon-dis-mirror', toolTip: 'Mirror one or multiple repositories'}]}/>
+              </Link>
+            </div>
+            <div className="Flex1">
               <BtnGroup buttons={[{
                 icon: 'icon icon-dis-add',
                 toolTip: 'Create Local Repository',
                 onClick: () => this.context.actions.toggleCreateNewLocalRepo()
-              }]}/>
-            </div>
-            <div className="Flex1">
-              <BtnGroup buttons={[{
-                icon: 'icon icon-dis-copy',
-                toolTip: 'Create Local Mirror',
-                onClick: () => this.context.actions.toggleCreateNewRepoMirror()
               }]}/>
             </div>
             <div className="Flex1">

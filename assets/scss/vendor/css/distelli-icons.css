@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-dis-mirror:before {
+  content: "\e9b1";
+}
 .icon-dis-approvals:before {
   content: "\e907";
 }

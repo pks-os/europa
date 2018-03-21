@@ -43,6 +43,9 @@ export default class Layout extends Component {
       registry: {
         ...RegistryActions.registryState()
       },
+      addMirrors: {
+        ...RepoActions.addMirrorsState()
+      },
       addRegistry: {
         ...RegistryActions.addRegistryState()
       },

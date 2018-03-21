@@ -568,3 +568,43 @@ label.small {
     -o-animation: rotating 2s linear infinite;
     animation: rotating 2s linear infinite;
 }
+
+.SimpleTable {
+    display: flex;
+    flex-flow: column;
+    font-size: 0.75rem;
+}
+
+.SimpleTableRow {
+    display: flex;
+    flex-flow: row;
+    background: $simple-table-row-bg;
+    min-height: 36px;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.SimpleTableCell {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    padding: 5px 10px;
+}
+
+.SimpleTableHeaderRow {
+    display: flex;
+    flex-flow: row;
+    background: $simple-table-header-bg;
+    min-height: 36px;
+}
+
+.SimpleTableHeader {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: stretch;
+    font-weight: 600;
+    padding: 8px 10px;
+}
