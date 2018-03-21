@@ -2,6 +2,7 @@ import Reducers from './../reducers/AddRepoReducers'
 import * as GR from './../reducers/GeneralReducers'
 import * as RAjax from './../util/RAjax'
 import NPECheck from './../util/NPECheck'
+import ErrorMessages from './../util/ErrorMessages'
 import * as PipelineComponents from '../util/PipelineComponents';
 import {
   notifState,
@@ -190,7 +191,7 @@ export function listPipelines() {
       })
       .catch(err => {
         let errorMsg = NPECheck(err, 'error/message', 'There was an error loading your pipelines');
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             pipelinesStore: GR.modifyProperty(this.state.pipelinesStore, {
               isBlocked: true,
@@ -231,7 +232,7 @@ export function getPipeline(pipelineId) {
       })
       .catch(err => {
         let errorMsg = NPECheck(err, 'error/message', 'There was an error loading your pipeline');
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             pipelineStore: GR.modifyProperty(this.state.pipelineStore, {
               isBlocked: true,

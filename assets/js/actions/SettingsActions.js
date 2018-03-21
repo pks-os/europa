@@ -6,6 +6,7 @@ import Reducers from './../reducers/AddRegistryReducers'
 import * as GA from './../reducers/GeneralReducers'
 import * as RAjax from './../util/RAjax'
 import NPECheck from './../util/NPECheck'
+import ErrorMessages from './../util/ErrorMessages'
 import {
   updateUrlParams
 } from './../util/UrlManager'
@@ -361,7 +362,7 @@ export function getStorageSettings() {
         let errorMsg = NPECheck(err, 'error/message', 'Please try again or contact support');
         let error = `There was an error retrieving your storage settings: ${errorMsg}`
 
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             settings: GA.modifyProperty(this.state.settings, {
               ...this.state.settings,

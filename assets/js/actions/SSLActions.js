@@ -3,6 +3,7 @@ import * as RAjax from './../util/RAjax'
 import NPECheck from './../util/NPECheck'
 import Debounce from './../util/Debounce'
 import Validate from './../util/Validate'
+import ErrorMessages from './../util/ErrorMessages'
 
 // *************************************************
 // General SSL Actions
@@ -172,7 +173,7 @@ export function getSSLSettings() {
       .catch((err) => {
         console.error(err);
         let errorMsg = NPECheck(err, 'error/message', 'There was an error retreiving your SSL settings.');
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             ssl: GA.modifyProperty(this.state.ssl, {
               getXHR: false,

@@ -8,6 +8,7 @@ import * as RAjax from './../util/RAjax'
 import Validate from './../util/Validate'
 import NPECheck from './../util/NPECheck'
 import Debounce from './../util/Debounce'
+import ErrorMessages from './../util/ErrorMessages'
 import {
   notifState,
   isAddNotificationValid
@@ -70,7 +71,7 @@ export function listRepos(repoId) {
         console.error(err);
         let errorMsg = `${err.error.message}`;
 
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState((prevState, props) => {
             return {
               reposXHR: false,
@@ -395,7 +396,6 @@ let listReposInRegistryDebounced = Debounce(function () {
             reposInRegistry: [],
             errorMsg: 'Unable to list repositories for selected registry. Please check your credentials.',
             reposInRegistryXHR: false,
-            originalError: err,
           })
         });
       });
@@ -974,7 +974,7 @@ export function getRepoOverview(repoId) {
         console.error(err);
         let errorMsg = `${NPECheck(err, 'error/message', '')}`
 
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
               isBlocked: true,
@@ -1210,7 +1210,7 @@ export function listRepoEvents(repoId, skipXHR, marker, isBackward = null) {
       .catch((err) => {
         console.error(err);
         let errorMsg = `${NPECheck(err, 'error/message', '')}`
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
               isBlocked: true,
@@ -1291,7 +1291,7 @@ export function listRepoManifests(repoId, skipXHR, marker, isBackward = null) {
       .catch((err) => {
         console.error(err);
         let errorMsg = NPECheck(err, 'error/message', '');
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
               isBlocked: true,

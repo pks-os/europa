@@ -7,6 +7,7 @@ import * as RAjax from './../util/RAjax'
 import Validate from './../util/Validate'
 import Reducers from './../reducers/AddRegistryReducers'
 import NPECheck from './../util/NPECheck'
+import ErrorMessages from './../util/ErrorMessages'
 import {
   listReposForRegistry,
   resetCurrentRepoSearch
@@ -62,7 +63,7 @@ export function listRegistries() {
     })
     .catch((err) => {
       let errorMsg = NPECheck(err, 'error/message', 'There was an error listing your registries.');
-      if (errorMsg == 'You do not have access to this operation') {
+      if (errorMsg === ErrorMessages.UNAUTHORIZED) {
         this.setState((prevState, props) => {
           return {
             registries: [],

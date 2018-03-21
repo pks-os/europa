@@ -35,17 +35,11 @@ export default class AddMirrorRepos extends Component {
     this.context.router.push("/repositories");
   }
 
-  keyPress(e) {
-    if (e.keyCode === 13) {
-      this.createRepos();
-    }
-  }
-
   renderSave() {
-    if (this.props.addMirrors.addMirrorsXHR) {
+    if (NPECheck(this.props, "addMirrors/addMirrorsXHR", null)) {
       return <Loader/>;
     }
-    if (this.props.addMirrors.addMirrorsError) {
+    if (NPECheck(this.props, "addMirrors/addMirrorsError", null)) {
       return (
         <Msg text={this.props.addMirrors.addMirrorsError}
              close={() => this.context.actions.clearAddMirrorsError()}/>
