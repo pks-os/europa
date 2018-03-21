@@ -8,15 +8,19 @@
 */
 package com.distelli.europa.ajax;
 
-import com.distelli.europa.models.*;
-import com.distelli.europa.db.*;
-import com.distelli.webserver.*;
-import javax.inject.Inject;
+import com.distelli.europa.EuropaRequestContext;
+import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.util.PermissionCheck;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.AjaxHelper;
+import com.distelli.webserver.AjaxRequest;
+import com.distelli.webserver.HTTPMethod;
+import com.distelli.webserver.JsonSuccess;
 import com.google.inject.Singleton;
 import lombok.extern.log4j.Log4j;
-import org.eclipse.jetty.http.HttpMethod;
-import com.distelli.europa.EuropaRequestContext;
-import com.distelli.europa.util.PermissionCheck;
+
+import javax.inject.Inject;
 
 @Log4j
 @Singleton
@@ -34,7 +38,7 @@ public class DeleteContainerRepo extends AjaxHelper<EuropaRequestContext>
 
     /**
        Params:
-       - id (reqired)
+       - id (required)
     */
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
     {
@@ -42,10 +46,18 @@ public class DeleteContainerRepo extends AjaxHelper<EuropaRequestContext>
                                          true); //throw if missing
         String domain = requestContext.getOwnerDomain();
         ContainerRepo repo = _repoDb.getRepo(domain, repoId);
-        if(repo == null)
-            throw(new AjaxClientException("The specified Repository was not found",
-                                          AjaxErrors.Codes.RepoNotFound, 400));
+        if (null == repo) {
+            throw (new AjaxClientException("The specified Repository was not found",
+                                           AjaxErrors.Codes.RepoNotFound, 400));
+        }
         _permissionCheck.check(ajaxRequest.getOperation(), requestContext, repo);
+        for (String destinationContainerRepoId : repo.getSyncDestinationContainerRepoIds()) {
+            ContainerRepo destinationRepo = _repoDb.getRepo(domain, destinationContainerRepoId);
+            if (null != destinationRepo) {
+                throw (new AjaxClientException("Cannot disconnect source repository for a mirror. Remove the mirror first.",
+                                               AjaxErrors.Codes.RepoIsMirrorSource, 400));
+            }
+        }
         _repoDb.deleteRepo(domain, repoId);
         return JsonSuccess.Success;
     }
