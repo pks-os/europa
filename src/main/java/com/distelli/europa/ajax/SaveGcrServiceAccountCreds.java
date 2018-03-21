@@ -7,28 +7,31 @@
 */
 package com.distelli.europa.ajax;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.regex.*;
-import javax.inject.Inject;
-import javax.inject.Provider;
-
-import com.distelli.utils.CompactUUID;
 import com.distelli.europa.Constants;
-import com.distelli.europa.clients.*;
-import com.distelli.europa.db.*;
-import com.distelli.europa.models.*;
-import com.distelli.europa.util.*;
-import com.distelli.webserver.*;
-import com.distelli.gcr.*;
-import com.distelli.gcr.auth.*;
-import com.distelli.gcr.models.*;
-import com.distelli.persistence.PageIterator;
+import com.distelli.europa.EuropaRequestContext;
+import com.distelli.europa.db.RegistryCredsDb;
+import com.distelli.europa.models.RegistryCred;
+import com.distelli.europa.models.RegistryProvider;
+import com.distelli.europa.util.FieldValidator;
+import com.distelli.europa.util.PermissionCheck;
+import com.distelli.gcr.GcrClient;
+import com.distelli.gcr.GcrIterator;
+import com.distelli.gcr.GcrRegion;
+import com.distelli.gcr.auth.GcrServiceAccountCredentials;
+import com.distelli.gcr.models.GcrRepository;
+import com.distelli.utils.CompactUUID;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.AjaxHelper;
+import com.distelli.webserver.AjaxRequest;
+import com.distelli.webserver.HTTPMethod;
+import com.distelli.webserver.JsonError;
 import com.google.inject.Singleton;
 import lombok.extern.log4j.Log4j;
-import org.eclipse.jetty.http.HttpMethod;
-import com.distelli.europa.EuropaRequestContext;
-import com.distelli.europa.util.PermissionCheck;
+
+import javax.inject.Inject;
+import javax.inject.Provider;
+import java.util.HashMap;
+import java.util.List;
 
 @Log4j
 @Singleton
@@ -81,7 +84,7 @@ public class SaveGcrServiceAccountCreds extends AjaxHelper<EuropaRequestContext>
     private void validateRegistryCreds(RegistryCred cred) {
         GcrClient gcrClient = _gcrClientBuilderProvider.get()
             .gcrCredentials(new GcrServiceAccountCredentials(cred.getSecret()))
-            .gcrRegion(GcrRegion.getRegion(cred.getRegion()))
+            .gcrRegion(GcrRegion.getRegionByEndpoint(cred.getRegion()))
             .build();
 
         GcrIterator iter = GcrIterator.builder().pageSize(1).build();

@@ -8,23 +8,25 @@
 */
 package com.distelli.europa.monitor;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Collection;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.DockerImage;
+import com.distelli.europa.models.RegistryCred;
+import com.distelli.gcr.GcrClient;
+import com.distelli.gcr.GcrIterator;
+import com.distelli.gcr.GcrRegion;
+import com.distelli.gcr.auth.GcrServiceAccountCredentials;
+import com.distelli.gcr.models.GcrImageTag;
+import com.google.inject.assistedinject.Assisted;
+import lombok.extern.log4j.Log4j;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
-
-import com.distelli.europa.models.*;
-import com.distelli.gcr.*;
-import com.distelli.gcr.auth.*;
-import com.distelli.gcr.models.*;
-import com.google.inject.assistedinject.Assisted;
-import com.distelli.persistence.PageIterator;
-import lombok.extern.log4j.Log4j;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Log4j
 public class GcrMonitorTask extends RepoMonitorTask
@@ -103,7 +105,7 @@ public class GcrMonitorTask extends RepoMonitorTask
 
         _gcrClient = _gcrClientBuilderProvider.get()
             .gcrCredentials(new GcrServiceAccountCredentials(registryCred.getSecret()))
-            .gcrRegion(GcrRegion.getRegion(registryCred.getRegion()))
+            .gcrRegion(GcrRegion.getRegionByEndpoint(registryCred.getRegion()))
             .build();
     }
 
