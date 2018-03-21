@@ -22,9 +22,12 @@ import Selector from "../components/Selector";
 export default class Repositories extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      mirrorSelectorOpen: false,
-      mirrorFilter: 'All',
+    this.state = {};
+
+    this.mirrorSelectorOptions = {
+      ALL: 'All',
+      MIRRORED: 'Mirrored',
+      NOTMIRRORED: 'Not Mirrored',
     };
   }
 
@@ -44,11 +47,11 @@ export default class Repositories extends Component {
 
   renderRepos() {
     let filteredRepos = this.props.repos.sort((repo1, repo2) => repo1.name > repo2.name ? 1 : -1).filter((repo) => {
-      if (this.state.mirrorFilter === 'Mirrored' && !repo.mirror) {
+      if (this.props.reposMirrorFilter === this.mirrorSelectorOptions.MIRRORED && !repo.mirror) {
         return false;
       }
 
-      if (this.state.mirrorFilter === 'Not Mirrored' && repo.mirror) {
+      if (this.props.reposMirrorFilter === this.mirrorSelectorOptions.NOTMIRRORED && repo.mirror) {
         return false;
       }
 
@@ -167,37 +170,18 @@ export default class Repositories extends Component {
   }
 
   getMirrorSelectorOptions() {
-    return [
-      'All',
-      'Mirrored',
-      'Not Mirrored',
-    ];
-  }
-
-  toggleMirrorSelectorOpen() {
-    this.setState((prevState, props) => {
-      return {
-        mirrorSelectorOpen: !prevState.mirrorSelectorOpen,
-      };
-    });
-  }
-
-  setMirrorFilter(filter) {
-    this.setState({
-      mirrorSelectorOpen: false,
-      mirrorFilter: filter,
-    });
+    return Object.values(this.mirrorSelectorOptions);
   }
 
   renderMirrorFilter() {
     return (
       <div className="ShowMirroredSelector">
         <Selector
-          isOpen={this.state.mirrorSelectorOpen}
-          toggleOpen={this.toggleMirrorSelectorOpen.bind(this)}
+          isOpen={NPECheck(this.props, 'reposMirrorSelectorOpen', false)}
+          toggleOpen={this.context.actions.toggleReposMirrorSelectorOpen.bind(this)}
           listItems={this.getMirrorSelectorOptions()}
-          onClick={this.setMirrorFilter.bind(this)}
-          currentValue={this.state.mirrorFilter}
+          onClick={this.context.actions.setReposMirrorFilter.bind(this)}
+          currentValue={NPECheck(this.props, 'reposMirrorFilter', this.mirrorSelectorOptions.ALL)}
           labelText="Show:"/>
       </div>
     );

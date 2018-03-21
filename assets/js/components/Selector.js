@@ -28,7 +28,7 @@ export default class Selector extends React.Component {
   }
 
   renderToggleItem(option, key) {
-    let className = (this.props.currentValue === option) ? 'SelectorToggle active' : 'SelectorToggle inactive';
+    let className = (this.props.currentValue === option) ? 'SelectorToggle Active' : 'SelectorToggle Inactive';
     let value = (option)
       ? <div className="SelectorToggleValue">{this.props.renderItem(option)}</div>
       : null;

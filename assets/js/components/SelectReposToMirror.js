@@ -127,7 +127,6 @@ export default class SelectReposToMirror extends React.Component {
                   listItems={this.getSelectorOptions()}
                   onClick={this.activateSelector.bind(this)}
                   currentValue={this.getSelectorStatus()}
-                  //renderItem={(item) => item}
         />
       </div>
     )

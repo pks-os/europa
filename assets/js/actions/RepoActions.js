@@ -98,6 +98,21 @@ export function filterRepos(e, eIsValue) {
   });
 }
 
+export function toggleReposMirrorSelectorOpen() {
+  this.setState((prevState, props) => {
+    return {
+      reposMirrorSelectorOpen: !prevState.reposMirrorSelectorOpen,
+    }
+  });
+}
+
+export function setReposMirrorFilter(filter) {
+  this.setState({
+    reposMirrorSelectorOpen: false,
+    reposMirrorFilter: filter,
+  });
+}
+
 
 // *************************************************
 // Add Repo Actions
