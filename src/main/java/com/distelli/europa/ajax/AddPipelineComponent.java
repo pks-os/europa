@@ -9,6 +9,7 @@ import com.distelli.europa.util.PermissionCheck;
 import com.distelli.webserver.AjaxHelper;
 import com.distelli.webserver.AjaxRequest;
 import com.distelli.webserver.HTTPMethod;
+import com.google.inject.Injector;
 import com.google.inject.Singleton;
 import lombok.extern.log4j.Log4j;
 
@@ -30,6 +31,8 @@ public class AddPipelineComponent extends AjaxHelper<EuropaRequestContext>
     private PipelineDb _db;
     @Inject
     protected PermissionCheck _permissionCheck;
+    @Inject
+    private Injector _injector;
 
     public AddPipelineComponent()
     {
@@ -45,6 +48,7 @@ public class AddPipelineComponent extends AjaxHelper<EuropaRequestContext>
         Class<? extends PipelineComponent> type = TYPES.get(typeName);
 
         PipelineComponent component = ajaxRequest.convertContent(type, true);
+        _injector.injectMembers(component);
         component.validate("content@"+typeName);
 
         _db.addPipelineComponent(

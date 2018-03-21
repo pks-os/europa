@@ -103,6 +103,10 @@ public class PCCopyToRepository extends PipelineComponent {
 
     @Override
     public void validate(String key) {
+        if (null == _repoDb) {
+            throw new IllegalStateException("Injector.injectMembers(this) has not been called");
+        }
+
         if (null == destinationContainerRepoDomain) {
             throw new AjaxClientException(
                 "Missing Param '" + key + ".destinationContainerRepoDomain' in request",
@@ -114,6 +118,19 @@ public class PCCopyToRepository extends PipelineComponent {
                 "Missing Param '" + key + ".destinationContainerRepoId' in request",
                 JsonError.Codes.MissingParam,
                 400);
+        }
+        ContainerRepo destinationRepo = _repoDb.getRepo(destinationContainerRepoDomain, destinationContainerRepoId);
+        if (null == destinationRepo) {
+            throw new AjaxClientException(String.format("Container repo not found for domain=%s and id=%s",
+                                                        destinationContainerRepoDomain,
+                                                        destinationContainerRepoId),
+                                          JsonError.Codes.BadParam,
+                                          400);
+        }
+        if (destinationRepo.isMirror()) {
+            throw new AjaxClientException("Cannot add a mirror repository to a pipeline",
+                                          JsonError.Codes.BadParam,
+                                          400);
         }
     }
 
