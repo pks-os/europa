@@ -207,7 +207,10 @@ export function updateNewRegistryField(prop, e, eIsValue = false) {
       if (prop == 'provider') getRegionsForProvider.call(this);
     });
   })
-};
+  .then(() => {
+    listReposForRegistry.call(this);
+  });
+}
 
 export function addRegistryRequest() {
   return new Promise((resolve, reject) => {
