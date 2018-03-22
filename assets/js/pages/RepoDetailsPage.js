@@ -30,10 +30,15 @@ export default class RepoDetailsPage extends Component {
     };
   }
 
+  // This handles ensuring that the state store contains all the information
+  // needed to display the page.
   loadPage() {
     this.context.actions.resetRepoDetailsState();
     this.context.actions.toggleRepoDetailsPageXHR(true);
+    // Ensure that we have all the repos information available, since we need
+    // it to both render the page and show information about mirror sources.
     this.context.actions.listRepos()
+    // Pull out the information for the repo we're viewing.
       .then(() => {
         return new Promise((resolve, reject) => {
           let activeRepo = this.props.reposNameMap[this.props.params.repoName];
@@ -42,6 +47,7 @@ export default class RepoDetailsPage extends Component {
           resolve((activeRepo) ? activeRepo.id : null);
         });
       })
+      // Update the state with the information about the repo we're viewing.
       .then((repoId) => {
         let repoDeps = [
           this.context.actions.setActiveRepoDetails(repoId),
@@ -50,6 +56,7 @@ export default class RepoDetailsPage extends Component {
 
         return Promise.all(repoDeps);
       })
+      // Clean up.
       .then(this.context.actions.toggleRepoDetailsPageXHR.bind(this, false))
       .catch((err) => {
         console.error(err);
@@ -61,6 +68,8 @@ export default class RepoDetailsPage extends Component {
     this.loadPage();
   }
 
+  // When we link from one repo details page to another, such as when we show
+  // mirror information, we need to treat it as a full re-render.
   componentWillReceiveProps(newProps) {
     if (newProps.params.repoName !== this.props.params.repoName) {
       this.loadPage();
