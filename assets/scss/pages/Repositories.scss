@@ -91,6 +91,14 @@
     padding: 10px 20px;
     font-size: 0.75rem;
     font-weight: 600;
+
+    div.SelectorContainer {
+        background: $grey-blue;
+
+        .SelectorToggleLabel label {
+            color: #FFFFFF;
+        }
+    }
 }
 
 .RepoList {
@@ -130,8 +138,8 @@
             .ProviderIcon {
                 height: 28px;
                 width: 28px;
-                border: 0px;
-                outline: 0px;
+                border: 0;
+                outline: 0;
                 margin-right: 11px;
             }
 
@@ -164,6 +172,30 @@
                 font-weight: 900;
                 color: $green;
             }
+
+            .MirrorIcon {
+                height: 24px;
+                width: 24px;
+                border: 0;
+                outline: 0;
+                margin-right: 11px;
+            }
+
+            .MirroredFrom {
+                color: $mirror-purple;
+                flex: 1;
+                font-size: 0.75em;
+                margin-right: 20px;
+            }
         }
     }
+}
+
+.RepoTableColumn1 {
+    flex: 2;
+}
+
+.RepoTableColumn2 {
+    flex: 5;
+    justify-content: space-between;
 }

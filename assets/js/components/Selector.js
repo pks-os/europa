@@ -27,13 +27,15 @@ export default class Selector extends React.Component {
     }
   }
 
-  renderToggle() {
-    let value = (this.props.currentValue)
-      ? <div className="SelectorToggleValue">{this.props.renderItem(this.props.currentValue)}</div>
+  renderToggleItem(option, key) {
+    let className = (this.props.currentValue === option) ? 'SelectorToggle Active' : 'SelectorToggle Inactive';
+    let value = (option)
+      ? <div className="SelectorToggleValue">{this.props.renderItem(option)}</div>
       : null;
     let iconClass = (this.props.isOpen) ? "icon icon-dis-collapse" : "icon icon-dis-expand";
     return (
-      <div className="SelectorToggle"
+      <div className={className}
+           key={key}
            onClick={this.props.toggleOpen}>
         <div className="SelectorToggleLabel">
           <label>{this.props.labelText}</label>
@@ -42,6 +44,20 @@ export default class Selector extends React.Component {
         <div className="SelectorToggleIcon">
           <i className={iconClass}/>
         </div>
+      </div>
+    );
+  }
+
+  renderToggle() {
+    let options = this.props.listItems;
+    let currentValue = null;
+    if (!options.includes(this.props.currentValue)) {
+      options.push(currentValue);
+    }
+    return (
+      <div className="SelectorToggleWrapper">
+        {currentValue}
+        {options.map(this.renderToggleItem.bind(this))}
       </div>
     );
   }

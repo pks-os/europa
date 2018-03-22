@@ -99,6 +99,21 @@ export function filterRepos(e, eIsValue) {
   });
 }
 
+export function toggleReposMirrorSelectorOpen() {
+  this.setState((prevState, props) => {
+    return {
+      reposMirrorSelectorOpen: !prevState.reposMirrorSelectorOpen,
+    }
+  });
+}
+
+export function setReposMirrorFilter(filter) {
+  this.setState({
+    reposMirrorSelectorOpen: false,
+    reposMirrorFilter: filter,
+  });
+}
+
 
 // *************************************************
 // Add Repo Actions
@@ -848,7 +863,7 @@ function setAddMirrorsNoneSelected() {
 }
 
 export function activateAddMirrorsSelector(option) {
-  getAddMirrorsSelectorOptions.call(this).find((x) => x.name === option.name).action.call(this);
+  getAddMirrorsSelectorOptions.call(this).find((x) => x.name === option).action.call(this);
 }
 
 // *************************************************

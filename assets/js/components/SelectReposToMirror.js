@@ -18,7 +18,7 @@ export default class SelectReposToMirror extends React.Component {
   }
 
   getSelectorOptions(choice = null) {
-    return this.context.actions.getAddMirrorsSelectorOptions(choice);
+    return this.context.actions.getAddMirrorsSelectorOptions(choice).map(x => x.name);
   }
 
   getRepos(props = this.props) {
@@ -42,7 +42,11 @@ export default class SelectReposToMirror extends React.Component {
   }
 
   getSelectorStatus() {
-    return this.context.actions.getAddMirrorsSelectorStatus();
+    let status = this.context.actions.getAddMirrorsSelectorStatus();
+    if (status != null && status.hasOwnProperty("name")) {
+      return status.name;
+    }
+    return null;
   }
 
   checkRepoNameConflict(repoName) {
@@ -123,7 +127,6 @@ export default class SelectReposToMirror extends React.Component {
                   listItems={this.getSelectorOptions()}
                   onClick={this.activateSelector.bind(this)}
                   currentValue={this.getSelectorStatus()}
-                  renderItem={(item) => item.name}
         />
       </div>
     )
