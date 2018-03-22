@@ -209,6 +209,48 @@ nav {
                     color: $grey;
                     margin-left: 36px;
                 }
+
+                .MirrorData {
+
+                    span {
+                        margin-left: 0;
+                    }
+
+                    .ProviderIcon {
+                        height: 28px;
+                        width: 28px;
+                        border: 0;
+                        outline: 0;
+                        margin-right: 11px;
+                    }
+
+                    .RepoName {
+                        font-size: 0.75rem;
+                        font-weight: 900;
+                        color: $light-blue;
+                    }
+
+                    .RepoProvider {
+                        font-size: 0.75rem;
+                        font-weight: 400;
+                        color: $grey;
+                    }
+
+                    .MirrorIcon {
+                        height: 24px;
+                        width: 24px;
+                        border: 0;
+                        outline: 0;;
+                        margin-right: 11px;
+                    }
+
+                    .MirroredFrom {
+                        color: $mirror-purple;
+                        flex: 1;
+                        font-size: 0.75em;
+                        margin-right: 20px;
+                    }
+                }
             }
         }
     }
