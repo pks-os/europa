@@ -8,29 +8,38 @@
 */
 package com.distelli.europa.ajax;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import com.distelli.europa.EuropaRequestContext;
+import com.distelli.europa.clients.DockerHubClient;
+import com.distelli.europa.clients.ECRClient;
+import com.distelli.europa.db.ContainerRepoDb;
+import com.distelli.europa.db.NotificationsDb;
+import com.distelli.europa.db.RegistryCredsDb;
+import com.distelli.europa.models.ContainerRepo;
+import com.distelli.europa.models.Notification;
+import com.distelli.europa.models.RegistryCred;
+import com.distelli.europa.models.RegistryProvider;
+import com.distelli.europa.util.FieldValidator;
+import com.distelli.europa.util.PermissionCheck;
+import com.distelli.gcr.GcrClient;
+import com.distelli.gcr.GcrIterator;
+import com.distelli.gcr.GcrRegion;
+import com.distelli.gcr.auth.GcrServiceAccountCredentials;
+import com.distelli.gcr.models.GcrImageTag;
+import com.distelli.persistence.PageIterator;
+import com.distelli.utils.CompactUUID;
+import com.distelli.webserver.AjaxClientException;
+import com.distelli.webserver.AjaxHelper;
+import com.distelli.webserver.AjaxRequest;
+import com.distelli.webserver.HTTPMethod;
+import com.distelli.webserver.JsonError;
+import com.google.inject.Singleton;
+import lombok.extern.log4j.Log4j;
+
 import javax.inject.Inject;
 import javax.inject.Provider;
-
 import java.net.MalformedURLException;
 import java.net.URL;
-
-import com.distelli.utils.CompactUUID;
-import com.distelli.europa.clients.*;
-import com.distelli.europa.db.*;
-import com.distelli.europa.models.*;
-import com.distelli.europa.util.*;
-import com.distelli.webserver.*;
-import com.distelli.gcr.*;
-import com.distelli.gcr.auth.*;
-import com.distelli.gcr.models.*;
-import com.distelli.persistence.PageIterator;
-import com.google.inject.Singleton;
-import org.eclipse.jetty.http.HttpMethod;
-import lombok.extern.log4j.Log4j;
-import com.distelli.europa.EuropaRequestContext;
+import java.util.List;
 
 @Log4j
 @Singleton
@@ -148,7 +157,7 @@ public class SaveContainerRepo extends AjaxHelper<EuropaRequestContext>
     {
         GcrClient gcrClient = _gcrClientBuilderProvider.get()
             .gcrCredentials(new GcrServiceAccountCredentials(cred.getSecret()))
-            .gcrRegion(GcrRegion.getRegion(cred.getRegion()))
+            .gcrRegion(GcrRegion.getRegionByEndpoint(cred.getRegion()))
             .build();
 
         GcrIterator iter = GcrIterator.builder().pageSize(1).build();

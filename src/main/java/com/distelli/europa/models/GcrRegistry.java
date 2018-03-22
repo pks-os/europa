@@ -24,7 +24,7 @@ public class GcrRegistry extends RemoteRegistry {
     @Override
     protected GcrClient createClient() {
         return _gcrClientBuilder.gcrCredentials(new GcrServiceAccountCredentials(getCred().getSecret()))
-            .gcrRegion(GcrRegion.getRegion(getCred().getRegion()))
+            .gcrRegion(GcrRegion.getRegionByEndpoint(getCred().getRegion()))
             .build();
     }
 }
