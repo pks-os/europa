@@ -6,6 +6,7 @@ import LandingPage from './pages/LandingPage'
 import Repositories from './pages/Repositories'
 import RepoDetailsPage from './pages/RepoDetailsPage'
 import AddRepo from './pages/AddRepo'
+import AddMirrorRepos from './pages/AddMirrorRepos';
 import Pipelines from './pages/Pipelines'
 import NewPipeline from './pages/NewPipeline'
 import Pipeline from './pages/Pipeline'
@@ -29,6 +30,7 @@ export default class App extends Component {
           <Route component={Repositories} path="/repositories"/>
           <Route component={RepoDetailsPage} path="/repositories/:repoName"/>
           <Route component={AddRepo} path="/new-repository"/>
+          <Route component={AddMirrorRepos} path="/mirror-repositories"/>
           <Route component={NewPipeline} path="/new-pipeline"/>
           <Route component={Pipelines} path="/pipelines"/>
           <Route component={Pipeline} path="/pipelines/:pipelineId"/>

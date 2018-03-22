@@ -3,6 +3,7 @@ import * as RAjax from './../util/RAjax'
 import Reducers from './../reducers/NotificationReducers'
 import StatusCode from './../util/StatusCode'
 import NPECheck from './../util/NPECheck'
+import ErrorMessages from './../util/ErrorMessages'
 import isValidScheme from './../util/isValidScheme'
 
 // *************************************************
@@ -202,7 +203,7 @@ export function listRepoNotifications(repoId, skipXHR) {
       .catch((err) => {
         console.error(err);
         let errorMsg = `${NPECheck(err, 'error/message', '')}`
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             reposXHR: false,
             repoDetails: GA.modifyProperty(this.state.repoDetails, {
@@ -431,7 +432,7 @@ export function getEventNotificationRecords(recordIdsArray) {
       .catch((err) => {
         console.error(err);
         let errorMsg = `${NPECheck(err, 'error/message', '')}`
-        if (errorMsg == 'You do not have access to this operation') {
+        if (errorMsg === ErrorMessages.UNAUTHORIZED) {
           this.setState({
             notif: GA.modifyProperty(this.state.notif, {
               retrieveNotifRecordsError: errorMsg,

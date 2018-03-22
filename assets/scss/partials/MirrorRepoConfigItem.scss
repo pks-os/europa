@@ -1,0 +1,146 @@
+div.MirrorRepoRow div.RemoteRepo {
+    flex: 1 0 0;
+}
+
+div.MirrorRepoRow div.LocalRepo {
+    flex: 3 0 0;
+}
+
+div.MirrorRepoRow div.RemoteRepo i.icon {
+    font-size: 1rem;
+
+    &.icon-dis-box-check {
+        color: $green;
+    }
+
+    &.icon-dis-box-uncheck {
+        color: $grey;
+    }
+}
+
+div.MirrorRepoRow div.RemoteRepo span.RemoteRepoName {
+    font-weight: 600;
+    padding: 0 5px;
+}
+
+div.MirrorRepoRow div.LocalRepoHeader {
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+div.MirrorRepoRow div.LocalRepoHeaderText {
+    display: flex;
+    padding-left: 10px;
+}
+
+div.MirrorRepoItem div.LocalRepoElement {
+    align-items: stretch;
+    flex-flow: row;
+    justify-content: space-between;
+}
+
+div.MirrorRepoItem div.LocalRepoElementView {
+    display: flex;
+    flex: 1;
+    flex-flow: row;
+    justify-content: space-between;
+    padding-left: 10px;
+}
+
+div.MirrorRepoItem div.LocalRepoElement div.LocalRepoName {
+    align-items: center;
+    display: flex;
+    flex: 1;
+
+    span {
+        font-weight: 600;
+    }
+}
+
+div.MirrorRepoItem div.LocalRepoElementEdit {
+    background: #FFFFFF;
+    border-radius: 3px;
+    display: flex;
+    flex: 1;
+    flex-flow: row;
+    padding-left: 10px;
+}
+
+div.MirrorRepoItem div.LocalRepoElementEdit input {
+    border: 0;
+    border-right: 1px solid $dark-border-color;
+    color: $light-blue;
+    display: flex;
+    flex: 1;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 600;
+    margin: 5px 0;
+    outline: 0;
+    padding: 0;
+
+    &.conflicting {
+        color: $red;
+    }
+
+    &.remote-conflicting.not-conflicting {
+        color: $green;
+    }
+}
+
+div.MirrorRepoItem div.LocalRepoButtons {
+    align-items: stretch;
+    display: flex;
+    flex: 0;
+    flex-flow: row;
+    font-weight: 600;
+    font-size: 0.75rem;
+    justify-content: space-around;
+    padding: 0 5px;
+
+    i {
+        color: $light-blue;
+        font-size: 1rem;
+    }
+}
+
+div.MirrorRepoItem div.LocalRepoButtons div,
+div.MirrorRepoItem div.LocalRepoButtons span {
+    align-items: center;
+    color: $light-blue;
+    display: flex;
+    margin: 0 5px;
+
+    &.LocalRepoCancelButton {
+        color: $grey;
+    }
+}
+
+div.MirrorRepoItem.MirrorRepoSelected {
+    span.RemoteRepoName,
+    div.LocalRepoName span {
+        color: $light-blue;
+
+        &.conflicting, span.conflicting {
+            color: $red;
+        }
+    }
+
+    div.LocalRepoName span {
+        &.remote-conflicting.not-conflicting,
+        span.remote-conflicting.not-conflicting {
+            color: $green;
+        }
+    }
+}
+
+div.MirrorRepoItem.MirrorRepoNotSelected {
+    span.RemoteRepoName,
+    div.LocalRepoName span {
+        color: $grey;
+
+        &.conflicting, span.conflicting {
+            color: $grey;
+        }
+    }
+}

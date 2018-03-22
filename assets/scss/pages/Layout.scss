@@ -209,6 +209,48 @@ nav {
                     color: $grey;
                     margin-left: 36px;
                 }
+
+                .MirrorData {
+
+                    span {
+                        margin-left: 0;
+                    }
+
+                    .ProviderIcon {
+                        height: 28px;
+                        width: 28px;
+                        border: 0;
+                        outline: 0;
+                        margin-right: 11px;
+                    }
+
+                    .RepoName {
+                        font-size: 0.75rem;
+                        font-weight: 900;
+                        color: $light-blue;
+                    }
+
+                    .RepoProvider {
+                        font-size: 0.75rem;
+                        font-weight: 400;
+                        color: $grey;
+                    }
+
+                    .MirrorIcon {
+                        height: 24px;
+                        width: 24px;
+                        border: 0;
+                        outline: 0;;
+                        margin-right: 11px;
+                    }
+
+                    .MirroredFrom {
+                        color: $mirror-purple;
+                        flex: 1;
+                        font-size: 0.75em;
+                        margin-right: 20px;
+                    }
+                }
             }
         }
     }
@@ -567,4 +609,44 @@ label.small {
     -ms-animation: rotating 2s linear infinite;
     -o-animation: rotating 2s linear infinite;
     animation: rotating 2s linear infinite;
+}
+
+.SimpleTable {
+    display: flex;
+    flex-flow: column;
+    font-size: 0.75rem;
+}
+
+.SimpleTableRow {
+    display: flex;
+    flex-flow: row;
+    background: $simple-table-row-bg;
+    min-height: 36px;
+    border-bottom: 1px solid $border-color;
+
+    &:last-child {
+        border-bottom: 0;
+    }
+}
+
+.SimpleTableCell {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: center;
+    padding: 5px 10px;
+}
+
+.SimpleTableHeaderRow {
+    display: flex;
+    flex-flow: row;
+    background: $simple-table-header-bg;
+    min-height: 36px;
+}
+
+.SimpleTableHeader {
+    display: flex;
+    flex: 1 0 auto;
+    align-items: stretch;
+    font-weight: 600;
+    padding: 8px 10px;
 }

@@ -28,6 +28,7 @@
 @import "partials/DockerPullCommands";
 @import "partials/Footer";
 @import "partials/Msg";
+@import "partials/MirrorRepoConfigItem";
 @import "partials/Loader";
 @import "partials/Pipeline";
 @import "partials/PipelinePromoteStage";
@@ -38,6 +39,8 @@
 @import "partials/RepoNotifications";
 @import "partials/RepoOverview";
 @import "partials/RepoSettings";
+@import "partials/Selector";
+@import "partials/SelectReposToMirror";
 @import "partials/SSLSettings";
 @import "partials/StorageSettings";
 @import "partials/UploadGCEServiceAccount";

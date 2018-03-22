@@ -1,0 +1,74 @@
+div.SelectorContainer {
+    align-items: stretch;
+    border-radius: 3px;
+    background: $simple-table-row-bg;
+    display: flex;
+    flex-flow: row;
+    margin: 0 5px;
+    position: relative;
+}
+
+div.SelectorToggleWrapper {
+    display: flex;
+    flex-flow: column;
+}
+
+div.SelectorToggle {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    flex-flow: row;
+    justify-content: space-between;
+    padding: 0 5px;
+
+    &.Inactive {
+        height: 0;
+        max-height: 0;
+        visibility: hidden;
+    }
+}
+
+div.SelectorToggle div.SelectorToggleLabel {
+    padding: 0 5px;
+
+    label {
+        color: $black;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+}
+
+div.SelectorToggle div.SelectorToggleValue {
+    color: $light-blue;
+    flex: 1 0 auto;
+}
+
+div.SelectorToggle div.SelectorToggleIcon {
+    padding: 0 5px;
+
+    i {
+        color: $light-blue;
+    }
+}
+
+div.SelectorDropdown {
+    background: #FFFFFF;
+    border-radius: 3px;
+    box-sizing: border-box;
+    margin: 1px;
+    padding: 5px;
+    position: absolute;
+    top: 100%;
+    width: 100%;
+}
+
+div.SelectorDropdown div.SelectorListItemWrapper {
+    align-items: center;
+    display: flex;
+    min-height: 20px;
+    padding: 0 5px;
+
+    &:hover {
+        background: $input-blue;
+    }
+}
