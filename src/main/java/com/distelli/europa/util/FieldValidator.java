@@ -13,6 +13,9 @@ import com.distelli.webserver.*;
 import com.distelli.europa.ajax.*;
 import java.util.regex.*;
 import lombok.extern.log4j.Log4j;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.cert.CertificateFactory;
 
 @Log4j
 public class FieldValidator
@@ -101,4 +104,26 @@ public class FieldValidator
                                           JsonError.Codes.BadContent,
                                           400));
     }
+
+    public static void validateURL(Object obj, String field)
+    {
+        Object url = getValueForField(obj, field);
+        try {
+            new URL(url.toString()).toURI();
+        } catch (Exception e) {
+            throw(new AjaxClientException("Invalid value '"+url+"' for field '"+field+"'. "+
+                e.getMessage(), JsonError.Codes.BadContent, 400));
+        }
+    }
+
+    public static void validateX509Cert(InputStream certificate)
+    {
+        try {
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+            certFactory.generateCertificate(certificate);
+        } catch(Exception e) {
+            throw(new AjaxClientException("Invalid X.509 certificate data: "+e.getMessage(), JsonError.Codes.BadContent, 400));
+        }
+    }
+
 }
