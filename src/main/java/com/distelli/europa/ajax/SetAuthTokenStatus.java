@@ -34,7 +34,7 @@ public class SetAuthTokenStatus extends AjaxHelper<EuropaRequestContext>
         TokenAuth tokenAuth = ajaxRequest.convertContent(TokenAuth.class, true);
         FieldValidator.validateNonNull(tokenAuth, "token", "status");
 
-        _tokenAuthDb.setStatus(requestContext.getRequesterDomain(),
+        _tokenAuthDb.setStatus(requestContext.getOwnerDomain(),
                                tokenAuth.getToken(),
                                tokenAuth.getStatus());
         return JsonSuccess.Success;
