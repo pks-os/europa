@@ -25,6 +25,8 @@ public class DeleteAuthToken extends AjaxHelper<EuropaRequestContext>
 {
     @Inject
     private TokenAuthDb _tokenAuthDb;
+    @Inject
+    private PermissionCheck _permissionCheck;
 
     public DeleteAuthToken()
     {
@@ -34,6 +36,7 @@ public class DeleteAuthToken extends AjaxHelper<EuropaRequestContext>
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
     {
         String token = ajaxRequest.getParam("token", true); //throw if missing
+        _permissionCheck.check(ajaxRequest.getOperation(), requestContext);
         try {
             _tokenAuthDb.deleteToken(requestContext.getOwnerDomain(), token);
         } catch(RollbackException rbe) {
