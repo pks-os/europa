@@ -23,6 +23,8 @@ public class SetAuthTokenStatus extends AjaxHelper<EuropaRequestContext>
 {
     @Inject
     private TokenAuthDb _tokenAuthDb;
+    @Inject
+    protected PermissionCheck _permissionCheck;
 
     public SetAuthTokenStatus()
     {
@@ -31,10 +33,11 @@ public class SetAuthTokenStatus extends AjaxHelper<EuropaRequestContext>
 
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
     {
+        _permissionCheck.check(ajaxRequest.getOperation(), requestContext);
         TokenAuth tokenAuth = ajaxRequest.convertContent(TokenAuth.class, true);
         FieldValidator.validateNonNull(tokenAuth, "token", "status");
 
-        _tokenAuthDb.setStatus(requestContext.getRequesterDomain(),
+        _tokenAuthDb.setStatus(requestContext.getOwnerDomain(),
                                tokenAuth.getToken(),
                                tokenAuth.getStatus());
         return JsonSuccess.Success;

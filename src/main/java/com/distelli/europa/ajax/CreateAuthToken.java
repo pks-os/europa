@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import com.distelli.europa.Constants;
 import com.distelli.europa.db.TokenAuthDb;
 import com.distelli.europa.models.*;
+import com.distelli.europa.util.PermissionCheck;
 import com.distelli.persistence.PageIterator;
 import com.distelli.utils.CompactUUID;
 import com.distelli.webserver.AjaxHelper;
@@ -21,6 +22,8 @@ public class CreateAuthToken extends AjaxHelper<EuropaRequestContext>
 {
     @Inject
     protected TokenAuthDb _tokenAuthDb;
+    @Inject
+    private PermissionCheck _permissionCheck;
 
     public CreateAuthToken()
     {
@@ -29,9 +32,10 @@ public class CreateAuthToken extends AjaxHelper<EuropaRequestContext>
 
     public Object get(AjaxRequest ajaxRequest, EuropaRequestContext requestContext)
     {
+        _permissionCheck.check(ajaxRequest.getOperation(), requestContext);
         TokenAuth tokenAuth = TokenAuth
         .builder()
-        .domain(requestContext.getRequesterDomain())
+        .domain(requestContext.getOwnerDomain())
         .token(CompactUUID.randomUUID().toString())
         .status(TokenAuthStatus.ACTIVE)
         .created(System.currentTimeMillis())

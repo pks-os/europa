@@ -11,6 +11,7 @@ import Msg from './../components/Msg'
 import NPECheck from './../util/NPECheck'
 import ConvertTimeUTC from './../util/ConvertTimeUTC'
 import CopyToClipboard from './../util/CopyToClipboard'
+import AccessDenied from './../components/AccessDenied'
 
 export default class APITokens extends Component {
   constructor(props) {
@@ -70,10 +71,8 @@ export default class APITokens extends Component {
   }
 
   renderContent() {
-    let errorMsg = NPECheck(this.props, 'settings/tokens/tokenPageError', false);
-    if (errorMsg) {
-      return this.renderError(errorMsg);
-    }
+    let pageErrorMsg = NPECheck(this.props, 'settings/tokens/tokenPageError', false);
+    if (pageErrorMsg) return this.renderError(pageErrorMsg);
 
     let tokens = NPECheck(this.props, 'settings/tokens/allTokens', []);
     return (
@@ -192,15 +191,24 @@ export default class APITokens extends Component {
   }
 
   renderError(errorMsg) {
-    return (
-      <Msg text={errorMsg}
-           close={() => this.context.actions.clearTokenItemError()}
-           style={{padding: '1rem 0'}}/>
-    );
+    if(errorMsg)
+        return (
+          <Msg text={errorMsg}
+               close={() => this.context.actions.clearTokenItemError()}
+               style={{padding: '1rem 0'}}/>
+        );
   }
 
   renderPageContent() {
     let isLoading = NPECheck(this.props, 'settings/tokens/tokensXHR', false);
+    let isBlocked = NPECheck(this.props, 'settings/tokens/isBlocked', false);
+
+    if(isBlocked) {
+      return (
+        <AccessDenied/>
+      );
+    }
+
     if (isLoading) {
       return (
         <div className="PageLoader">
@@ -211,12 +219,14 @@ export default class APITokens extends Component {
 
     let tokens = NPECheck(this.props, 'settings/tokens/allTokens', []);
     if (!tokens.length) {
+      let itemErrorMsg = NPECheck(this.props, 'settings/tokens/tokenItemError', null);
       return (
         <div className="NoContent">
           <h3>No API Tokens found.</h3>
           <Btn className="LargeBlueButton"
                text="Create Token"
                onClick={() => this.createAuthToken()}/>
+          {this.renderError(itemErrorMsg)}
         </div>
       );
     }
@@ -228,6 +238,12 @@ export default class APITokens extends Component {
   }
 
   render() {
+    let isBlocked = NPECheck(this.props, 'settings/tokens/isBlocked', false);
+    if(isBlocked)
+      return (
+        <AccessDenied/>
+      );
+
     return (
       <div className="APITokens">
         {this.renderPageContent()}

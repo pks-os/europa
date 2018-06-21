@@ -55,7 +55,8 @@ export function tokensState() {
     selectedTokenForStatusUpdate: null,
     selectedTokenForDelete: null,
     tokenItemError: null,
-    tokenPageError: null
+    tokenPageError: null,
+    isBlocked: false
   };
 }
 
@@ -91,6 +92,18 @@ export function listAuthTokens() {
     .catch((err) => {
       console.error(err);
       let errorMsg = `There was an error listing your API Tokens: ${err.error.message}`;
+      if(err.error.message == 'You do not have access to this operation') {
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              tokensXHR: false,
+              tokenPageError: errorMsg,
+              isBlocked: true
+            }
+          })
+        });
+      } else {
       this.setState({
         settings: Reducers(this.state.settings, {
           type: 'UPDATE_TOKENS_STATE',
