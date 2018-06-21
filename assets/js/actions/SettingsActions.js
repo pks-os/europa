@@ -104,15 +104,16 @@ export function listAuthTokens() {
           })
         });
       } else {
-      this.setState({
-        settings: Reducers(this.state.settings, {
-          type: 'UPDATE_TOKENS_STATE',
-          data: {
-            tokensXHR: false,
-            tokenPageError: errorMsg
-          }
-        })
-      });
+        this.setState({
+          settings: Reducers(this.state.settings, {
+            type: 'UPDATE_TOKENS_STATE',
+            data: {
+              tokensXHR: false,
+              tokenPageError: errorMsg
+            }
+          })
+        });
+      }
     })
   });
 }
