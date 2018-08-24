@@ -87,7 +87,12 @@ public class EcrMonitorTask extends RepoMonitorTask
             log.debug("Listing images from ECR repo: "+_repo);
         do {
             for ( DockerImageId imageId : _ecrClient.listImages(_repo, iter) ) {
-                images.put(imageId.getTag(), imageId);
+                if ( null != imageId.getTag() ) {
+                    images.put(imageId.getTag(), imageId);
+                }
+                if ( null != imageId.getSha() ) {
+                    images.put(imageId.getSha(), imageId);
+                }
             }
         } while(iter.getMarker() != null);
 

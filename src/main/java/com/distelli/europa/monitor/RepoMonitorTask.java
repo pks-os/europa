@@ -99,6 +99,7 @@ public abstract class RepoMonitorTask extends MonitorTask
                       _manifestDb.listManifestsByRepoId(_repo.getDomain(), _repo.getId(), iter) )
             {
                 String tag = manifest.getTag();
+                if ( null == tag ) continue;
                 T elm = tagToSha.get(tag);
                 if ( null == elm ) {
                     removed.add(tag);
