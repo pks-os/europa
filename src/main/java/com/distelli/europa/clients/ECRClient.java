@@ -140,25 +140,42 @@ public class ECRClient
     public List<DockerImage> describeImages(ContainerRepo repo, Collection<DockerImageId> imageIds, PageIterator pageIterator)
     {
         List<ImageIdentifier> imageIdentifiers = null;
-        if(imageIds != null)
+        String nextMarker = null;
+        if(imageIds != null && ! imageIds.isEmpty())
         {
             imageIdentifiers = new ArrayList<ImageIdentifier>();
+            boolean after = null == pageIterator.getMarker();
             for(DockerImageId imageId : imageIds)
             {
+                if ( null == imageId.getSha() ) continue;
+                if ( ! after ) {
+                    if ( imageId.getSha().equals(pageIterator.getMarker()) ) {
+                        after = true;
+                    }
+                    continue;
+                }
                 ImageIdentifier imageIdentifier = new ImageIdentifier();
                 imageIdentifier.setImageDigest(imageId.getSha());
                 imageIdentifiers.add(imageIdentifier);
+                if ( imageIdentifiers.size() >= pageIterator.getPageSize() ) {
+                    nextMarker = imageId.getSha();
+                    break;
+                }
             }
         }
 
         DescribeImagesRequest request = new DescribeImagesRequest()
-        .withNextToken(pageIterator.getMarker())
+        .withNextToken(null == imageIdentifiers ? pageIterator.getMarker() : null)
         .withImageIds(imageIdentifiers)
         .withRegistryId(repo.getRegistryId())
         .withRepositoryName(repo.getName());
 
         DescribeImagesResult result = _awsEcrClient.describeImages(request);
-        pageIterator.setMarker(result.getNextToken());
+        if ( null == imageIdentifiers ) {
+            pageIterator.setMarker(result.getNextToken());
+        } else {
+            pageIterator.setMarker(nextMarker);
+        }
         List<ImageDetail> imageList = result.getImageDetails();
         List<DockerImage> images = new ArrayList<DockerImage>();
         for(ImageDetail imageDetail : imageList)
