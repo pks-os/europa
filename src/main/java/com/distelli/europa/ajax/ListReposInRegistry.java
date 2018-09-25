@@ -73,6 +73,7 @@ public class ListReposInRegistry extends AjaxHelper<EuropaRequestContext>
             cred = RegistryCred.builder()
                 .domain(credDomain)
                 .provider(provider)
+                .name(getParam(ajaxRequest, provider, "name"))
                 .username(getParam(ajaxRequest, provider, "username"))
                 .password(getParam(ajaxRequest, provider, "password"))
                 .secret(getParam(ajaxRequest, provider, "secret"))
@@ -89,7 +90,10 @@ public class ListReposInRegistry extends AjaxHelper<EuropaRequestContext>
         case GCR:
             return listGcrRepos(cred);
         case DOCKERHUB:
-            return listDockerHubRepos(cred);
+            List<String> repos = listDockerHubRepos(cred, cred.getUsername());
+            if (!cred.getUsername().equalsIgnoreCase(cred.getName()))
+                repos.addAll(listDockerHubRepos(cred, cred.getName()));
+            return repos;
         }
         return null;
     }
@@ -161,14 +165,14 @@ public class ListReposInRegistry extends AjaxHelper<EuropaRequestContext>
         }
     }
 
-    private List<String> listDockerHubRepos(RegistryCred registryCred) {
+    private List<String> listDockerHubRepos(RegistryCred registryCred, String organizationName) {
         DockerHubClient client = _dhClientBuilderProvider.get()
-            .credentials(registryCred.getUsername(), registryCred.getPassword())
+            .credentials(registryCred.getUsername().toLowerCase(), registryCred.getPassword())
             .build();
         List<String> repoNames = new ArrayList<>();
         try {
             for ( PageIterator iter : new PageIterator().pageSize(100) ) {
-                repoNames.addAll(client.listRepositories(registryCred.getUsername(), iter).stream()
+                repoNames.addAll(client.listRepositories(organizationName.toLowerCase(), iter).stream()
                                  .map((repo) -> repo.getNamespace() + "/" + repo.getName())
                                  .collect(Collectors.toList()));
             }
