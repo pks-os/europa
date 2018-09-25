@@ -65,6 +65,7 @@ public class RegistryLayerUploadChunk extends RegistryBase {
                                     RegistryErrorCode.BLOB_UPLOAD_UNKNOWN);
         }
         RegistryBlob blob = _blobDb.getRegistryBlobById(blobId);
+        log.debug(blob);
         if ( null == blob ) {
             throw new RegistryError("Invalid :uuid parameter", RegistryErrorCode.BLOB_UPLOAD_UNKNOWN);
         }
@@ -117,6 +118,7 @@ public class RegistryLayerUploadChunk extends RegistryBase {
                 .partNum(partId.getPartNum())
                 .partId(partId.getPartId())
                 .build();
+            log.debug(blobPart);
             _blobDb.addPart(blobId, partNum, blobPart, blob.getMdEncodedState(), digest.getEncodedState());
         }
         WebResponse response = new WebResponse(201);
