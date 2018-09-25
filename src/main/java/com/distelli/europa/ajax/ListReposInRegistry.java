@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.distelli.utils.IsEmpty.isEmpty;
+
 @Log4j
 @Singleton
 public class ListReposInRegistry extends AjaxHelper<EuropaRequestContext>
@@ -107,7 +109,7 @@ public class ListReposInRegistry extends AjaxHelper<EuropaRequestContext>
         Set<String> required = null;
         switch ( provider ) {
         case DOCKERHUB:
-            required = asSet("username", "password");
+            required = asSet("username", "password", "name");
             break;
         case PRIVATE:
             required = asSet("username", "password", "endpoint");
@@ -170,11 +172,14 @@ public class ListReposInRegistry extends AjaxHelper<EuropaRequestContext>
             .credentials(registryCred.getUsername().toLowerCase(), registryCred.getPassword())
             .build();
         List<String> repoNames = new ArrayList<>();
+
         try {
-            for ( PageIterator iter : new PageIterator().pageSize(100) ) {
-                repoNames.addAll(client.listRepositories(organizationName.toLowerCase(), iter).stream()
-                                 .map((repo) -> repo.getNamespace() + "/" + repo.getName())
-                                 .collect(Collectors.toList()));
+            if (!isEmpty(organizationName)) {
+                for (PageIterator iter : new PageIterator().pageSize(100)) {
+                    repoNames.addAll(client.listRepositories(organizationName.toLowerCase(), iter).stream()
+                        .map((repo) -> repo.getNamespace() + "/" + repo.getName())
+                        .collect(Collectors.toList()));
+                }
             }
         } catch ( IOException ex ) {
             throw new RuntimeException(ex);
