@@ -15,8 +15,6 @@ import com.distelli.europa.EuropaRequestContext;
 import com.distelli.europa.db.ContainerRepoDb;
 import com.distelli.europa.models.ContainerRepo;
 import com.distelli.europa.registry.RegistryToken;
-import com.distelli.europa.registry.RegistryError;
-import com.distelli.europa.registry.RegistryErrorCode;
 import com.distelli.europa.registry.RequireAuthError;
 import com.distelli.europa.registry.TokenScope;
 import com.distelli.webserver.WebResponse;
@@ -39,8 +37,6 @@ public class RegistryTokenHandler extends RegistryBase
         String registryApiToken = requestContext.getRegistryApiToken();
         String ownerDomain = requestContext.getOwnerDomain();
         TokenScope tokenScope = TokenScope.fromString(requestContext.getParameter("scope"));
-        if(log.isDebugEnabled())
-            log.debug("Token: "+registryApiToken+", Domain: "+ownerDomain+", TokenScope: "+tokenScope);
 
         if(registryApiToken == null)
         {
