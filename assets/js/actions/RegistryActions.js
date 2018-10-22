@@ -329,7 +329,7 @@ export function getRegionsForProvider() {
         }, () => resolve());
       })
       .catch((err) => {
-        let errorMsg = `There was an error retreiving the available regions for the selected provider: ${NPECheck(err, 'error/message', 'Unknown')}`
+        let errorMsg = `There was an error retrieving the available regions for the selected provider: ${NPECheck(err, 'error/message', 'Unknown')}`
         this.setState({
           addRegistry: GA.modifyProperty(this.state.addRegistry, {
             errorMsg,
@@ -450,6 +450,16 @@ function isAddRegistryValid(validateOnInput, skipSetState) {
 
   if (errorFields.names.length) {
     let errorMsg = `Missing required fields: ${errorFields.names.join(', ')}`;
+
+    switch (currentProvider) {
+      case 'GCR':
+        if (errorFields.names.includes(secret)) {
+          errorMsg = "Please upload service account credentials";
+        }
+
+        break;
+    }
+
     this.setState({
       addRegistry: GA.modifyProperty(this.state.addRegistry, {
         errorMsg,
